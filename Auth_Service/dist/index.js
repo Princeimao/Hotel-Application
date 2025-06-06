@@ -1,11 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 require("dotenv/config");
-const app_1 = require("./app");
-const server = () => {
+var app_1 = require("./app");
+var server = function () {
     try {
-        app_1.app.listen(process.env.PORT, () => {
-            console.log(`Auth Service Listening on Port:${process.env.PORT}`);
+        app_1.app.listen(process.env.PORT, function () {
+            console.log("Auth Service Listening on Port:".concat(process.env.PORT));
         });
     }
     catch (error) {
