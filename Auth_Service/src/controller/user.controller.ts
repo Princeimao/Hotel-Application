@@ -1,8 +1,13 @@
 import { Request, Response } from "express";
+import jwt from "jsonwebtoken";
 import { ZodError } from "zod";
 import { prisma } from "../db/prisma.client";
 import { redis } from "../db/redis.client";
-import { signup_verifySchema, signupSchema } from "../schemas/auth.schema";
+import {
+  signup_verifySchema,
+  signupSchema,
+  userSchema,
+} from "../schemas/auth.schema";
 import { sendOtp } from "../service/twilio.service";
 import { generateOTP } from "../utils/generateOtp";
 
@@ -26,6 +31,15 @@ export const signUp = async (req: Request, res: Response) => {
       res.status(400).json({
         success: false,
         message: "User Already Exist",
+      });
+      return;
+    }
+
+    const existingOtp = await redis.get(`phone:${phone}`);
+    if (existingOtp) {
+      res.status(400).json({
+        success: false,
+        message: "Please try after 5 minutes",
       });
       return;
     }
@@ -98,3 +112,68 @@ export const signup_verify = async (req: Request, res: Response) => {
   }
 };
 
+export const registerUser = async (req: Request, res: Response) => {
+  try {
+    const { name, email, phone, gender } = userSchema.parse(req.body);
+
+    const user = await prisma.user.create({
+      data: {
+        name: name,
+        email: email,
+        phone: phone,
+        gender: gender,
+        isPhoneVerified: true,
+      },
+      select: {
+        id: true,
+        email: true,
+        phone: true,
+      },
+    });
+
+    if (!process.env.JWT_ACCESS_TOKEN_SECRET) {
+      res.status(500).json({
+        success: false,
+        message: "Internal server error: Jwt secret not found",
+      });
+      return;
+    }
+
+    // TODO: Also Generate Refresh Token For Long Authentication
+    const AccessToken = jwt.sign(
+      {
+        id: user.id,
+        email: user.email,
+        phone: user.phone,
+      },
+      process.env.JWT_ACCESS_TOKEN_SECRET,
+      {
+        expiresIn: "1h", // change that to env variabel
+      }
+    );
+
+    res.cookie("AccessToken", AccessToken, {
+      httpOnly: true,
+      maxAge: 60 * 60 * 60,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "User created Successfully",
+      user: user,
+    });
+  } catch (error) {
+    if (error instanceof ZodError) {
+      res.status(400).json({
+        success: false,
+        error: error,
+      });
+    }
+
+    console.log("something went wrong");
+    res.status(500).json({
+      success: false,
+      message: "something went wrong while verifying otp",
+    });
+  }
+};
