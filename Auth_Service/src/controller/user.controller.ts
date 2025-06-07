@@ -1,12 +1,14 @@
 import { Request, Response } from "express";
+import { ZodError } from "zod";
 import { prisma } from "../db/prisma.client";
 import { redis } from "../db/redis.client";
+import { signup_verifySchema, signupSchema } from "../schemas/auth.schema";
 import { sendOtp } from "../service/twilio.service";
 import { generateOTP } from "../utils/generateOtp";
 
 export const signUp = async (req: Request, res: Response) => {
   try {
-    const { phone, email } = req.body;
+    const { phone } = signupSchema.parse(req.body);
     if (!phone) {
       res.status(400).json({
         success: false,
@@ -33,7 +35,7 @@ export const signUp = async (req: Request, res: Response) => {
       EX: 300,
     });
 
-    if ((process.env.NODE_ENV = "production")) {
+    if (process.env.NODE_ENV === "production") {
       sendOtp(otp, phone);
     }
 
@@ -42,6 +44,13 @@ export const signUp = async (req: Request, res: Response) => {
       message: `Your otp is ${otp}`,
     });
   } catch (error) {
+    if (error instanceof ZodError) {
+      res.status(400).json({
+        success: false,
+        error: error,
+      });
+    }
+
     console.log("something went wrong while creating user", error);
     res.status(500);
   }
@@ -49,7 +58,7 @@ export const signUp = async (req: Request, res: Response) => {
 
 export const signup_verify = async (req: Request, res: Response) => {
   try {
-    const { otp: userOtp, phone } = req.body;
+    const { otp: userOtp, phone } = signup_verifySchema.parse(req.body);
 
     const otp = await redis.get(`phone:${phone}`);
 
@@ -74,6 +83,18 @@ export const signup_verify = async (req: Request, res: Response) => {
       message: "Successfull",
     });
   } catch (error) {
+    if (error instanceof ZodError) {
+      res.status(400).json({
+        success: false,
+        error: error,
+      });
+    }
+
     console.log("something went wrong");
+    res.status(500).json({
+      success: false,
+      message: "something went wrong while verifying otp",
+    });
   }
 };
+

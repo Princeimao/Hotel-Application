@@ -11,7 +11,7 @@ export const sendOtp = (otp: number, phone: string) => {
       .create({
         body: `Your OTP For Login Into Application is ${otp}`,
         to: phone,
-        from: "+12345678901",
+        from: process.env.TWILIO_PHONE_NUMBER,
       })
       .then((message) => console.log(message.sid));
   } catch (error) {
