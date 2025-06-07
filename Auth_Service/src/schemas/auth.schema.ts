@@ -2,7 +2,7 @@ import { UserGender } from "@prisma/client";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
 import { z } from "zod";
 
-export const signupSchema = z.object({
+export const phoneSchema = z.object({
   phone: z.string().refine(
     (val) => {
       const phone = parsePhoneNumberFromString(val);
