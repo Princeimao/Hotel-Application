@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
+import { v4 as uuidv4 } from "uuid";
 import { ZodError } from "zod";
 import { prisma } from "../db/prisma.client";
 import { redis } from "../db/redis.client";
@@ -139,12 +140,14 @@ export const registerUser = async (req: Request, res: Response) => {
       return;
     }
 
+    const jti = uuidv4();
     // TODO: Also Generate Refresh Token For Long Authentication
     const AccessToken = jwt.sign(
       {
-        id: user.id,
+        sub: user.id,
         email: user.email,
         phone: user.phone,
+        jti: jti,
       },
       process.env.JWT_ACCESS_TOKEN_SECRET,
       {
@@ -249,11 +252,11 @@ export const signin_verify = async (req: Request, res: Response) => {
     const { otp: userOtp, phone } = signup_verifySchema.parse(req.body);
 
     //@ts-ignore
-    const [otp, id, email] = await redis.json.get(`phone:${phone}`, {
+    const [data] = await redis.json.get(`phone:${phone}`, {
       path: "$",
     });
 
-    if (!otp) {
+    if (!data) {
       res.status(400).json({
         success: false,
         message: "Otp Expired",
@@ -261,7 +264,7 @@ export const signin_verify = async (req: Request, res: Response) => {
       return;
     }
 
-    if (Number(otp) !== userOtp) {
+    if (data.otp !== userOtp) {
       res.status(400).json({
         success: false,
         message: "Incorrect Otp",
@@ -277,12 +280,14 @@ export const signin_verify = async (req: Request, res: Response) => {
       return;
     }
 
+    const jti = uuidv4();
     // TODO: Also Generate Refresh Token For Long Authentication
     const AccessToken = jwt.sign(
       {
-        id: id,
-        email: email,
+        sub: data.id,
+        email: data.email,
         phone: phone,
+        jti: jti,
       },
       process.env.JWT_ACCESS_TOKEN_SECRET,
       {
