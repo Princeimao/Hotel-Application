@@ -312,7 +312,40 @@ export const signin_verify = async (req: Request, res: Response) => {
       });
     }
 
-    console.log("something went wrong");
+    console.log("something went wrong", error);
+    res.status(500).json({
+      success: false,
+      message: "something went wrong while verifying otp",
+    });
+  }
+};
+
+export const logout = async (req: Request, res: Response) => {
+  try {
+    if (!req.user) {
+      res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
+      return;
+    }
+
+    const { jti } = req.user;
+
+    const token =
+      req.headers.authorization?.split(" ")[1] || req.cookies["AccessToken"];
+
+    redis.set(`BlackList:${jti}`, token, {
+      EX: 60 * 60 * 60,
+    });
+
+    res.clearCookie("AccessToken");
+    res.status(200).json({
+      success: true,
+      message: "logout successfully",
+    });
+  } catch (error) {
+    console.log("something went wrong", error);
     res.status(500).json({
       success: false,
       message: "something went wrong while verifying otp",
