@@ -50,7 +50,7 @@ export const signUp = async (req: Request, res: Response) => {
     });
 
     if (process.env.NODE_ENV === "production") {
-      sendOtp(otp, phone);
+      sendOtp(otp, phone); //  TODO: send otp through worker process
     }
 
     res.status(200).json({

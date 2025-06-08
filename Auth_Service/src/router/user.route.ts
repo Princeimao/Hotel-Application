@@ -5,7 +5,7 @@ import {
   signin_verify,
   signUp,
   signup_verify,
-} from "../controller/user.controller";
+} from "../controller/auth.controller";
 
 const router = express.Router();
 
