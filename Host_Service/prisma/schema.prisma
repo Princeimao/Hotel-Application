@@ -24,6 +24,11 @@ model Host {
   profileImage    String?
   passwordHash    String?
   gender          HostGender
+  houseAddress    String
+  city            String
+  country         String
+  state           String
+  pincode         String // could be number not sure change as it goes 
   createdAt       DateTime   @default(now())
   updatedAt       DateTime   @updatedAt
 }

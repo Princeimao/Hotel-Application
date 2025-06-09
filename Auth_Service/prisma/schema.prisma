@@ -16,12 +16,12 @@ model Host {
   isPhoneVerified Boolean    @default(false)
   profileImage    String?
   passwordHash    String?
-  gender          HostGender
+  gender          UserGender
   createdAt       DateTime   @default(now())
   updatedAt       DateTime
 }
 
-enum HostGender {
+enum UserGender {
   MALE
   FEMALE
 }
