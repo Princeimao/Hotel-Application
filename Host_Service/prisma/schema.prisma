@@ -1,5 +1,12 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
 generator client {
   provider = "prisma-client-js"
+  //output   = "../generated/prisma"
 }
 
 datasource db {
@@ -8,7 +15,7 @@ datasource db {
 }
 
 model Host {
-  id              String
+  id              String     @default(uuid())
   name            String
   email           String     @unique
   phone           String     @unique
@@ -18,9 +25,10 @@ model Host {
   passwordHash    String?
   gender          HostGender
   createdAt       DateTime   @default(now())
-  updatedAt       DateTime
+  updatedAt       DateTime   @updatedAt
 }
 
+// Host might need to create profile to get to know about him so people able to know more about the owner
 enum HostGender {
   MALE
   FEMALE
