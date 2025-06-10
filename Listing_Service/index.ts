@@ -1,8 +1,10 @@
 import "dotenv/config";
 import { app } from "./app";
+import { dbConnection } from "./src/db/mongo.connection";
 
-const server = () => {
+const server = async () => {
   try {
+    await dbConnection();
     app.listen(process.env.PORT, () => {
       console.log(`Auth Service Listening on Port:${process.env.PORT}`);
     });
