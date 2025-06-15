@@ -11,7 +11,7 @@ const roomSchema = new Schema({
     required: true,
     unique: true,
   },
-  titel: {
+  name: {
     type: String,
     required: true,
     minLength: 10,
@@ -87,6 +87,16 @@ const roomSchema = new Schema({
     required: true,
     min: 8,
   },
-  price: [], // reference id of price
-  coupon: [], // reference id of coupon
+  price: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "rate",
+    },
+  ],
+  coupon: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "coupon",
+    },
+  ], // reference id of coupon
 });
