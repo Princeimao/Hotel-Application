@@ -1,5 +1,5 @@
 import { Schema } from "mongoose";
 
-const serviceSchema = new Schema({
-    
-})
+const ServiceSchema = new Schema({
+  // will create later
+});

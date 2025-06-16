@@ -51,3 +51,8 @@ export enum Amenities {
   FIRE_EXTINGUISHER = "fire_extinguisher",
   FIRST_AID_KIT = "first_aid_kit",
 }
+
+export enum ReservationType {
+  INSTANT_BOOKING = "instant_booking",
+  RESERVATION_BOOKING = "reservation_booking",
+}

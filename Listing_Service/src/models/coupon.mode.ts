@@ -1,6 +1,6 @@
-import { Schema } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
-const couponSchema = new Schema({
+const CouponSchema = new Schema({
   hostId: {
     type: Schema.Types.ObjectId,
     ref: "Host",
@@ -42,3 +42,5 @@ const couponSchema = new Schema({
     default: true,
   },
 });
+
+export default mongoose.model("Coupon", CouponSchema);

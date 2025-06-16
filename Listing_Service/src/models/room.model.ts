@@ -1,11 +1,12 @@
-import { Schema } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import {
   AccommodationType,
   Amenities,
+  ReservationType,
   SharedWith,
 } from "../shared/room.shared";
 
-const roomSchema = new Schema({
+const RoomSchema = new Schema({
   hostId: {
     type: Schema.Types.ObjectId,
     required: true,
@@ -75,6 +76,23 @@ const roomSchema = new Schema({
     required: false,
     default: 0,
   },
+  bedrooms: {
+    type: Number,
+    required: true,
+  },
+  beds: {
+    type: Number,
+    required: true,
+  },
+  bedroomLock: {
+    type: Boolean,
+    required: true,
+  },
+  reservationType: {
+    type: String,
+    enum: Object.values(ReservationType),
+    required: true,
+  },
   petsAllowed: {
     type: Boolean,
   },
@@ -100,3 +118,5 @@ const roomSchema = new Schema({
     },
   ], // reference id of coupon
 });
+
+export default mongoose.model("Room", RoomSchema);

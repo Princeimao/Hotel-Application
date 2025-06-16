@@ -1,6 +1,6 @@
-import { Schema } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
-const rateSchema = new Schema({
+const RateSchema = new Schema({
   hostId: {
     type: Schema.Types.ObjectId,
     ref: "Host",
@@ -23,3 +23,5 @@ const rateSchema = new Schema({
     },
   ],
 });
+
+export default mongoose.model("Rate", RateSchema);

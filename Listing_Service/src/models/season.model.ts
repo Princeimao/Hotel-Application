@@ -1,7 +1,7 @@
-import { Schema } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import { Season } from "../shared/season.shared";
 
-const seasonSchema = new Schema({
+const SeasonSchema = new Schema({
   hostId: {
     type: Schema.Types.ObjectId,
     required: true,
@@ -25,3 +25,5 @@ const seasonSchema = new Schema({
     required: true,
   },
 });
+
+export default mongoose.model("Season", SeasonSchema);
