@@ -1,4 +1,5 @@
 import mongoose, { Schema } from "mongoose";
+import { string } from "zod";
 import {
   AccommodationType,
   Amenities,
@@ -116,7 +117,12 @@ const RoomSchema = new Schema({
       type: Schema.Types.ObjectId,
       ref: "coupon",
     },
-  ], // reference id of coupon
+  ],
+  status: {
+    type: string,
+    enum: ["ACTIVE", "DRAFT", "INACTIVE"],
+    default: "DRAFT",
+  },
 });
 
 export default mongoose.model("Room", RoomSchema);
