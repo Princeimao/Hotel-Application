@@ -32,3 +32,20 @@ export const peopleAtAccommodationSchema = z
 export const accommodationAmenitiesSchema = z
   .array(z.nativeEnum(Amenities))
   .min(1);
+
+export const accommodationPhotoSchema = z.array(z.string().url()).min(1);
+
+export const detailsSchema = z.object({
+  title: z
+    .string()
+    .min(5, { message: "title cannot be shorter than 5 character" }),
+  description: z
+    .string()
+    .min(5, { message: "title cannot be shorter than 5 character" }),
+  basePrice: z.number(),
+});
+
+export const accommodationSchema = z.object({
+  minimumBookingDays: z.number(),
+  petsAllowed: z.boolean(),
+});
