@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 
 import { redis } from "../db/redis.client";
 import roomModel from "../models/room.model";
+import { producer } from "../rabbitMq/producer";
 import {
   accommodationAmenitiesSchema,
   accommodationDetailsSchema,
@@ -278,6 +279,8 @@ export const accommodationCompleteSetup = async (
       { $set: { minimumBookingDays, petsAllowed, status: "ACTIVE" } },
       { new: true }
     );
+
+    await producer("updateHost", `${room?._id}`);
 
     res.status(200).json({
       success: true,
