@@ -4,4 +4,8 @@ services:
     ports:
       - "6379:6379"
       - "8001:8001"
-  
+  rabbitMq:
+    image: rabbitmq:4-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"

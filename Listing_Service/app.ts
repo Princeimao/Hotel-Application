@@ -11,4 +11,4 @@ app.use(cookieParser());
 // Public Routes
 import roomRoute from "./src/routes/room.route";
 
-app.use("/api/v1/room", roomRoute);
+app.use("/", roomRoute);

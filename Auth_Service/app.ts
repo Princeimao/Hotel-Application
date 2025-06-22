@@ -11,4 +11,4 @@ app.use(cookieParser());
 // Importing Routes
 import userRouter from "./src/router/user.route";
 
-app.use("/api/v1/user", userRouter);
+app.use("/", userRouter);

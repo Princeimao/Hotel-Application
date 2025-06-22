@@ -1,11 +1,16 @@
 import { getRabbitMqChannel } from "../db/rabbitMq.connection";
 
-export const producer = async (queue: string, msg: string) => {
+interface MessageType {
+  hostId: string;
+  roomId: string;
+}
+
+export const producer = async (queue: string, msg: MessageType) => {
   const channel = await getRabbitMqChannel();
 
   channel.assertQueue(queue, {
     durable: false,
   });
 
-  channel.sendToQueue(queue, Buffer.from(msg));
+  channel.sendToQueue(queue, Buffer.from(JSON.stringify(msg)));
 };

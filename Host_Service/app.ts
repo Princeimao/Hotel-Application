@@ -11,4 +11,4 @@ app.use(cookieParser());
 // routes
 import hostRoute from "./src/router/host.route";
 
-app.use("/api/v1/host", hostRoute);
+app.use("/", hostRoute);

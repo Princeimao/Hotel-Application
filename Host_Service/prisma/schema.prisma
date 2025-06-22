@@ -15,7 +15,7 @@ datasource db {
 }
 
 model Host {
-  id              String     @default(uuid())
+  id              String     @id @default(uuid())
   name            String
   email           String     @unique
   phone           String     @unique
