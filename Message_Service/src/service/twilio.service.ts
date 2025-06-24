@@ -5,12 +5,17 @@ const authToken = process.env.TWILIO_AUTH_TOKEN;
 
 const client = twilio(accountSid, authToken);
 
-export const sendOtp = (otp: number, phone: string) => {
+interface Message {
+  otp: string;
+  phone: string;
+}
+
+export const sendOtp = (msg: Message) => {
   try {
     client.messages
       .create({
-        body: `Your OTP For Login Into Application is ${otp}`,
-        to: phone,
+        body: `Your OTP For Login Into Application is ${msg.otp}`,
+        to: msg.phone,
         from: process.env.TWILIO_PHONE_NUMBER,
       })
       .then((message) => console.log(message.sid));
