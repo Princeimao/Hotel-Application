@@ -7,8 +7,8 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Host {
-  id              String
+model User {
+  id              String     @id @default(uuid())
   name            String
   email           String     @unique
   phone           String     @unique
@@ -18,7 +18,7 @@ model Host {
   passwordHash    String?
   gender          UserGender
   createdAt       DateTime   @default(now())
-  updatedAt       DateTime
+  updatedAt       DateTime   @updatedAt
 }
 
 enum UserGender {

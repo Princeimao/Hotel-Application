@@ -39,5 +39,5 @@ export const userSchema = z.object({
       message: "Invalid phone number",
     }
   ),
-  gender: z.nativeEnum(UserGender).optional().nullable(),
+  gender: z.nativeEnum(UserGender),
 });
