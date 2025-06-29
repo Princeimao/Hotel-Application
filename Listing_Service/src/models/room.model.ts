@@ -23,21 +23,37 @@ const RoomSchema = new Schema({
     maxLength: 455,
   },
   location: {
-    hosueAddress: {
+    houseAddress: {
       type: String,
+      required: true,
     },
     country: {
       type: String,
+      required: true,
     },
     state: {
       type: String,
+      required: true,
     },
     city: {
       type: String,
+      required: true,
     },
     pincode: {
       type: String,
-    }, // ONE MORE FIELD WILL BE ADD IN FUTURE FOR COORDINATES
+      required: true,
+    },
+    geo: {
+      type: {
+        type: String,
+        enum: ["Point"], // Only allow "Point"
+        required: true,
+      },
+      coordinates: {
+        type: [Number], // [longitude, latitude]
+        required: true,
+      },
+    },
   },
   accommodationType: {
     type: String,
@@ -52,7 +68,7 @@ const RoomSchema = new Schema({
     type: [String],
     enum: Object.values(Amenities),
   },
-  totalGuest: {
+  maxGuests: {
     type: Number,
     default: 1,
   },
@@ -89,7 +105,6 @@ const RoomSchema = new Schema({
   },
   photo: {
     type: [String],
-
     min: 8,
   },
   price: [
@@ -112,3 +127,6 @@ const RoomSchema = new Schema({
 });
 
 export default mongoose.model("Room", RoomSchema);
+
+RoomSchema.index({ "location.state": 1 });
+RoomSchema.index({ "location.geo": "2dsphere" });

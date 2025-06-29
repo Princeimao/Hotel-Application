@@ -10,6 +10,7 @@ import {
   accomodationTypeSchema,
   addressSchema,
   detailsSchema,
+  findRoomSchema,
   peopleAtAccommodationSchema,
 } from "../schema/room.schema";
 
@@ -44,9 +45,8 @@ export const accommodationType = async (req: Request, res: Response) => {
 export const accommodationAddress = async (req: Request, res: Response) => {
   try {
     const hostId = req.params;
-    const { hosueAddress, country, state, city, pincode } = addressSchema.parse(
-      req.body
-    );
+    const { hosueAddress, country, state, city, pincode, coordinates } =
+      addressSchema.parse(req.body);
 
     const roomId = await redis.get(`RoomDraft:${hostId}`);
 
@@ -62,6 +62,8 @@ export const accommodationAddress = async (req: Request, res: Response) => {
             state,
             city,
             pincode,
+            geo: "Point",
+            coordinates,
           },
         },
       },
@@ -285,10 +287,116 @@ export const accommodationCompleteSetup = async (
       room,
     });
   } catch (error) {
-    console.log("something went wrong while creating photo", error);
+    console.log("something went wrong while creating room", error);
     res.status(500).json({
       success: false,
-      message: "something went wrong while creating address",
+      message: "something went wrong while creating room",
+    });
+  }
+};
+
+export const getAccommodation = async (req: Request, res: Response) => {
+  try {
+    const roomId = req.params;
+
+    const room = await roomModel.findById(roomId);
+
+    res.status(200).json({
+      success: true,
+      message: "Request successful",
+      room: room,
+    });
+  } catch (error) {
+    console.log("something went wrong while getting accommodation", error);
+    res.status(500).json({
+      success: false,
+      message: "something went wrong while getting accommodation",
+    });
+  }
+};
+
+export const getAccommodationsByArea = async (req: Request, res: Response) => {
+  try {
+    const { coordinates, guestCount } = findRoomSchema.parse(req.body);
+    const today = Date.now();
+
+    const accommodations = roomModel.aggregate([
+      {
+        $geoNear: {
+          near: {
+            type: "Point",
+            coordinates: coordinates,
+          },
+          distanceField: "distanceFromUser",
+          spherical: true,
+          maxDistance: 5000,
+        },
+      },
+      {
+        $match: {
+          maxGuests: { $gte: guestCount },
+        },
+      },
+      {
+        $lookup: {
+          from: "Rates",
+          localField: "price",
+          foreignField: "_id",
+          as: "roomPrice",
+          let: { roomId: "_id" },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $in: ["$$roomId", "$accommodationIds"],
+                },
+              },
+            },
+            {
+              $lookup: {
+                from: "Seasons",
+                localField: "seasonId",
+                foreignField: "_id",
+                as: "season",
+              },
+            },
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $gte: "season.startDate", today },
+                    { $lte: "season.endDate", today },
+                  ],
+                },
+              },
+            },
+          ],
+        },
+      },
+      {
+        $project: {
+          title: 1,
+          description: 1,
+          state: "location.state",
+          city: "location.city",
+          accommodationType: 1,
+        },
+      },
+      {
+        $limit: 10,
+      },
+    ]);
+
+    res.status(400).json({
+      success: false,
+      message: "Response Successfull",
+      accommodations,
+    });
+  } catch (error) {
+    console.log("something went wrong while getting accommodation", error);
+    res.status(500).json({
+      success: false,
+      message: "something went wrong while getting accommodation",
     });
   }
 };

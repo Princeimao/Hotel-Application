@@ -13,6 +13,7 @@ export const addressSchema = z.object({
   state: z.string(),
   city: z.string(),
   pincode: z.string().min(5).max(10),
+  coordinates: z.tuple([z.number(), z.number()]),
 });
 
 export const accommodationDetailsSchema = z.object({
@@ -48,4 +49,10 @@ export const detailsSchema = z.object({
 export const accommodationSchema = z.object({
   minimumBookingDays: z.number(),
   petsAllowed: z.boolean(),
+});
+
+export const findRoomSchema = z.object({
+  coordinates: z.tuple([z.number(), z.number()]),
+  guestCount: z.number().optional(),
+  // will add check in and check out date
 });
