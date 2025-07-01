@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 
+import { ZodError } from "zod";
 import { redis } from "../db/redis.client";
 import roomModel from "../models/room.model";
 import {
@@ -16,11 +17,9 @@ import {
 
 export const accommodationType = async (req: Request, res: Response) => {
   try {
-    const hostId = req.params;
-    const roomType = accomodationTypeSchema.parse(req.body);
-
-    // testing
-    console.log(roomType);
+    console.log(req.body);
+    const { hostId } = req.params;
+    const { roomType } = accomodationTypeSchema.parse(req.body);
 
     const room = await roomModel.create({
       hostId,
@@ -34,17 +33,26 @@ export const accommodationType = async (req: Request, res: Response) => {
       message: "Accommodation type set successfully",
     });
   } catch (error) {
+    if (error instanceof ZodError) {
+      res.status(400).json({
+        success: false,
+        error: error,
+      });
+    }
+
     console.log("something went wrong while creating accomodation type", error);
     res.status(500).json({
       success: false,
       message: "something went wrong while creating accomodation type",
+      error,
     });
   }
 };
 
 export const accommodationAddress = async (req: Request, res: Response) => {
   try {
-    const hostId = req.params;
+    const { hostId } = req.params;
+
     const { hosueAddress, country, state, city, pincode, coordinates } =
       addressSchema.parse(req.body);
 
@@ -62,8 +70,10 @@ export const accommodationAddress = async (req: Request, res: Response) => {
             state,
             city,
             pincode,
-            geo: "Point",
-            coordinates,
+            geo: {
+              type: "Point",
+              coordinates,
+            },
           },
         },
       },
@@ -75,17 +85,25 @@ export const accommodationAddress = async (req: Request, res: Response) => {
       message: "updated accommodation address",
     });
   } catch (error) {
+    if (error instanceof ZodError) {
+      res.status(400).json({
+        success: false,
+        error: error,
+      });
+    }
+
     console.log("something went wrong while creating address", error);
     res.status(500).json({
       success: false,
       message: "something went wrong while creating address",
+      error,
     });
   }
 };
 
 export const accommodationDetails = async (req: Request, res: Response) => {
   try {
-    const hostId = req.params;
+    const { hostId } = req.params;
     const {
       totalGuest,
       adultOccupancy,
@@ -121,6 +139,13 @@ export const accommodationDetails = async (req: Request, res: Response) => {
       message: "updated accommodation details",
     });
   } catch (error) {
+    if (error instanceof ZodError) {
+      res.status(400).json({
+        success: false,
+        error: error,
+      });
+    }
+
     console.log("something went wrong while creating details", error);
     res.status(500).json({
       success: false,
@@ -131,8 +156,8 @@ export const accommodationDetails = async (req: Request, res: Response) => {
 
 export const peopleAtAccommodation = async (req: Request, res: Response) => {
   try {
-    const hostId = req.params;
-    const sharedWith = peopleAtAccommodationSchema.parse(req.body);
+    const { hostId } = req.params;
+    const { sharedWith } = peopleAtAccommodationSchema.parse(req.body);
 
     const roomId = await redis.get(`RoomDraft:${hostId}`);
 
@@ -153,18 +178,25 @@ export const peopleAtAccommodation = async (req: Request, res: Response) => {
       message: "updated accommodation address",
     });
   } catch (error) {
-    console.log("something went wrong while creating address", error);
+    if (error instanceof ZodError) {
+      res.status(400).json({
+        success: false,
+        error: error,
+      });
+    }
+
+    console.log("something went wrong while creating shared with", error);
     res.status(500).json({
       success: false,
-      message: "something went wrong while creating address",
+      message: "something went wrong while creating shared with",
     });
   }
 };
 
 export const accommodationAmenities = async (req: Request, res: Response) => {
   try {
-    const hostId = req.params;
-    const amenities = accommodationAmenitiesSchema.parse(req.body);
+    const { hostId } = req.params;
+    const { amenities } = accommodationAmenitiesSchema.parse(req.body);
 
     const roomId = await redis.get(`RoomDraft:${hostId}`);
 
@@ -185,10 +217,18 @@ export const accommodationAmenities = async (req: Request, res: Response) => {
       message: "updated accommodation address",
     });
   } catch (error) {
+    if (error instanceof ZodError) {
+      res.status(400).json({
+        success: false,
+        error: error,
+      });
+    }
+
     console.log("something went wrong while creating address", error);
     res.status(500).json({
       success: false,
       message: "something went wrong while creating address",
+      error,
     });
   }
 };
@@ -196,8 +236,8 @@ export const accommodationAmenities = async (req: Request, res: Response) => {
 // image will directly store to cloud bucket (can be S3, GCP bucket), i will use imagekit.io
 export const accommodationImages = async (req: Request, res: Response) => {
   try {
-    const hostId = req.params;
-    const photo = accommodationPhotoSchema.parse(req.body);
+    const { hostId } = req.params;
+    const { images } = accommodationPhotoSchema.parse(req.body);
 
     const roomId = await redis.get(`RoomDraft:${hostId}`);
 
@@ -207,7 +247,7 @@ export const accommodationImages = async (req: Request, res: Response) => {
       },
       {
         $set: {
-          photo,
+          photo: images,
         },
       },
       { upsert: true }
@@ -218,10 +258,18 @@ export const accommodationImages = async (req: Request, res: Response) => {
       message: "updated accommodation photo",
     });
   } catch (error) {
+    if (error instanceof ZodError) {
+      res.status(400).json({
+        success: false,
+        error: error,
+      });
+    }
+
     console.log("something went wrong while creating photo", error);
     res.status(500).json({
       success: false,
       message: "something went wrong while creating address",
+      error,
     });
   }
 };
@@ -231,7 +279,7 @@ export const accommodationBasicDetails = async (
   res: Response
 ) => {
   try {
-    const hostId = req.params;
+    const { hostId } = req.params;
     const { title, description, basePrice } = detailsSchema.parse(req.body);
 
     const roomId = await redis.get(`RoomDraft:${hostId}`);
@@ -255,10 +303,18 @@ export const accommodationBasicDetails = async (
       message: "updated accommodation photo",
     });
   } catch (error) {
+    if (error instanceof ZodError) {
+      res.status(400).json({
+        success: false,
+        error: error,
+      });
+    }
+
     console.log("something went wrong while creating photo", error);
     res.status(500).json({
       success: false,
       message: "something went wrong while creating address",
+      error,
     });
   }
 };
@@ -268,7 +324,7 @@ export const accommodationCompleteSetup = async (
   res: Response
 ) => {
   try {
-    const hostId = req.params;
+    const { hostId } = req.params;
     const { minimumBookingDays, petsAllowed } = accommodationSchema.parse(
       req.body
     );
@@ -287,17 +343,25 @@ export const accommodationCompleteSetup = async (
       room,
     });
   } catch (error) {
+    if (error instanceof ZodError) {
+      res.status(400).json({
+        success: false,
+        error: error,
+      });
+    }
+
     console.log("something went wrong while creating room", error);
     res.status(500).json({
       success: false,
       message: "something went wrong while creating room",
+      error,
     });
   }
 };
 
 export const getAccommodation = async (req: Request, res: Response) => {
   try {
-    const roomId = req.params;
+    const { roomId } = req.params;
 
     const room = await roomModel.findById(roomId);
 
@@ -311,6 +375,7 @@ export const getAccommodation = async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       message: "something went wrong while getting accommodation",
+      error,
     });
   }
 };
@@ -320,7 +385,7 @@ export const getAccommodationsByArea = async (req: Request, res: Response) => {
     const { coordinates, guestCount } = findRoomSchema.parse(req.body);
     const today = Date.now();
 
-    const accommodations = roomModel.aggregate([
+    const accommodations = await roomModel.aggregate([
       {
         $geoNear: {
           near: {
@@ -387,8 +452,16 @@ export const getAccommodationsByArea = async (req: Request, res: Response) => {
       },
     ]);
 
+    if (accommodations.length < 0) {
+      res.status(400).json({
+        success: false,
+        message: "Response failed to get accommodations",
+      });
+      return;
+    }
+
     res.status(400).json({
-      success: false,
+      success: true,
       message: "Response Successfull",
       accommodations,
     });

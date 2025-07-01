@@ -5,7 +5,9 @@ import {
   SharedWith,
 } from "../shared/room.shared";
 
-export const accomodationTypeSchema = z.nativeEnum(AccommodationType);
+export const accomodationTypeSchema = z.object({
+  roomType: z.nativeEnum(AccommodationType),
+});
 
 export const addressSchema = z.object({
   hosueAddress: z.string(),
@@ -26,15 +28,18 @@ export const accommodationDetailsSchema = z.object({
   petsAllowed: z.boolean(),
 });
 
-export const peopleAtAccommodationSchema = z
-  .array(z.nativeEnum(SharedWith))
-  .min(1);
+export const peopleAtAccommodationSchema = z.object({
+  sharedWith: z.array(z.nativeEnum(SharedWith)).min(1),
+});
 
-export const accommodationAmenitiesSchema = z
-  .array(z.nativeEnum(Amenities))
-  .min(1);
+export const accommodationAmenitiesSchema = z.object({
+  amenities: z.array(z.nativeEnum(Amenities)).min(1),
+});
 
-export const accommodationPhotoSchema = z.array(z.string().url()).min(1);
+// after setting the frontend use regex for to check the image come from the cloud not from other place
+export const accommodationPhotoSchema = z.object({
+  images: z.array(z.string().url()).min(1),
+});
 
 export const detailsSchema = z.object({
   title: z

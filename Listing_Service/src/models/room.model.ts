@@ -1,5 +1,4 @@
 import mongoose, { Schema } from "mongoose";
-import { string } from "zod";
 import {
   AccommodationType,
   Amenities,
@@ -9,7 +8,7 @@ import {
 
 const RoomSchema = new Schema({
   hostId: {
-    type: Schema.Types.ObjectId,
+    type: String,
     unique: true,
   },
   title: {
@@ -25,33 +24,26 @@ const RoomSchema = new Schema({
   location: {
     houseAddress: {
       type: String,
-      required: true,
     },
     country: {
       type: String,
-      required: true,
     },
     state: {
       type: String,
-      required: true,
     },
     city: {
       type: String,
-      required: true,
     },
     pincode: {
       type: String,
-      required: true,
     },
     geo: {
       type: {
         type: String,
         enum: ["Point"], // Only allow "Point"
-        required: true,
       },
       coordinates: {
         type: [Number], // [longitude, latitude]
-        required: true,
       },
     },
   },
@@ -120,7 +112,7 @@ const RoomSchema = new Schema({
     },
   ],
   status: {
-    type: string,
+    type: String,
     enum: ["ACTIVE", "DRAFT", "INACTIVE"],
     default: "DRAFT",
   },
