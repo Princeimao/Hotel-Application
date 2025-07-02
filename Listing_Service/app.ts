@@ -10,5 +10,7 @@ app.use(cookieParser());
 
 // Public Routes
 import roomRoute from "./src/routes/room.route";
+import seasonRoute from "./src/routes/season.route";
 
 app.use("/", roomRoute);
+app.use("/", seasonRoute);

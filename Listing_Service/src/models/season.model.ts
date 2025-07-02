@@ -7,12 +7,12 @@ const SeasonSchema = new Schema({
     required: true,
     unique: true,
   },
-  name: {
+  title: {
     type: String,
     required: true,
   },
   seasonType: {
-    type: [String],
+    type: String,
     enum: Object.values(Season),
     required: true,
   },
