@@ -10,8 +10,8 @@ import {
   accommodationSchema,
   accomodationTypeSchema,
   addressSchema,
+  coordinateSchema,
   detailsSchema,
-  findRoomSchema,
   peopleAtAccommodationSchema,
 } from "../schema/room.schema";
 
@@ -382,7 +382,7 @@ export const getAccommodation = async (req: Request, res: Response) => {
 
 export const getAccommodationsByArea = async (req: Request, res: Response) => {
   try {
-    const { coordinates, guestCount } = findRoomSchema.parse(req.body);
+    const { long, lang, guestCount } = coordinateSchema.parse(req.query);
     const today = Date.now();
 
     const accommodations = await roomModel.aggregate([
@@ -390,7 +390,7 @@ export const getAccommodationsByArea = async (req: Request, res: Response) => {
         $geoNear: {
           near: {
             type: "Point",
-            coordinates: coordinates,
+            coordinates: [long, lang],
           },
           distanceField: "distanceFromUser",
           spherical: true,
@@ -429,8 +429,8 @@ export const getAccommodationsByArea = async (req: Request, res: Response) => {
               $match: {
                 $expr: {
                   $and: [
-                    { $gte: "season.startDate", today },
-                    { $lte: "season.endDate", today },
+                    { $lte: ["$season.startDate", today] },
+                    { $gte: ["$season.endDate", today] },
                   ],
                 },
               },
@@ -442,8 +442,8 @@ export const getAccommodationsByArea = async (req: Request, res: Response) => {
         $project: {
           title: 1,
           description: 1,
-          state: "location.state",
-          city: "location.city",
+          state: "$location.state",
+          city: "$location.city",
           accommodationType: 1,
         },
       },
@@ -466,10 +466,18 @@ export const getAccommodationsByArea = async (req: Request, res: Response) => {
       accommodations,
     });
   } catch (error) {
+    if (error instanceof ZodError) {
+      res.status(400).json({
+        success: false,
+        error: error,
+      });
+    }
+
     console.log("something went wrong while getting accommodation", error);
     res.status(500).json({
       success: false,
       message: "something went wrong while getting accommodation",
+      error,
     });
   }
 };

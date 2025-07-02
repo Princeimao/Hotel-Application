@@ -61,3 +61,9 @@ export const findRoomSchema = z.object({
   guestCount: z.number().optional(),
   // will add check in and check out date
 });
+
+export const coordinateSchema = z.object({
+  long: z.coerce.number(),
+  lang: z.coerce.number(),
+  guestCount: z.coerce.number(),
+});
