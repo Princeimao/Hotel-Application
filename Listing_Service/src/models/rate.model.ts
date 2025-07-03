@@ -6,6 +6,10 @@ const RateSchema = new Schema({
     ref: "Host",
     required: true,
   },
+  title: {
+    type: Number,
+    required: true,
+  },
   seasonId: {
     type: Schema.Types.ObjectId,
     ref: "Season",

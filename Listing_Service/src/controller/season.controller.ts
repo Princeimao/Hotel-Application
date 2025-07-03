@@ -5,7 +5,6 @@ import {
   createSeasonSchema,
   updateSeasonSchema,
 } from "../schema/season.schema";
-import rateModel from "../models/rate.model";
 
 export const createSeason = async (req: Request, res: Response) => {
   try {
@@ -16,7 +15,7 @@ export const createSeason = async (req: Request, res: Response) => {
 
     const season = await seasonModel.create({
       hostId,
-      name,
+      title,
       seasonType,
       startDate,
       endDate,
@@ -129,18 +128,22 @@ export const updateSeason = async (req: Request, res: Response) => {
   }
 };
 
-export const deleteSeason = async (req: Request, res: Response) => {
-  try {
-    const { seasonId } = req.params;
+// not writing the delete function because of complex data model, i have to restructre the model
 
-    const season = await seasonModel.findByIdAndDelete(seasonId);
-    const rate = await rateModel.find
-  } catch (error) {
-    console.log("something went wrong while updating season", error);
-    res.status(500).json({
-      success: false,
-      message: "something went wrong while updating season",
-      error,
-    });
-  }
-};
+// export const deleteSeason = async (req: Request, res: Response) => {
+//   try {
+//     const { seasonId } = req.params;
+
+//     const season = await seasonModel.findByIdAndDelete(seasonId);
+
+//     // note in the frontend that "deleting season can also delete all rate associated with that season"
+
+//   } catch (error) {
+//     console.log("something went wrong while updating season", error);
+//     res.status(500).json({
+//       success: false,
+//       message: "something went wrong while updating season",
+//       error,
+//     });
+//   }
+// };
