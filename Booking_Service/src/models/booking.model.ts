@@ -67,24 +67,10 @@ const BookingSchema = new mongoose.Schema(
       type: Boolean,
       required: true,
     },
-    priceBreakdown: {
-      price: {
-        type: Number,
-        required: true,
-      },
-      coupon: {
-        type: Number,
-        required: true,
-      },
-      additionService: {
-        type: Number,
-        required: true,
-      },
-      tax: {
-        type: Number,
-        required: true,
-      },
+    paymentId: {
+      type: mongoose.Schema.Types.ObjectId,
     },
+    // will add the service part to show that other service is added or not
   },
   {
     timestamps: true,
