@@ -355,10 +355,89 @@ export const signin_verify = async (req: Request, res: Response) => {
       });
     }
 
-    console.log("something went wrong", error);
+    console.log("something went wrong while verifying otp", error);
     res.status(500).json({
       success: false,
       message: "something went wrong while verifying otp",
+    });
+  }
+};
+
+export const getHostbyId = async (req: Request, res: Response) => {
+  try {
+    const { hostId } = req.params;
+
+    const host = await prisma.host.findUnique({
+      where: {
+        id: hostId,
+      },
+      select: {
+        phone: true,
+        name: true,
+        id: true,
+        profileImage: true,
+        gender: true,
+        houseAddress: true,
+        city: true,
+        country: true,
+        state: true,
+        pincode: true,
+        createdAt: true,
+      },
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "host found succesfully",
+      host: host,
+    });
+  } catch (error) {
+    console.log("something went wrong while getting the host", error);
+    res.status(500).json({
+      success: false,
+      message: "something went wrong while getting the host",
+    });
+  }
+};
+
+export const getHostByAccommodationId = async (req: Request, res: Response) => {
+  try {
+    const { accommodationId } = req.params;
+
+    const host = await prisma.host.findFirst({
+      where: {
+        accommodationId: {
+          has: accommodationId,
+        },
+      },
+      select: {
+        phone: true,
+        name: true,
+        id: true,
+        profileImage: true,
+        gender: true,
+        houseAddress: true,
+        city: true,
+        country: true,
+        state: true,
+        pincode: true,
+        createdAt: true,
+      },
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "host found succesfully",
+      host: host,
+    });
+  } catch (error) {
+    console.log(
+      "something went wrong while getting the host - accommodation Id",
+      error
+    );
+    res.status(500).json({
+      success: false,
+      message: "something went wrong while getting the host - accommodation Id",
     });
   }
 };

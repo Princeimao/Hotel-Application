@@ -1,5 +1,7 @@
 import express from "express";
 import {
+  getHostByAccommodationId,
+  getHostbyId,
   hostAddress,
   hostDetails,
   signin,
@@ -16,5 +18,9 @@ router.route("/host-details").post(hostDetails);
 router.route("/host-address").post(hostAddress);
 router.route("/signin").post(signin);
 router.route("/signin-verify").post(signin_verify);
+router.route("/get-host-Id/:hostId").get(getHostbyId);
+router
+  .route("/get-host-accommodationId/:accommodationid")
+  .get(getHostByAccommodationId);
 
 export default router;

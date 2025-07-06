@@ -29,6 +29,7 @@ model Host {
   country         String
   state           String
   pincode         String // could be number not sure change as it goes 
+  accommodationId String[]
   createdAt       DateTime   @default(now())
   updatedAt       DateTime   @updatedAt
 }
