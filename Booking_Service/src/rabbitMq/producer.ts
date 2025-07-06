@@ -1,4 +1,4 @@
-import { getRabbitMqChannel } from "../src/db/rabbitMq.connection";
+import { getRabbitMqChannel } from "../db/rabbitMq.connection";
 
 interface MessageType {
   hostId: string;

@@ -16,5 +16,4 @@ export const createBookingSchema = z.object({
   couponId: z.string(),
   bookingStatus: z.enum(["pending", "confirmed", "cancelled", "completed"]),
   specialRequest: z.string(),
-  paymentId: z.instanceof(mongoose.Schema.Types.ObjectId).optional(),
 });

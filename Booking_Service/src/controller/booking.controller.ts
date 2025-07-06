@@ -1,10 +1,12 @@
 import { Request, Response } from "express";
 import { ZodError } from "zod";
+import { getRabbitMqChannel } from "../db/rabbitMq.connection";
 import bookingModel from "../models/booking.model";
 import { createBookingSchema } from "../schema/booking.schema";
 
 export const createBooking = async (req: Request, res: Response) => {
   try {
+    const channel = await getRabbitMqChannel();
     const {
       userId,
       roomId,
@@ -15,7 +17,6 @@ export const createBooking = async (req: Request, res: Response) => {
       couponId,
       bookingStatus,
       specialRequest,
-      paymentId,
     } = createBookingSchema.parse(req.body);
 
     const booking = await bookingModel.create({
@@ -28,11 +29,13 @@ export const createBooking = async (req: Request, res: Response) => {
       coupon: couponId,
       bookingStatus,
       specialRequest,
-      isPaid: `${paymentId !== undefined ? true : false}`,
-      paymentId,
     });
 
     // logic to generate the invoice
+
+    channel.assertQueue("update-calendar", {
+      durable: false,
+    });
 
     res.status(200).json({
       success: true,
