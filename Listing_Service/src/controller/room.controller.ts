@@ -481,3 +481,20 @@ export const getAccommodationsByArea = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const getAccommodationByHostId = async (req: Request, res: Response) => {
+  try {
+    const { hostId } = req.params;
+
+    const accommodations = await roomModel
+      .find({ hostId })
+      .select("photo title location");
+  } catch (error) {
+    console.log("something went wrong while getting accommodation", error);
+    res.status(500).json({
+      success: false,
+      message: "something went wrong while getting all host accommodation",
+      error,
+    });
+  }
+};

@@ -10,7 +10,7 @@ const calendarAvailabilitySchema = z.object({
 export const getCalendarAvailability = async (req: Request, res: Response) => {
   try {
     const { roomId } = req.params;
-    const { checkIn, checkOut } = req.query;
+    const { checkIn, checkOut } = calendarAvailabilitySchema.parse(req.query);
 
     const availability = await calendarModel.find({
       roomId: roomId,

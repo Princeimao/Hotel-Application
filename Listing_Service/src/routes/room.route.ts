@@ -8,6 +8,7 @@ import {
   accommodationImages,
   accommodationType,
   getAccommodation,
+  getAccommodationByHostId,
   getAccommodationsByArea,
   peopleAtAccommodation,
 } from "../controller/room.controller";
@@ -29,5 +30,6 @@ router
   .post(accommodationCompleteSetup);
 router.route("/get-accommodation/:roomId").get(getAccommodation);
 router.route("/get-accommodations").get(getAccommodationsByArea);
+router.route("/get-accommodation-hostId/:hostId").get(getAccommodationByHostId);
 
 export default router;
