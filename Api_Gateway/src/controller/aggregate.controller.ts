@@ -62,3 +62,17 @@ export const getHostDetails = async (req: Request, res: Response) => {
     });
   }
 };
+
+// user related combined routes
+export const getUserBookings = (req: Request, res: Response) => {
+  try {
+    
+  } catch (error) {
+    console.log("something went wrong while getting user detaisl", error);
+    res.status(400).json({
+      success: false,
+      message: "something went wrong while getting the accommodation details",
+      error,
+    });
+  }
+};

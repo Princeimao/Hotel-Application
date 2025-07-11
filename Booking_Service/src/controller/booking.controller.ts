@@ -58,3 +58,25 @@ export const createBooking = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const getBookings = (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+
+    const bookings = bookingModel
+      .find({ userId })
+      .select(`userId roomId checkIn checkOut totalPrice people`);
+
+    res.status(200).json({
+      success: true,
+      message: "get user bookings successfully",
+    });
+  } catch (error) {
+    console.log("something went wrong while getting booking", error);
+    res.status(500).json({
+      success: false,
+      message: "something went wrong while getting booking",
+      error,
+    });
+  }
+};
