@@ -9,11 +9,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Menu } from "lucide-react";
-import SearchBar from "./SearchBar";
+import SearchBar from "./forms/SearchBar";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
 
-const Navbar = () => {
+interface Props {
+  authLayout: boolean;
+}
+
+const Navbar = ({ authLayout }: Props) => {
   const isAuthenticated = true;
   const navigate = useNavigate();
   return (
@@ -40,7 +44,7 @@ const Navbar = () => {
         <h1 className="font-bold text-3xl text-red-500">RoamInn</h1>
       </div>
 
-      <SearchBar />
+      {authLayout ? null : <SearchBar />}
 
       <div className="h-24 flex items-center justify-between px-6 gap-3">
         {isAuthenticated ? (
@@ -48,7 +52,7 @@ const Navbar = () => {
             <Button
               onClick={() =>
                 navigate(
-                  `/login/?${new URLSearchParams({
+                  `/hostSignup/?${new URLSearchParams({
                     redirect: "become a host",
                   })}`
                 )

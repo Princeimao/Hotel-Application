@@ -1,7 +1,7 @@
 import { Search } from "lucide-react";
 import { useState } from "react";
-import { Button } from "./ui/button";
-import { Separator } from "./ui/separator";
+import { Button } from "../ui/button";
+import { Separator } from "../ui/separator";
 
 interface Query {
   location: {
@@ -36,10 +36,9 @@ const SearchBar = () => {
     },
   });
 
-  const handleOnChange = (e) => {
+  const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
 
-    console.log(name, value);
     if (name === "location") {
       setQuery((prev) => ({
         ...prev,
@@ -52,7 +51,7 @@ const SearchBar = () => {
 
     setQuery((prev) => ({
       ...prev,
-      name: value.name,
+      name: name,
     }));
   };
 
