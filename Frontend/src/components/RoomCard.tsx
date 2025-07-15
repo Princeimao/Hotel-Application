@@ -1,11 +1,12 @@
+import { addDays, format } from "date-fns";
 import { Link } from "react-router-dom";
 
 const RoomCard = () => {
   return (
     <Link
       to={`/room/465454/?${new URLSearchParams({
-        checkIn: "some date",
-        checkOut: "some other date",
+        checkIn: `${format(addDays(new Date(), 1), "dd-mm-yyyy")}`,
+        checkOut: `${format(addDays(new Date(), 3), "dd-mm-yyyy")}`,
         adults: "2",
         childs: "1",
       })}`}
