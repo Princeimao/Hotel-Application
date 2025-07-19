@@ -8,6 +8,12 @@
   --color-secondary: #f5f2f2;
   --color-logo: #e6624b;
   --color-button: #e51d57;
+
+  --default-font-family: "inter";
+}
+
+.react-international-phone-country-selector-button {
+  @apply w-16 justify-start px-2;
 }
 
 @theme inline {

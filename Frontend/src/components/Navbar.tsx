@@ -24,8 +24,8 @@ const Navbar = ({ authLayout }: Props) => {
     <div className="w-full h-24 bg-secondary flex items-center justify-between px-6">
       <div className="flex justify-center items-center">
         <svg
-          width="45"
-          height="45"
+          width="35"
+          height="35"
           viewBox="0 0 128 128"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
@@ -34,14 +34,14 @@ const Navbar = ({ authLayout }: Props) => {
             d="M64 8C37 8 16 29 16 56.5C16 84 64 120 64 120C64 120 112 84 112 56.5C112 29 91 8 64 8Z
        M64 30C55 30 48 37 48 46V74H80V46C80 37 73 30 64 30Z"
             stroke="#fb2c36"
-            strokeWidth="13"
+            strokeWidth="8"
             strokeLinecap="round"
             strokeLinejoin="round"
             fill="none"
           />
         </svg>
 
-        <h1 className="font-bold text-3xl text-red-500">RoamInn</h1>
+        <h1 className="font-bold text-xl leading-0 text-red-500">roamInn</h1>
       </div>
 
       {authLayout ? null : <SearchBar />}

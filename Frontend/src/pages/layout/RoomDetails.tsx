@@ -1,9 +1,9 @@
+import { addDays, differenceInDays, format, isValid, parse } from "date-fns";
 import { Car, Coffee, Heart, MapPin, Users, Wifi } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import "react-date-range/dist/styles.css";
+import "react-date-range/dist/theme/default.css";
 import { useParams, useSearchParams } from "react-router-dom";
-
-import { Calendar } from "@/components/ui/calendar";
-import { differenceInDays, format, isValid, parse } from "date-fns";
 
 const RoomDetails = () => {
   const { id } = useParams();
@@ -11,32 +11,6 @@ const RoomDetails = () => {
   const [checkIn, setCheckIn] = useState<Date | undefined>();
   const [checkOut, setCheckOut] = useState<Date | undefined>();
   const [guests, setGuests] = useState(1);
-  const date = new Date();
-
-  const calculateTotal = () => {
-    if (!checkIn || !checkOut) return 0;
-    const start = new Date(checkIn);
-    const end = new Date(checkOut);
-    const days = Math.ceil(
-      (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)
-    );
-    return days * property.price;
-  };
-
-  useEffect(() => {
-    const checkInString = searchParams.get("checkIn");
-    const checkOutString = searchParams.get("checkOut");
-
-    if (checkInString && checkOutString) {
-      const parseCheckIn = parse(checkInString, "dd-MM-yyyy", new Date());
-      const parseCheckOut = parse(checkOutString, "dd-MM-yyyy", new Date());
-
-      if (isValid(parseCheckIn) && isValid(parseCheckOut)) {
-        setCheckIn(parseCheckIn);
-        setCheckOut(parseCheckOut);
-      }
-    }
-  }, [searchParams]);
 
   // Mock data - in a real app, this would be fetched based on the ID
   const property = {
@@ -71,6 +45,29 @@ const RoomDetails = () => {
       responseTime: "within an hour",
     },
   };
+
+  const calculateTotal = useCallback(() => {
+    if (!checkIn || !checkOut) return 0;
+    const days = differenceInDays(checkOut, checkIn);
+    return days * property.price;
+  }, [checkIn, checkOut, property.price]);
+
+  useEffect(() => {
+    const checkInString = searchParams.get("checkIn");
+    const checkOutString = searchParams.get("checkOut");
+
+    if (checkInString && checkOutString) {
+      const parseCheckIn = parse(checkInString, "dd-MM-yyyy", new Date());
+      const parseCheckOut = parse(checkOutString, "dd-MM-yyyy", new Date());
+
+      if (isValid(parseCheckIn) && isValid(parseCheckOut)) {
+        setCheckIn(parseCheckIn);
+        setCheckOut(parseCheckOut);
+      }
+    }
+    calculateTotal();
+  }, [searchParams, calculateTotal]);
+
   return (
     <div className="min-h-screen bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -193,6 +190,7 @@ const RoomDetails = () => {
                         );
                         if (isValid(parsed)) setCheckIn(parsed);
                       }}
+                      min={new Date().toISOString().split("T")[0]}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                     />
                   </div>
@@ -203,6 +201,8 @@ const RoomDetails = () => {
                     <input
                       type="date"
                       value={checkOut ? format(checkOut, "yyyy-MM-dd") : ""}
+                      min={format(addDays(new Date(), 1), "yyyy-MM-dd")}
+                      
                       onChange={(e) => {
                         const parsed = parse(
                           e.target.value,
@@ -238,12 +238,7 @@ const RoomDetails = () => {
                 <div className="border-t border-gray-200 pt-4 mb-6">
                   <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
                     <span>
-                      ${property.price} x{" "}
-                      {Math.ceil(
-                        (new Date(checkOut).getTime() -
-                          new Date(checkIn).getTime()) /
-                          (1000 * 60 * 60 * 24)
-                      )}{" "}
+                      ${property.price} x {differenceInDays(checkOut, checkIn)}{" "}
                       nights
                     </span>
                     <span>${calculateTotal()}</span>
@@ -267,22 +262,6 @@ const RoomDetails = () => {
               </p>
             </div>
           </div>
-        </div>
-        <div>
-          <Calendar
-            mode="range"
-            defaultMonth={date}
-            numberOfMonths={2}
-            selected={{
-              from: checkIn,
-              to: checkOut,
-            }}
-            onSelect={(range) => {
-              setCheckIn(range?.from);
-              setCheckOut(range?.to);
-            }}
-            className="rounded-lg "
-          />
         </div>
       </div>
     </div>
