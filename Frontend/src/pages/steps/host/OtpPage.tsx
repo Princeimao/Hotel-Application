@@ -16,24 +16,23 @@ import {
   InputOTPGroup,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
+import { OptValidation } from "@/validation";
 import { Link } from "react-router-dom";
 
 const OtpPage = ({ type }: { type: string }) => {
-  const FormSchema = z.object({
-    pin: z.string().min(6, {
-      message: "Your one-time password must be 6 characters.",
-    }),
-  });
-
-  const form = useForm<z.infer<typeof FormSchema>>({
-    resolver: zodResolver(FormSchema),
+  const form = useForm<z.infer<typeof OptValidation>>({
+    resolver: zodResolver(OptValidation),
     defaultValues: {
       pin: "",
     },
   });
 
-  const onSubmit = (data: z.infer<typeof FormSchema>) => {
-    console.log(data);
+  const onSubmit = (data: z.infer<typeof OptValidation>) => {
+    if (type === "signin") {
+      console.log(data);
+    } else {
+      console.log(data);
+    }
   };
 
   return (
