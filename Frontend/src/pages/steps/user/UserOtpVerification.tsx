@@ -19,7 +19,7 @@ import {
 import { OptValidation } from "@/validation";
 import { Link } from "react-router-dom";
 
-const OtpPage = ({ type }: { type: string }) => {
+const UserOtpVerification = ({ type }: { type: string }) => {
   const form = useForm<z.infer<typeof OptValidation>>({
     resolver: zodResolver(OptValidation),
     defaultValues: {
@@ -92,4 +92,4 @@ const OtpPage = ({ type }: { type: string }) => {
   );
 };
 
-export default OtpPage;
+export default UserOtpVerification;

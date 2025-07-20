@@ -59,7 +59,7 @@ const HostDetailForm = () => {
           Tell Us About Yourself
         </h2>
         <p className="text-gray-600 text-xs text-center">
-          Help us serve you better with your location details
+          We need some basic information to personalize your experience
         </p>
 
         <div className="form mt-3">

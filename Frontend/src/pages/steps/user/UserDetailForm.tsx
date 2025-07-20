@@ -7,26 +7,29 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { hostAddressValidation } from "@/validation";
-
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { hostDetailsValidation } from "@/validation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import type z from "zod";
 
-const HostAddressForm = () => {
-  const form = useForm<z.infer<typeof hostAddressValidation>>({
-    resolver: zodResolver(hostAddressValidation),
+const UserDetailForm = () => {
+  const form = useForm<z.infer<typeof hostDetailsValidation>>({
+    resolver: zodResolver(hostDetailsValidation),
     defaultValues: {
-      houseAddress: "",
-      city: "",
-      country: "",
-      state: "",
-      pincode: "",
+      name: "",
+      email: "",
+      gender: "",
     },
   });
 
-  const onSubmit = async (data: z.infer<typeof hostAddressValidation>) => {
+  const onSubmit = async (data: z.infer<typeof hostDetailsValidation>) => {
     console.log(data);
   };
 
@@ -53,10 +56,10 @@ const HostAddressForm = () => {
           </svg>
         </div>
         <h2 className="text-xl font-bold text-gray-900 text-center">
-          Your Address
+          Tell Us About Yourself
         </h2>
         <p className="text-gray-600 text-xs text-center">
-          Help us serve you better with your location details
+          We need some basic information to personalize your experience
         </p>
 
         <div className="form mt-3">
@@ -64,15 +67,11 @@ const HostAddressForm = () => {
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
               <FormField
                 control={form.control}
-                name="houseAddress"
+                name="name"
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <Textarea
-                        className="resize-none scroll-auto h-8"
-                        placeholder="Enter your complete address"
-                        {...field}
-                      />
+                      <Input placeholder="Name" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -81,11 +80,11 @@ const HostAddressForm = () => {
 
               <FormField
                 control={form.control}
-                name="country"
+                name="email"
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <Input placeholder="Country" {...field} />
+                      <Input placeholder="Email" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -94,44 +93,31 @@ const HostAddressForm = () => {
 
               <FormField
                 control={form.control}
-                name="state"
+                name="gender"
                 render={({ field }) => (
                   <FormItem>
-                    <FormControl>
-                      <Input placeholder="state" {...field} />
-                    </FormControl>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select gender" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="Male">Male</SelectItem>
+                        <SelectItem value="Female">Female</SelectItem>
+                        <SelectItem value="Prefer not to say">
+                          Prefer not to say
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-
-              <div className="w-full flex gap-1">
-                <FormField
-                  control={form.control}
-                  name="city"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Input placeholder="City" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="pincode"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Input placeholder="Pincode" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
 
               <Button
                 className="w-full bg-red-600 hover:bg-red-700"
@@ -147,4 +133,4 @@ const HostAddressForm = () => {
   );
 };
 
-export default HostAddressForm;
+export default UserDetailForm;
