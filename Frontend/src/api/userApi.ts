@@ -1,5 +1,5 @@
 import { instance } from "@/api/axios";
-import type { ApiResponse, RegisteredUser } from "./types";
+import type { ApiResponse, User } from "./types";
 
 export const userSignUp = async (phone: string): Promise<ApiResponse<void>> => {
   try {
@@ -42,7 +42,7 @@ export const registerUser = async (
   email: string,
   phone: string,
   gender: string
-): Promise<ApiResponse<RegisteredUser>> => {
+): Promise<ApiResponse<User>> => {
   try {
     const response = await instance.post("/user/create-user", {
       name,
