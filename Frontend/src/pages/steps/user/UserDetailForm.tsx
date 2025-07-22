@@ -14,14 +14,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { hostDetailsValidation } from "@/validation";
+import { DetailsValidation } from "@/validation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import type z from "zod";
 
 const UserDetailForm = () => {
-  const form = useForm<z.infer<typeof hostDetailsValidation>>({
-    resolver: zodResolver(hostDetailsValidation),
+  const form = useForm<z.infer<typeof DetailsValidation>>({
+    resolver: zodResolver(DetailsValidation),
     defaultValues: {
       name: "",
       email: "",
@@ -29,7 +29,7 @@ const UserDetailForm = () => {
     },
   });
 
-  const onSubmit = async (data: z.infer<typeof hostDetailsValidation>) => {
+  const onSubmit = async (data: z.infer<typeof DetailsValidation>) => {
     console.log(data);
   };
 

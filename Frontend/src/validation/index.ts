@@ -6,7 +6,7 @@ export const OptValidation = z.object({
   }),
 });
 
-export const hostDetailsValidation = z.object({
+export const DetailsValidation = z.object({
   name: z.string().min(3, { message: "Name should atleast 3 character long" }),
   email: z.email(),
   gender: z.enum(["Male", "Female", "Prefer not to say", ""]),
