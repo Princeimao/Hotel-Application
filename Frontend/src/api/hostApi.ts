@@ -1,5 +1,5 @@
+import type { ApiResponse, Host } from "../types/types";
 import { instance } from "./axios";
-import type { ApiResponse, Host } from "./types";
 
 export const hostSignup = async (phone: string): Promise<ApiResponse<void>> => {
   try {

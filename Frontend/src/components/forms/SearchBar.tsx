@@ -1,9 +1,12 @@
+import { searchSuggestion } from "@/api/mapsApi";
+import type { PhotonFeature } from "@/types/maps.types";
 import { Search } from "lucide-react";
 import { useState } from "react";
+import AutoComplete from "../AutoComplete";
 import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
 
-interface Query {
+export interface Query {
   location: {
     name: string;
     lat: number;
@@ -35,11 +38,15 @@ const SearchBar = () => {
       pets: false,
     },
   });
+  const [suggestions, setSuggestions] = useState<PhotonFeature[]>([]);
+  const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | null>(null);
+  const [showSuggestions, setShowSuggestions] = useState<boolean>(false);
 
   const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
 
     if (name === "location") {
+      setShowSuggestions(true);
       setQuery((prev) => ({
         ...prev,
         location: {
@@ -47,12 +54,31 @@ const SearchBar = () => {
           name: value,
         },
       }));
+
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+
+      const newTimeoutId = setTimeout(async () => {
+        const suggestion = await searchSuggestion(value);
+
+        setSuggestions(suggestion?.features || []);
+      }, 2000);
+
+      setTimeoutId(newTimeoutId);
     }
 
-    setQuery((prev) => ({
-      ...prev,
-      name: name,
-    }));
+    if (name === "checkIn") {
+      setQuery((prev) => ({
+        ...prev,
+        checkIn: value,
+      }));
+    } else {
+      setQuery((prev) => ({
+        ...prev,
+        checkOut: value,
+      }));
+    }
   };
 
   const handleSubmit = () => {};
@@ -65,7 +91,7 @@ const SearchBar = () => {
       <div className="flex items-center gap-1">
         {/* Location */}
 
-        <div className="flex items-center space-x-2 px-2 py-1 rounded-full hover:bg-secondary transition-colors">
+        <div className="flex relative items-center space-x-2 px-2 py-1 rounded-full hover:bg-secondary transition-colors">
           <div className="flex-1 p-1 w-40">
             <label className="block text-xs font-medium text-gray-700 mb-1">
               Where
@@ -79,6 +105,17 @@ const SearchBar = () => {
               className="w-full text-sm text-gray-900 placeholder-gray-500 border-0 p-0 focus:ring-0 focus:outline-none bg-transparent"
             />
           </div>
+
+          {/* AutoCompete */}
+          {showSuggestions === true ? (
+            <AutoComplete
+              searchSuggestions={suggestions}
+              query={query}
+              setQuery={setQuery}
+              showSuggestions={showSuggestions}
+              setShowSuggestions={setShowSuggestions}
+            />
+          ) : null}
         </div>
         <Separator className="my-4" orientation="vertical" />
 

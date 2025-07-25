@@ -13,11 +13,11 @@ const RoomCard = () => {
     >
       <div className="w-50 h-60 p-2 cursor-pointer">
         <div className="bg-black w-46 h-46 rounded-2xl">
-          <img src="" alt="" />
+          <img src="null" alt="" />
         </div>
         <div className="w-46">
           <h6 className="font-semibold text-sm">Flat in gurugram</h6>
-          <p className="text-[13px] ">&#8377;12,576 for 2 nights</p>
+          <p className="text-[13px]">&#8377;12,576 for 2 nights</p>
         </div>
       </div>
     </Link>
