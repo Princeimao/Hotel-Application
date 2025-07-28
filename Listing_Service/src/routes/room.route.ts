@@ -28,6 +28,7 @@ router.route("/accommodation-metaData/:hostId").post(accommodationBasicDetails);
 router
   .route("/accommodation-complete/:hostId")
   .post(accommodationCompleteSetup);
+
 router.route("/get-accommodation/:roomId").get(getAccommodation);
 router.route("/get-accommodations").get(getAccommodationsByArea);
 router.route("/get-accommodation-hostId/:hostId").get(getAccommodationByHostId);

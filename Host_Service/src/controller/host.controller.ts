@@ -75,7 +75,7 @@ export const signup = async (req: Request, res: Response) => {
 
 export const signup_verify = async (req: Request, res: Response) => {
   try {
-    const { otp: userOtp, phone } = signup_verifySchema.parse(req.body);
+    const { otp: hostOtp, phone } = signup_verifySchema.parse(req.body);
 
     const otp = await redis.get(`phone:${phone}`);
 
@@ -87,7 +87,7 @@ export const signup_verify = async (req: Request, res: Response) => {
       return;
     }
 
-    if (Number(otp) !== userOtp) {
+    if (Number(otp) !== hostOtp) {
       res.status(400).json({
         success: false,
         message: "Incorrect Otp",
@@ -181,6 +181,7 @@ export const hostAddress = async (req: Request, res: Response) => {
         id: true,
         phone: true,
         name: true,
+        email: true,
       },
     });
 

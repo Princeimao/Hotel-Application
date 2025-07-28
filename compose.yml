@@ -9,3 +9,69 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
+  api-gateway:
+    build:
+      context: ./Api_Gateway
+    container_name: gateway
+    env_file:
+      - ./Api_Gateway/.env
+    ports:
+      - "3000:3000"
+    depends_on:
+      - redis
+      - rabbitMq
+  auth-service:
+    build:
+      context: ./Auth_Service
+    container_name: authservice
+    env_file:
+      - ./Auth_Service/.env
+    ports:
+      - "3001:3001"
+    depends_on:
+      - redis
+      - rabbitMq
+  host-service:
+    build:
+      context: ./Host_Service
+    container_name: hostservice
+    env_file:
+      - ./Host_Service/.env
+    ports:
+      - "3002:3002"
+    depends_on:
+      - redis
+      - rabbitMq
+  listing-service:
+    build:
+      context: ./Listing_Service
+    container_name: listingservice
+    env_file:
+      - ./Listing_Service/.env
+    ports:
+      - "3003:3003"
+    depends_on:
+      - redis
+      - rabbitMq
+  booking-service:
+    build:
+      context: ./Booking_Service
+    container_name: bookingservice
+    env_file:
+      - ./Booking_Service/.env
+    ports:
+      - "3004:3004"
+    depends_on:
+      - redis
+      - rabbitMq
+  message-service:
+    build:
+      context: ./Message_Service
+    container_name: messageservice
+    env_file:
+      - ./Message_Service/.env
+    ports:
+      - "3005:3005"
+    depends_on:
+      - redis
+      - rabbitMq

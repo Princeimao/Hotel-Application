@@ -1,5 +1,6 @@
 import { instance } from "@/api/axios";
-import type { ApiResponse, User } from "../types/types";
+import type { ApiResponse } from "@/types/types";
+import type { User } from "../types/user.types";
 
 export const userSignUp = async (phone: string): Promise<ApiResponse<void>> => {
   try {

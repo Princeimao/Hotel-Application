@@ -129,6 +129,7 @@ export const registerUser = async (req: Request, res: Response) => {
         id: true,
         email: true,
         phone: true,
+        name: true,
       },
     });
 
