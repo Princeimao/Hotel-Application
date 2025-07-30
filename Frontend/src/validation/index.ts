@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const OptValidation = z.object({
-  pin: z.string().min(6, {
+  otp: z.string().min(6, {
     message: "Your one-time password must be 6 characters.",
   }),
 });

@@ -1,3 +1,4 @@
+import { hostDetials } from "@/api/hostApi";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -14,12 +15,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { login } from "@/context/features/HostContext";
+import type { RootState } from "@/context/store";
+import type { Host } from "@/types/host.types";
 import { DetailsValidation } from "@/validation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import type z from "zod";
 
 const HostDetailForm = () => {
+  const phone = useSelector((state: RootState) => state.host.host?.phone);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const form = useForm<z.infer<typeof DetailsValidation>>({
     resolver: zodResolver(DetailsValidation),
     defaultValues: {
@@ -30,7 +40,39 @@ const HostDetailForm = () => {
   });
 
   const onSubmit = async (data: z.infer<typeof DetailsValidation>) => {
-    console.log(data);
+    try {
+      if (!phone) {
+        console.log("Phone number not found - host otp verification");
+        return;
+      }
+
+      const response = await hostDetials(
+        data.name,
+        data.email,
+        data.gender,
+        phone
+      );
+
+      if (response.success !== true) {
+        console.log("something went wrong");
+        return;
+      }
+
+      const host: Host = {
+        id: "",
+        name: data.name,
+        email: data.email,
+        phone: phone,
+      };
+
+      dispatch(
+        login({ host, isAuthenticated: false, status: "idle", error: null })
+      );
+
+      navigate("/hostAddress");
+    } catch (error) {
+      console.log("something went wrong while creating Host", error);
+    }
   };
 
   return (

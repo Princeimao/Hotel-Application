@@ -48,8 +48,8 @@ export const hostDetials = async (
     const response = await instance.post("/host/host-details", {
       name,
       email,
-      phone,
       gender,
+      phone,
     });
 
     return response.data;
@@ -83,6 +83,42 @@ export const hostAddress = async (
     return response.data;
   } catch (error) {
     console.log("something went wrong while address host", error);
+    return {
+      success: false,
+      message: "Something went wrong. Try again.",
+    };
+  }
+};
+
+export const hostSignin = async (phone: string): Promise<ApiResponse<void>> => {
+  try {
+    const response = await instance.post("/host/signin", {
+      phone,
+    });
+
+    return response.data;
+  } catch (error) {
+    console.log("something went wrong while signin host", error);
+    return {
+      success: false,
+      message: "Something went wrong. Try again.",
+    };
+  }
+};
+
+export const hostSigninVerify = async (
+  otp: number,
+  phone: string
+): Promise<ApiResponse<void>> => {
+  try {
+    const response = await instance.post("/host/signin-verfiy", {
+      otp,
+      phone,
+    });
+
+    return response.data;
+  } catch (error) {
+    console.log("something went wrong while signin verify host", error);
     return {
       success: false,
       message: "Something went wrong. Try again.",

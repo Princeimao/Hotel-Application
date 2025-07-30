@@ -1,6 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
 import hostReducer from "../context/features/HostContext";
-import userReducer from "../context/features/userContext";
+import userReducer from "../context/features/UserContext";
 
 export const store = configureStore({
   reducer: {

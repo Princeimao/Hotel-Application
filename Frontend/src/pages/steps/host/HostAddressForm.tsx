@@ -1,3 +1,4 @@
+import { hostAddress } from "@/api/hostApi";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -8,13 +9,21 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { login } from "@/context/features/HostContext";
+import type { RootState } from "@/context/store";
 import { hostAddressValidation } from "@/validation";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import type z from "zod";
 
 const HostAddressForm = () => {
+  const host = useSelector((state: RootState) => state.host);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const form = useForm<z.infer<typeof hostAddressValidation>>({
     resolver: zodResolver(hostAddressValidation),
     defaultValues: {
@@ -27,7 +36,39 @@ const HostAddressForm = () => {
   });
 
   const onSubmit = async (data: z.infer<typeof hostAddressValidation>) => {
-    console.log(data);
+    try {
+      if (!host.host?.phone) {
+        console.log("Phone number not found - host otp verification");
+        return;
+      }
+
+      const response = await hostAddress(
+        data.houseAddress,
+        data.city,
+        data.country,
+        data.state,
+        data.pincode,
+        host.host?.phone
+      );
+
+      if (response.data !== undefined) {
+        console.log("something went wrong");
+        return;
+      }
+
+      dispatch(
+        login({
+          host: response.data!,
+          isAuthenticated: true,
+          status: "succeeded",
+          error: null,
+        })
+      );
+
+      navigate("/");
+    } catch (error) {
+      console.log("something went wrong while creating Host", error);
+    }
   };
 
   return (

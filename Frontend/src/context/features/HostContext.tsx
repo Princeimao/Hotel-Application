@@ -1,13 +1,14 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
-interface Host {
+export interface Host {
   id: string;
   name: string;
   email: string;
+  phone: string;
   profileImg?: string;
 }
 
-interface HostState {
+export interface HostState {
   host: Host | null;
   isAuthenticated: boolean;
   status: "idle" | "loading" | "succeeded" | "failed";

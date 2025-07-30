@@ -2,6 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
+import { hostSigninVerify, hostSignupVerify } from "@/api/hostApi";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -16,22 +17,55 @@ import {
   InputOTPGroup,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
+import type { RootState } from "@/context/store";
 import { OptValidation } from "@/validation";
-import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
 
 const HostOtpVerification = ({ type }: { type: string }) => {
+  const phone = useSelector((state: RootState) => state.host.host?.phone);
+  const navigate = useNavigate();
+
   const form = useForm<z.infer<typeof OptValidation>>({
     resolver: zodResolver(OptValidation),
     defaultValues: {
-      pin: "",
+      otp: "",
     },
   });
 
-  const onSubmit = (data: z.infer<typeof OptValidation>) => {
-    if (type === "signin") {
-      console.log(data);
-    } else {
-      console.log(data);
+  const onSubmit = async (data: z.infer<typeof OptValidation>) => {
+    try {
+      if (type === "signup") {
+        if (!phone) {
+          console.log("Phone number not found - host otp verification");
+          return;
+        }
+        const response = await hostSignupVerify(Number(data.otp), phone);
+
+        if (response.success !== true) {
+          console.log("something went wrong");
+          return;
+        }
+
+        navigate("/hostDetails");
+      } else {
+        if (!phone) {
+          console.log("Phone number not found - host otp verification");
+          return;
+        }
+        const response = await hostSigninVerify(Number(data.otp), phone);
+
+        if (response.success !== true) console.log("something went wrong"); // add toast
+
+        // have to add redirect via params
+        navigate("/");
+      }
+    } catch (error) {
+      if (type === "signup") {
+        console.log("something went wrong while veriying signup otp", error);
+      } else {
+        console.log("something went wrong while veriying signup otp", error);
+      }
     }
   };
 
@@ -65,7 +99,7 @@ const HostOtpVerification = ({ type }: { type: string }) => {
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <FormField
             control={form.control}
-            name="pin"
+            name="otp"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>One-Time Password</FormLabel>

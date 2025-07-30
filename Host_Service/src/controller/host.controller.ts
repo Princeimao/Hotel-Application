@@ -95,7 +95,7 @@ export const signup_verify = async (req: Request, res: Response) => {
       return;
     }
 
-    res.status(400).json({
+    res.status(200).json({
       success: true,
       message: "Successfull",
     });

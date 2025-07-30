@@ -1,12 +1,52 @@
 import { useState } from "react";
-import { PhoneInput, type PhoneInputRefType } from "react-international-phone";
+import { PhoneInput } from "react-international-phone";
 import "react-international-phone/style.css";
 
+import { hostSignin, hostSignup } from "@/api/hostApi";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { login, type Host } from "@/context/features/HostContext";
+import { useDispatch } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
 
 export function HostForm({ type }: { type: string }) {
+  const navigate = useNavigate();
   const [phone, setPhone] = useState<string>("");
+  const dispatch = useDispatch();
+
+  const handelSubmit = async (e: React.FormEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    try {
+      if (type === "signup") {
+        const response = await hostSignup(phone);
+
+        if (response.success !== true) console.log("something went wrong"); // add toast
+
+        const host: Host = {
+          id: "",
+          name: "",
+          email: "",
+          phone: phone,
+        };
+
+        dispatch(
+          login({ host, isAuthenticated: false, status: "idle", error: null })
+        );
+        navigate("/hostSignup-verification");
+      } else {
+        const response = await hostSignin(phone);
+
+        if (response.success !== true) console.log("something went wrong"); // add toast
+
+        navigate("/hostSignin-verification");
+      }
+    } catch (error) {
+      if (type === "signup") {
+        console.log("something went wrong while creating host", error);
+      } else {
+        console.log("something went wrong while signing in host", error);
+      }
+    }
+  };
 
   return (
     <div>
@@ -63,12 +103,13 @@ export function HostForm({ type }: { type: string }) {
                 inputClassName="text-base px-2 py-1 focus:outline-none w-full"
                 defaultCountry="in"
                 value={phone}
-                onChange={(phone: PhoneInputRefType) => setPhone(phone)}
+                onChange={(phone) => setPhone(phone)}
               />
             </div>
             <Button
               type="submit"
               className="w-full bg-red-600 hover:bg-red-700"
+              onClick={handelSubmit}
             >
               Send OTP
             </Button>
