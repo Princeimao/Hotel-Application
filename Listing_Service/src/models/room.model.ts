@@ -43,7 +43,7 @@ const RoomSchema = new Schema({
         enum: ["Point"], // Only allow "Point"
       },
       coordinates: {
-        type: [Number], // [longitude, latitude]
+        type: [Number, Number], // [longitude, latitude]
       },
     },
   },

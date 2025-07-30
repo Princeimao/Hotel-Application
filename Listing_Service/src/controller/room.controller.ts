@@ -105,7 +105,7 @@ export const accommodationDetails = async (req: Request, res: Response) => {
   try {
     const { hostId } = req.params;
     const {
-      totalGuest,
+      maxGuests,
       adultOccupancy,
       childrenOccupancy,
       bedrooms,
@@ -122,7 +122,7 @@ export const accommodationDetails = async (req: Request, res: Response) => {
       },
       {
         $set: {
-          totalGuest,
+          maxGuests,
           adultOccupancy,
           childrenOccupancy,
           bedrooms,

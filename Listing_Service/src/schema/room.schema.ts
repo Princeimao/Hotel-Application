@@ -19,7 +19,7 @@ export const addressSchema = z.object({
 });
 
 export const accommodationDetailsSchema = z.object({
-  totalGuest: z.number().min(1, { message: "Guest cannot be less than 1" }),
+  maxGuests: z.number().min(1, { message: "Guest cannot be less than 1" }),
   adultOccupancy: z.number().min(1, { message: "Guest cannot be less than 1" }),
   childrenOccupancy: z.number(),
   bedrooms: z.number(),

@@ -13,10 +13,11 @@ export const fetchRoomDetailsFromSearch = async () => {
 export const fetchRoomDetails = async (accommodationId: string) => {
   try {
     const response = await instance.get(
-      `listing/get-accommodation/${accommodationId}`
+      `/listing/get-accommodation/${accommodationId}`
     );
 
-    return response.data;
+    console.log(response);
+    return response.data.room;
   } catch (error) {
     console.log("something went wrong while getting the hotel", error);
   }

@@ -1,5 +1,8 @@
+import { fetchRoomDetails } from "@/api/hotelApi";
+import { amenitiesMap } from "@/constants/amenitiesMap";
+import type { RoomDetials } from "@/types/hotel.types";
 import { addDays, differenceInDays, format, isValid, parse } from "date-fns";
-import { Car, Coffee, Heart, MapPin, Users, Wifi } from "lucide-react";
+import { Heart, Loader, MapPin } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
@@ -11,46 +14,25 @@ const RoomDetails = () => {
   const [checkIn, setCheckIn] = useState<Date | undefined>();
   const [checkOut, setCheckOut] = useState<Date | undefined>();
   const [guests, setGuests] = useState(1);
+  const [room, setRoom] = useState<RoomDetials>();
 
-  // Mock data - in a real app, this would be fetched based on the ID
-  const property = {
-    id: id,
-    title: "Luxury Beachfront Villa",
-    location: "Gurugram, India",
-    price: 2999,
-    description:
-      "Experience the ultimate luxury at this stunning beachfront villa. With panoramic ocean views, private beach access, and world-class amenities, this property offers an unforgettable getaway. The spacious living areas, gourmet kitchen, and elegant bedrooms provide comfort and sophistication.",
-    bedrooms: 4,
-    bathrooms: 3,
-    guests: 8,
-    amenities: [
-      { id: "wifi", label: "WiFi", icon: Wifi },
-      { id: "parking", label: "Free Parking", icon: Car },
-      { id: "kitchen", label: "Kitchen", icon: Coffee },
-      { id: "pool", label: "Pool", icon: Users },
-    ],
-    images: [
-      "https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80",
-      "https://images.unsplash.com/photo-1613490493576-7fde63acd811?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80",
-      "https://images.unsplash.com/photo-1571896349842-33c89424de2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80",
-      "https://images.unsplash.com/photo-1566195992011-5f6b21e539aa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80",
-      "https://images.unsplash.com/photo-1566195992011-5f6b21e539aa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80",
-    ],
-    host: {
-      name: "Ronnie Corbett",
-      avatar:
-        "https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-      joinedDate: "September 2019",
-      responseRate: "100%",
-      responseTime: "within an hour",
-    },
-  };
+  useEffect(() => {
+    async function hotelDetails() {
+      if (!id) return;
+
+      const RoomDetail: RoomDetials = await fetchRoomDetails(id);
+
+      setRoom(RoomDetail);
+    }
+
+    hotelDetails();
+  }, [id]);
 
   const calculateTotal = useCallback(() => {
     if (!checkIn || !checkOut) return 0;
     const days = differenceInDays(checkOut, checkIn);
-    return days * property.price;
-  }, [checkIn, checkOut, property.price]);
+    return days * Number(room?.basePrice);
+  }, [checkIn, checkOut, room?.basePrice]);
 
   useEffect(() => {
     const checkInString = searchParams.get("checkIn");
@@ -68,18 +50,26 @@ const RoomDetails = () => {
     calculateTotal();
   }, [searchParams, calculateTotal]);
 
+  if (room === null || undefined) {
+    return (
+      <div className="w-full h-screen">
+        <Loader />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-6">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            {property.title}
+            {room?.title}
           </h1>
           <div className="flex items-center space-x-4 text-sm text-gray-600">
             <div className="flex items-center space-x-1">
               <MapPin className="h-4 w-4" />
-              <span>{property.location}</span>
+              <span>{room?.location.city}</span>
             </div>
           </div>
         </div>
@@ -88,17 +78,17 @@ const RoomDetails = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 mb-8 rounded-xl overflow-hidden">
           <div className="lg:row-span-2">
             <img
-              src={property.images[0]}
-              alt={property.title}
-              className="w-full h-full object-cover"
+              src={room?.photo[0]}
+              alt={room?.title}
+              className="w-full h-100 object-cover "
             />
           </div>
           <div className="grid grid-cols-2 gap-2">
-            {property.images.slice(1, 5).map((image, index) => (
+            {room?.photo.slice(1, 5).map((image, index) => (
               <img
                 key={index}
                 src={image}
-                alt={`${property.title} ${index + 2}`}
+                alt={`${room?.title} ${index + 2}`}
                 className="w-full h-48 object-cover"
               />
             ))}
@@ -113,26 +103,31 @@ const RoomDetails = () => {
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <h2 className="text-xl font-semibold text-gray-900">
-                    Hosted by {property.host.name}
+                    Hosted by {room?.hostId}
                   </h2>
                   <div className="flex items-center space-x-4 text-gray-600 mt-1">
-                    <span>{property.guests} guests</span>
-                    <span>{property.bedrooms} bedrooms</span>
-                    <span>{property.bathrooms} bathrooms</span>
+                    <span>{room?.maxGuests} guests</span>
+                    <span>{room?.bedrooms} bedrooms</span>
+                    <span>{room?.beds} beds</span>
                   </div>
                 </div>
-                <img
-                  src={property.host.avatar}
-                  alt={property.host.name}
+                {/* <img
+                  src={room.}
+                  alt={room.}
                   className="w-16 h-16 rounded-full object-cover"
-                />
+                /> */}
               </div>
             </div>
 
             {/* Description */}
             <div className="border-b border-gray-200 pb-6 mb-6">
               <p className="text-gray-700 leading-relaxed">
-                {property.description}
+                {room?.description && (
+                  <div
+                    className="prose lg:prose-xl prose-neutral max-w-none"
+                    dangerouslySetInnerHTML={{ __html: room.description }}
+                  />
+                )}
               </p>
             </div>
 
@@ -142,18 +137,7 @@ const RoomDetails = () => {
                 What this place offers
               </h3>
               <div className="grid grid-cols-2 gap-4">
-                {property.amenities.map((amenity) => {
-                  const Icon = amenity.icon;
-                  return (
-                    <div
-                      key={amenity.id}
-                      className="flex items-center space-x-3"
-                    >
-                      <Icon className="h-5 w-5 text-gray-400" />
-                      <span className="text-gray-700">{amenity.label}</span>
-                    </div>
-                  );
-                })}
+                <Amenities amenities={room?.amenities} />
               </div>
             </div>
           </div>
@@ -164,7 +148,7 @@ const RoomDetails = () => {
               <div className="flex items-center justify-between mb-6">
                 <div>
                   <span className="text-2xl font-bold text-gray-900">
-                    &#8377;{property.price}
+                    &#8377;{room?.basePrice}
                   </span>
                   <span className="text-gray-600"> / night</span>
                 </div>
@@ -202,7 +186,6 @@ const RoomDetails = () => {
                       type="date"
                       value={checkOut ? format(checkOut, "yyyy-MM-dd") : ""}
                       min={format(addDays(new Date(), 1), "yyyy-MM-dd")}
-                      
                       onChange={(e) => {
                         const parsed = parse(
                           e.target.value,
@@ -225,7 +208,7 @@ const RoomDetails = () => {
                     onChange={(e) => setGuests(parseInt(e.target.value))}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                   >
-                    {[...Array(property.guests)].map((_, i) => (
+                    {[...Array(room?.maxGuests)].map((_, i) => (
                       <option key={i + 1} value={i + 1}>
                         {i + 1} guest{i > 0 ? "s" : ""}
                       </option>
@@ -238,7 +221,7 @@ const RoomDetails = () => {
                 <div className="border-t border-gray-200 pt-4 mb-6">
                   <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
                     <span>
-                      ${property.price} x {differenceInDays(checkOut, checkIn)}{" "}
+                      ${room?.basePrice} x {differenceInDays(checkOut, checkIn)}{" "}
                       nights
                     </span>
                     <span>${calculateTotal()}</span>
@@ -269,3 +252,25 @@ const RoomDetails = () => {
 };
 
 export default RoomDetails;
+
+export const Amenities = ({
+  amenities,
+}: {
+  amenities: string[] | undefined;
+}) => {
+  return (
+    <div className="grid grid-cols-2 gap-4">
+      {amenities?.map((key) => {
+        const amenity = amenitiesMap[key];
+        if (!amenity) return null;
+
+        return (
+          <div key={key} className="flex items-center gap-2">
+            {amenity.icon}
+            <span className="text-sm text-gray-700">{amenity.label}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
