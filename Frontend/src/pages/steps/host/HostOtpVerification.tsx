@@ -2,7 +2,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { hostSigninVerify, hostSignupVerify } from "@/api/hostApi";
+import {
+  hostSigninVerify,
+  hostSignupVerify,
+  sessionIdVerify,
+} from "@/api/hostApi";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -17,14 +21,18 @@ import {
   InputOTPGroup,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
-import type { RootState } from "@/context/store";
 import { OptValidation } from "@/validation";
-import { useSelector } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 
 const HostOtpVerification = ({ type }: { type: string }) => {
-  const phone = useSelector((state: RootState) => state.host.host?.phone);
+  const [phone, setPhone] = useState<string | null>(null);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  const sessionId = searchParams.get("sessionId");
+  const redirect = searchParams.get("redirect");
+  const queryParams: Record<string, string> = {};
 
   const form = useForm<z.infer<typeof OptValidation>>({
     resolver: zodResolver(OptValidation),
@@ -32,6 +40,24 @@ const HostOtpVerification = ({ type }: { type: string }) => {
       otp: "",
     },
   });
+
+  useEffect(() => {
+    async function session() {
+      if (!sessionId) {
+        navigate("/404");
+        return;
+      }
+      const response = await sessionIdVerify(sessionId);
+
+      if (response.success !== true) {
+        navigate("/404");
+        return;
+      }
+      setPhone(response.phone);
+    }
+
+    session();
+  }, [navigate, sessionId]);
 
   const onSubmit = async (data: z.infer<typeof OptValidation>) => {
     try {
@@ -47,7 +73,15 @@ const HostOtpVerification = ({ type }: { type: string }) => {
           return;
         }
 
-        navigate("/hostDetails");
+        if (sessionId) {
+          queryParams.sessionId = sessionId;
+        }
+
+        if (redirect) {
+          queryParams.redirect = redirect;
+        }
+
+        navigate(`/hostDetails?${new URLSearchParams(queryParams)}`);
       } else {
         if (!phone) {
           console.log("Phone number not found - host otp verification");

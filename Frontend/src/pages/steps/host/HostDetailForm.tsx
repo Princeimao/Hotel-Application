@@ -1,4 +1,4 @@
-import { hostDetials } from "@/api/hostApi";
+import { hostDetials, sessionIdVerify } from "@/api/hostApi";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -15,19 +15,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { login } from "@/context/features/HostContext";
-import type { RootState } from "@/context/store";
-import type { Host } from "@/types/host.types";
 import { DetailsValidation } from "@/validation";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import type z from "zod";
 
 const HostDetailForm = () => {
-  const phone = useSelector((state: RootState) => state.host.host?.phone);
-  const dispatch = useDispatch();
+  const [searchParams] = useSearchParams();
+  const [phone, setPhone] = useState<string | null>(null);
+  const sessionId = searchParams.get("sessionId");
+  const redirect = searchParams.get("redirect");
+  const queryParams: Record<string, string> = {};
+
   const navigate = useNavigate();
 
   const form = useForm<z.infer<typeof DetailsValidation>>({
@@ -39,11 +40,27 @@ const HostDetailForm = () => {
     },
   });
 
+  useEffect(() => {
+    async function session() {
+      if (!sessionId) {
+        console.log("somethign went wrong");
+        return;
+      }
+      const response = await sessionIdVerify(sessionId);
+
+      if (response.success !== true) {
+        return;
+      }
+      setPhone(response.phone);
+    }
+
+    session();
+  }, [navigate, sessionId]);
+
   const onSubmit = async (data: z.infer<typeof DetailsValidation>) => {
     try {
       if (!phone) {
-        console.log("Phone number not found - host otp verification");
-        return;
+        throw new Error("Phone number not found");
       }
 
       const response = await hostDetials(
@@ -58,18 +75,20 @@ const HostDetailForm = () => {
         return;
       }
 
-      const host: Host = {
-        id: "",
-        name: data.name,
-        email: data.email,
-        phone: phone,
-      };
+      if (response.success !== true) {
+        console.log("something went wrong");
+        return;
+      }
 
-      dispatch(
-        login({ host, isAuthenticated: false, status: "idle", error: null })
-      );
+      if (sessionId) {
+        queryParams.sessionId = sessionId;
+      }
 
-      navigate("/hostAddress");
+      if (redirect) {
+        queryParams.redirect = redirect;
+      }
+
+      navigate(`/hostAddress/?${new URLSearchParams(queryParams)}`);
     } catch (error) {
       console.log("something went wrong while creating Host", error);
     }
@@ -149,8 +168,8 @@ const HostDetailForm = () => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="Male">Male</SelectItem>
-                        <SelectItem value="Female">Female</SelectItem>
+                        <SelectItem value="MALE">Male</SelectItem>
+                        <SelectItem value="FEMALE">Female</SelectItem>
                         <SelectItem value="Prefer not to say">
                           Prefer not to say
                         </SelectItem>

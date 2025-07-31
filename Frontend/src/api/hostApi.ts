@@ -2,7 +2,30 @@ import type { Host } from "@/types/host.types";
 import type { ApiResponse } from "@/types/types";
 import { instance } from "./axios";
 
-export const hostSignup = async (phone: string): Promise<ApiResponse<void>> => {
+export const sessionIdVerify = async (
+  sessionId: string
+): Promise<{ success: boolean; message: string; phone: string | null }> => {
+  try {
+    const resposne = await instance.post("/host/session-verify", {
+      sessionId,
+    });
+
+    console.log(resposne.data);
+
+    return resposne.data;
+  } catch (error) {
+    console.log("something went wrong while verifying session id", error);
+    return {
+      success: false,
+      message: "something went wrong while verifying session id",
+      phone: null,
+    };
+  }
+};
+
+export const hostSignup = async (
+  phone: string
+): Promise<{ success: boolean; message: string; sessionId: string | null }> => {
   try {
     const response = await instance.post("/host/signup", {
       phone,
@@ -14,6 +37,7 @@ export const hostSignup = async (phone: string): Promise<ApiResponse<void>> => {
     return {
       success: false,
       message: "Something went wrong. Try again.",
+      sessionId: null,
     };
   }
 };
@@ -21,7 +45,7 @@ export const hostSignup = async (phone: string): Promise<ApiResponse<void>> => {
 export const hostSignupVerify = async (
   otp: number,
   phone: string
-): Promise<ApiResponse<void>> => {
+): Promise<{ success: boolean; message: string; phone: string | null }> => {
   try {
     const response = await instance.post("/host/signup-verfiy", {
       otp,
@@ -34,6 +58,7 @@ export const hostSignupVerify = async (
     return {
       success: false,
       message: "Something went wrong. Try again.",
+      phone: null,
     };
   }
 };

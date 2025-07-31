@@ -1,4 +1,4 @@
-import { hostAddress } from "@/api/hostApi";
+import { hostAddress, sessionIdVerify } from "@/api/hostApi";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -9,20 +9,22 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { login } from "@/context/features/HostContext";
-import type { RootState } from "@/context/store";
 import { hostAddressValidation } from "@/validation";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import type z from "zod";
 
 const HostAddressForm = () => {
-  const host = useSelector((state: RootState) => state.host);
-  const dispatch = useDispatch();
+  const [searchParams] = useSearchParams();
+  const [phone, setPhone] = useState<string | null>(null);
+  const sessionId = searchParams.get("sessionId");
+  const redirect = searchParams.get("redirect");
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const form = useForm<z.infer<typeof hostAddressValidation>>({
     resolver: zodResolver(hostAddressValidation),
@@ -35,9 +37,26 @@ const HostAddressForm = () => {
     },
   });
 
+  useEffect(() => {
+    async function session() {
+      if (!sessionId) {
+        console.log("somethign went wrong");
+        return;
+      }
+      const response = await sessionIdVerify(sessionId);
+
+      if (response.success !== true) {
+        return;
+      }
+      setPhone(response.phone);
+    }
+
+    session();
+  }, [navigate, sessionId]);
+
   const onSubmit = async (data: z.infer<typeof hostAddressValidation>) => {
     try {
-      if (!host.host?.phone) {
+      if (!phone) {
         console.log("Phone number not found - host otp verification");
         return;
       }
@@ -48,7 +67,7 @@ const HostAddressForm = () => {
         data.country,
         data.state,
         data.pincode,
-        host.host?.phone
+        phone
       );
 
       if (response.data !== undefined) {
@@ -56,16 +75,7 @@ const HostAddressForm = () => {
         return;
       }
 
-      dispatch(
-        login({
-          host: response.data!,
-          isAuthenticated: true,
-          status: "succeeded",
-          error: null,
-        })
-      );
-
-      navigate("/");
+      navigate(`/${redirect}`);
     } catch (error) {
       console.log("something went wrong while creating Host", error);
     }

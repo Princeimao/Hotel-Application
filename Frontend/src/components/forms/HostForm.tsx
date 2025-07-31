@@ -4,14 +4,15 @@ import "react-international-phone/style.css";
 
 import { hostSignin, hostSignup } from "@/api/hostApi";
 import { Button } from "@/components/ui/button";
-import { login, type Host } from "@/context/features/HostContext";
-import { useDispatch } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 
 export function HostForm({ type }: { type: string }) {
   const navigate = useNavigate();
   const [phone, setPhone] = useState<string>("");
-  const dispatch = useDispatch();
+  const [searchParams] = useSearchParams();
+  const redirect = searchParams.get("redirect");
+
+  const queryParams: Record<string, string> = {};
 
   const handelSubmit = async (e: React.FormEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -19,19 +20,22 @@ export function HostForm({ type }: { type: string }) {
       if (type === "signup") {
         const response = await hostSignup(phone);
 
-        if (response.success !== true) console.log("something went wrong"); // add toast
+        if (response.success !== true && response.sessionId === null) {
+          console.log("something went wrong");
+          return;
+        }
 
-        const host: Host = {
-          id: "",
-          name: "",
-          email: "",
-          phone: phone,
-        };
+        if (response.sessionId) {
+          queryParams.sessionId = response.sessionId;
+        }
 
-        dispatch(
-          login({ host, isAuthenticated: false, status: "idle", error: null })
+        if (redirect) {
+          queryParams.redirect = redirect;
+        }
+
+        navigate(
+          `/hostSignup-verification?${new URLSearchParams(queryParams)}`
         );
-        navigate("/hostSignup-verification");
       } else {
         const response = await hostSignin(phone);
 
