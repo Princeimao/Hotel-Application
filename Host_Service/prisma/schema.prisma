@@ -38,4 +38,5 @@ model Host {
 enum HostGender {
   MALE
   FEMALE
+  PREFER_NOT_TO_SAY
 }

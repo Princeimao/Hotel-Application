@@ -4,6 +4,7 @@ import {
   getHostbyId,
   hostAddress,
   hostDetails,
+  sessionIDVerification,
   signin,
   signin_verify,
   signup,
@@ -22,5 +23,6 @@ router.route("/get-host-Id/:hostId").get(getHostbyId);
 router
   .route("/get-host-accommodationId/:accommodationid")
   .get(getHostByAccommodationId);
+router.route("/session-verify").post(sessionIDVerification)
 
 export default router;

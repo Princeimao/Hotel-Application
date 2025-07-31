@@ -48,8 +48,12 @@ export const signup = async (req: Request, res: Response) => {
     }
 
     const otp = generateOTP();
+    const sessionId = uuidv4();
     await redis.set(`phone:${phone}`, otp, {
       EX: 300,
+    });
+    await redis.set(`SessionId:${sessionId}`, phone, {
+      EX: 600,
     });
 
     if (process.env.NODE_ENV === "production") {
@@ -59,6 +63,7 @@ export const signup = async (req: Request, res: Response) => {
     res.status(200).json({
       success: true,
       message: `Your otp is ${otp}`,
+      sessionId,
     });
   } catch (error) {
     if (error instanceof ZodError) {
@@ -117,7 +122,7 @@ export const signup_verify = async (req: Request, res: Response) => {
 
 export const hostDetails = async (req: Request, res: Response) => {
   try {
-    const { name, email, phone, gender } = hostDetailSchema.parse(req.body);
+    const { name, email, gender, phone } = hostDetailSchema.parse(req.body);
 
     await redis.json.set(`HOST:${phone}`, "$", {
       name: name,
@@ -439,6 +444,45 @@ export const getHostByAccommodationId = async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       message: "something went wrong while getting the host - accommodation Id",
+    });
+  }
+};
+
+// SESSION ID FOR PROTECTING PRIVATE ROUTES OR AUTH FLOW ROUTES
+export const sessionIDVerification = async (req: Request, res: Response) => {
+  try {
+    const { sessionId } = req.body;
+
+    if (!sessionId) {
+      res.status(400).json({
+        success: false,
+        message: "Session Id is not undefined",
+      });
+      return;
+    }
+
+    const sessionData = await redis.get(`SessionId:${sessionId}`);
+
+    if (!sessionData) {
+      res.status(400).json({
+        success: false,
+        message: "Session expired",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "session Id verified successfully",
+      phone: sessionData,
+    });
+  } catch (error) {
+    console.log(
+      "something went wrong while getting the host - Session Id",
+      error
+    );
+    res.status(500).json({
+      success: false,
+      message: "something went wrong while getting the host - Session Id",
     });
   }
 };
