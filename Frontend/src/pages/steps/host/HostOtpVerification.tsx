@@ -21,14 +21,17 @@ import {
   InputOTPGroup,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
+import { login } from "@/context/features/HostContext";
 import { OptValidation } from "@/validation";
 import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 
 const HostOtpVerification = ({ type }: { type: string }) => {
   const [phone, setPhone] = useState<string | null>(null);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const dispactch = useDispatch();
 
   const sessionId = searchParams.get("sessionId");
   const redirect = searchParams.get("redirect");
@@ -89,7 +92,22 @@ const HostOtpVerification = ({ type }: { type: string }) => {
         }
         const response = await hostSigninVerify(Number(data.otp), phone);
 
-        if (response.success !== true) console.log("something went wrong"); // add toast
+        if (response.success !== true) {
+          console.log("something went wrong");
+        } // add toast
+
+        if (response.host === undefined) {
+          return;
+        }
+
+        const host = {
+          id: response.host.id,
+          email: response.host.email,
+          name: response.host.name,
+          phone: response.host.phone,
+        };
+
+        dispactch(login({ host, isAuthenticated: true, status: "succeeded" }));
 
         // have to add redirect via params
         navigate("/");

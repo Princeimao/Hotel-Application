@@ -23,7 +23,7 @@ const initialState: HostState = {
 };
 
 const hostSlice = createSlice({
-  name: "user",
+  name: "host",
   initialState,
   reducers: {
     login: (state, action: PayloadAction<HostState>) => {

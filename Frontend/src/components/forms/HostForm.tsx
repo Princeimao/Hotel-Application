@@ -41,7 +41,13 @@ export function HostForm({ type }: { type: string }) {
 
         if (response.success !== true) console.log("something went wrong"); // add toast
 
-        navigate("/hostSignin-verification");
+        if (response.sessionId) {
+          queryParams.sessionId = response.sessionId;
+        }
+
+        navigate(
+          `/hostSignin-verification/?${new URLSearchParams(queryParams)}`
+        );
       }
     } catch (error) {
       if (type === "signup") {

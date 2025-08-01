@@ -1,4 +1,3 @@
-import type { Host } from "@/types/host.types";
 import type { ApiResponse } from "@/types/types";
 import { instance } from "./axios";
 
@@ -66,8 +65,8 @@ export const hostSignupVerify = async (
 export const hostDetials = async (
   name: string,
   email: string,
-  phone: string,
-  gender: string
+  gender: string,
+  phone: string
 ): Promise<ApiResponse<void>> => {
   try {
     const response = await instance.post("/host/host-details", {
@@ -94,7 +93,16 @@ export const hostAddress = async (
   state: string,
   pincode: string,
   phone: string
-): Promise<ApiResponse<Host>> => {
+): Promise<{
+  success: boolean;
+  message: string;
+  host?: {
+    id: string;
+    email: string;
+    name: string;
+    phone: string;
+  };
+}> => {
   try {
     const response = await instance.post("/host/host-address", {
       houseAddress,
@@ -115,7 +123,13 @@ export const hostAddress = async (
   }
 };
 
-export const hostSignin = async (phone: string): Promise<ApiResponse<void>> => {
+export const hostSignin = async (
+  phone: string
+): Promise<{
+  success: boolean;
+  message: string;
+  sessionId: string | null;
+}> => {
   try {
     const response = await instance.post("/host/signin", {
       phone,
@@ -127,6 +141,7 @@ export const hostSignin = async (phone: string): Promise<ApiResponse<void>> => {
     return {
       success: false,
       message: "Something went wrong. Try again.",
+      sessionId: null,
     };
   }
 };
@@ -134,9 +149,18 @@ export const hostSignin = async (phone: string): Promise<ApiResponse<void>> => {
 export const hostSigninVerify = async (
   otp: number,
   phone: string
-): Promise<ApiResponse<void>> => {
+): Promise<{
+  success: boolean;
+  message: string;
+  host?: {
+    id: string;
+    email: string;
+    name: string;
+    phone: string;
+  };
+}> => {
   try {
-    const response = await instance.post("/host/signin-verfiy", {
+    const response = await instance.post("/host/signin-verify", {
       otp,
       phone,
     });

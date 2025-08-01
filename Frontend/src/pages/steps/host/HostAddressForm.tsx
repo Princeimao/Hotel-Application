@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { login } from "@/context/features/HostContext";
 import { hostAddressValidation } from "@/validation";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -23,8 +24,8 @@ const HostAddressForm = () => {
   const [phone, setPhone] = useState<string | null>(null);
   const sessionId = searchParams.get("sessionId");
   const redirect = searchParams.get("redirect");
+  const dispactch = useDispatch();
   const navigate = useNavigate();
-  const dispatch = useDispatch();
 
   const form = useForm<z.infer<typeof hostAddressValidation>>({
     resolver: zodResolver(hostAddressValidation),
@@ -70,10 +71,24 @@ const HostAddressForm = () => {
         phone
       );
 
-      if (response.data !== undefined) {
+      if (response.success !== true) {
         console.log("something went wrong");
         return;
       }
+
+      if (response.host === undefined) {
+        console.log("something went wrong");
+        return;
+      }
+
+      const host = {
+        id: response.host.id,
+        email: response.host.email,
+        name: response.host.name,
+        phone: response.host.phone,
+      };
+
+      dispactch(login({ host, isAuthenticated: true, status: "succeeded" }));
 
       navigate(`/${redirect}`);
     } catch (error) {
