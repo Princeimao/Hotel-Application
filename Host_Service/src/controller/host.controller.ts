@@ -255,7 +255,8 @@ export const signin = async (req: Request, res: Response) => {
       return;
     }
 
-    const existingOtp = await redis.get(`phone:${phone}`);
+    const existingOtp = await redis.json.get(`phone:${phone}`);
+
     if (existingOtp) {
       res.status(400).json({
         success: false,
@@ -265,6 +266,12 @@ export const signin = async (req: Request, res: Response) => {
     }
 
     const otp = generateOTP();
+
+    const sessionId = uuidv4();
+    await redis.set(`SessionId:${sessionId}`, phone, {
+      EX: 600,
+    });
+
     await redis.json.set(`phone:${phone}`, "$", {
       sub: host.id,
       email: host.email,
@@ -279,6 +286,7 @@ export const signin = async (req: Request, res: Response) => {
     res.status(200).json({
       success: true,
       message: `Your otp is ${otp}`,
+      sessionId,
     });
   } catch (error) {
     if (error instanceof ZodError) {
@@ -344,14 +352,27 @@ export const signin_verify = async (req: Request, res: Response) => {
       }
     );
 
+    const host = await prisma.host.findUnique({
+      where: {
+        phone,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+      },
+    });
+
     res.cookie("AccessToken", AccessToken, {
       httpOnly: true,
       maxAge: 60 * 60 * 60,
     });
 
-    res.status(400).json({
+    res.status(200).json({
       success: true,
       message: "Successfull",
+      host,
     });
   } catch (error) {
     if (error instanceof ZodError) {
@@ -474,6 +495,47 @@ export const sessionIDVerification = async (req: Request, res: Response) => {
       success: true,
       message: "session Id verified successfully",
       phone: sessionData,
+    });
+  } catch (error) {
+    console.log(
+      "something went wrong while getting the host - Session Id",
+      error
+    );
+    res.status(500).json({
+      success: false,
+      message: "something went wrong while getting the host - Session Id",
+    });
+  }
+};
+
+export const getHost = async (req: Request, res: Response) => {
+  try {
+    const { phone } = req.hostUser;
+
+    if (!phone) {
+      res.status(400).json({
+        success: false,
+        message: "Unauthorized Request",
+      });
+      return;
+    }
+
+    const host = await prisma.host.findUnique({
+      where: {
+        phone,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+      },
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Host get successfully",
+      host,
     });
   } catch (error) {
     console.log(

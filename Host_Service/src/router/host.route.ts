@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  getHost,
   getHostByAccommodationId,
   getHostbyId,
   hostAddress,
@@ -10,6 +11,7 @@ import {
   signup,
   signup_verify,
 } from "../controller/host.controller";
+import { authMiddleware } from "./../middleware/auth.middleware";
 
 const router = express.Router();
 
@@ -23,6 +25,7 @@ router.route("/get-host-Id/:hostId").get(getHostbyId);
 router
   .route("/get-host-accommodationId/:accommodationid")
   .get(getHostByAccommodationId);
-router.route("/session-verify").post(sessionIDVerification)
+router.route("/session-verify").post(sessionIDVerification);
+router.route("/getHost").get(authMiddleware, getHost);
 
 export default router;
