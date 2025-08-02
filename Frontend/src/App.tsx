@@ -2,13 +2,16 @@ import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import HostSignIn from "./pages/auth/HostSignIn";
 import HostSignUp from "./pages/auth/HostSignUp";
 import UserSignIn from "./pages/auth/UserSignIn";
+import CreateListing from "./pages/CreatingListing";
 import Home from "./pages/Home";
 import AuthLayout from "./pages/layout/AuthLayout";
 import Layout from "./pages/layout/Layout";
 import RoomDetails from "./pages/RoomDetails";
+import Setting from "./pages/Setting";
 import HostAddressForm from "./pages/steps/host/HostAddressForm";
 import HostDetailForm from "./pages/steps/host/HostDetailForm";
 import HostOtpVerification from "./pages/steps/host/HostOtpVerification";
+import HostProfile from "./pages/steps/HostProfile";
 import UserDetailForm from "./pages/steps/user/UserDetailForm";
 import UserOtpVerification from "./pages/steps/user/UserOtpVerification";
 
@@ -49,6 +52,12 @@ function App() {
               element={<UserOtpVerification type="signup" />}
             />
             <Route path="/userDetails" element={<UserDetailForm />} />
+
+            {/* SIDE ROUTES */}
+            <Route path="/settings" element={<Setting />} />
+            <Route path="/host-profile" element={<HostProfile />} />
+            <Route path="/host-profile" element={<HostProfile />} />
+            <Route path="/create-listing" element={<CreateListing />} />
           </Route>
         </Routes>
       </Router>

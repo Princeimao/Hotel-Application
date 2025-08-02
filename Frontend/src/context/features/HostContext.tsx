@@ -1,4 +1,5 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
+import { fetchHost } from "../thunk/HostThunk";
 
 export interface Host {
   id: string;
@@ -37,6 +38,25 @@ const hostSlice = createSlice({
       state.status = "idle";
       state.error = null;
     },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchHost.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchHost.fulfilled, (state, action) => {
+        if (!action.payload) {
+          logout();
+          return;
+        }
+
+        state.host = action.payload;
+        state.isAuthenticated = true;
+        state.status = "succeeded";
+      })
+      .addCase(fetchHost.rejected, (state) => {
+        state.status = "failed";
+      });
   },
 });
 
