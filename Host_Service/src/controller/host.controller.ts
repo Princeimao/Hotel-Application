@@ -207,7 +207,7 @@ export const hostAddress = async (req: Request, res: Response) => {
 
     res.cookie("AccessToken", accessToken, {
       httpOnly: true,
-      maxAge: 60 * 60 * 60,
+      maxAge: 60 * 60 * 1000,
     });
 
     res.status(200).json({
@@ -366,7 +366,7 @@ export const signin_verify = async (req: Request, res: Response) => {
 
     res.cookie("AccessToken", AccessToken, {
       httpOnly: true,
-      maxAge: 60 * 60 * 60,
+      maxAge: 60 * 60 * 1000,
     });
 
     res.status(200).json({
@@ -538,13 +538,43 @@ export const getHost = async (req: Request, res: Response) => {
       host,
     });
   } catch (error) {
-    console.log(
-      "something went wrong while getting the host - Session Id",
-      error
-    );
+    console.log("something went wrong while getting the host", error);
     res.status(500).json({
       success: false,
-      message: "something went wrong while getting the host - Session Id",
+      message: "something went wrong while getting the host",
+    });
+  }
+};
+
+export const logout = async (req: Request, res: Response) => {
+  try {
+    if (!req.hostUser) {
+      res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
+      return;
+    }
+
+    const { jti } = req.hostUser;
+
+    const token =
+      req.headers.authorization?.split(" ")[1] || req.cookies["AccessToken"];
+
+    redis.set(`BlackList:${jti}`, token, {
+      EX: 60 * 60 * 60,
+    });
+
+    res.clearCookie("AccessToken");
+    res.status(200).json({
+      success: true,
+      message: "logout successfully",
+    });
+  } catch (error) {
+    console.log("something went wrong while loggin out host", error);
+    res.status(500).json({
+      success: false,
+      message: "something went wrong while loggin out host",
     });
   }
 };

@@ -5,6 +5,7 @@ import {
   getHostbyId,
   hostAddress,
   hostDetails,
+  logout,
   sessionIDVerification,
   signin,
   signin_verify,
@@ -27,5 +28,6 @@ router
   .get(getHostByAccommodationId);
 router.route("/session-verify").post(sessionIDVerification);
 router.route("/getHost").get(authMiddleware, getHost);
+router.route("/host-logout").get(authMiddleware, logout);
 
 export default router;
