@@ -1,73 +1,97 @@
-import { Wifi } from "lucide-react";
+import { Hotel } from "lucide-react";
 import type { ReactNode } from "react";
+import { FaHotel } from "react-icons/fa";
+import { FaTent } from "react-icons/fa6";
+import { GiCaveEntrance, GiIsland, GiSofa, GiTreehouse } from "react-icons/gi";
+import {
+  MdApartment,
+  MdMeetingRoom,
+  MdOutlineCabin,
+  MdOutlineChalet,
+  MdOutlineHouseboat,
+} from "react-icons/md";
+import { TbBuildingCottage } from "react-icons/tb";
 
-export const structure: Record<string, { icon: ReactNode; label: string }> = {
-  hotel: {
-    icon: <Wifi />,
-    label: "Hotel",
-  },
-  villa: {
-    icon: <Wifi />,
-    label: "Hotel",
-  },
-  apartment: {
-    icon: <Wifi />,
-    label: "Hotel",
-  },
-  cabin: {
-    icon: <Wifi />,
-    label: "Hotel",
-  },
-  bungalow: {
-    icon: <Wifi />,
-    label: "Hotel",
-  },
-  cottage: {
-    icon: <Wifi />,
-    label: "Hotel",
-  },
-  resort: {
-    icon: <Wifi />,
-    label: "Hotel",
-  },
-  guest_house: {
-    icon: <Wifi />,
-    label: "Hotel",
-  },
-  hostel: {
-    icon: <Wifi />,
-    label: "Hotel",
-  },
-  room: {
-    icon: <Wifi />,
-    label: "Hotel",
-  },
-  shared_space: {
-    icon: <Wifi />,
-    label: "Hotel",
-  },
-  houseboat: {
-    icon: <Wifi />,
-    label: "Hotel",
-  },
-  treehouse: {
-    icon: <Wifi />,
-    label: "Hotel",
-  },
-  cave: {
-    icon: <Wifi />,
-    label: "Hotel",
-  },
-  farm_stay: {
-    icon: <Wifi />,
-    label: "Hotel",
-  },
-  tent: {
-    icon: <Wifi />,
-    label: "Hotel",
-  },
-  chalet: {
-    icon: <Wifi />,
-    label: "Hotel",
-  },
-};
+export const structureMap: [{ icon: ReactNode; label: string; name: string }] =
+  [
+    {
+      icon: <Hotel />,
+      label: "hotel",
+      name: "Hotel",
+    },
+    {
+      icon: <GiIsland />,
+      label: "villa",
+      name: "Villa",
+    },
+    {
+      icon: <MdApartment />,
+      label: "apartment",
+      name: "Apartment",
+    },
+    {
+      icon: <MdOutlineCabin />,
+      label: "cabin",
+      name: "Cabin",
+    },
+    {
+      icon: <GiIsland />,
+      label: "bungalow",
+      name: "Bungalow",
+    },
+    {
+      icon: <GiIsland />,
+      label: "cottage",
+      name: "Cottage",
+    },
+    {
+      icon: <TbBuildingCottage />,
+      label: "resort",
+      name: "Resort",
+    },
+    {
+      icon: <GiIsland />,
+      label: "guest_house",
+      name: "Guest House",
+    },
+    {
+      icon: <FaHotel />,
+      label: "hostel",
+      name: "Hostel",
+    },
+    {
+      icon: <MdMeetingRoom />,
+      label: "room",
+      name: "Room",
+    },
+    {
+      icon: <GiSofa />,
+      label: "shared_space",
+      name: "Shared Space",
+    },
+    {
+      icon: <GiTreehouse />,
+      label: "treehouse",
+      name: "Tree House",
+    },
+    {
+      icon: <MdOutlineHouseboat />,
+      label: "houseboat",
+      name: "House Boat",
+    },
+    {
+      icon: <GiCaveEntrance />,
+      label: "cave",
+      name: "Cave",
+    },
+    {
+      icon: <FaTent />,
+      label: "tent",
+      name: "Tent",
+    },
+    {
+      icon: <MdOutlineChalet />,
+      label: "chalet",
+      name: "Chalet",
+    },
+  ];

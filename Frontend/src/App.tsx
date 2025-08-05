@@ -13,11 +13,13 @@ import Setting from "./pages/Setting";
 import HostAddressForm from "./pages/steps/host/HostAddressForm";
 import HostDetailForm from "./pages/steps/host/HostDetailForm";
 import HostOtpVerification from "./pages/steps/host/HostOtpVerification";
+import Address from "./pages/steps/listing/Address";
 import BecomeAHost from "./pages/steps/listing/BecomeAHost";
 import CreateListing from "./pages/steps/listing/CreatingListing";
+import FloorPlan from "./pages/steps/listing/FloorPlan";
+import Structure from "./pages/steps/listing/Structure";
 import UserDetailForm from "./pages/steps/user/UserDetailForm";
 import UserOtpVerification from "./pages/steps/user/UserOtpVerification";
-import Structure from "./pages/steps/listing/Structure";
 
 function App() {
   return (
@@ -66,6 +68,8 @@ function App() {
           <Route element={<ListingLayout />}>
             <Route path="/become-a-host" element={<BecomeAHost />} />
             <Route path="/structure" element={<Structure />} />
+            <Route path="/address" element={<Address />} />
+            <Route path="/floor-plan" element={<FloorPlan />} />
           </Route>
         </Routes>
       </Router>

@@ -5,8 +5,8 @@ export const urlConstants: Record<string, { url: string }> = {
   structure: {
     url: "/structure",
   },
-  privacy: {
-    url: "/privacy-type",
+  address: {
+    url: "/address",
   },
   floorPlan: {
     url: "/floor-plan",
