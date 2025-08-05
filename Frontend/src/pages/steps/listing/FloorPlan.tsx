@@ -125,8 +125,8 @@ const FloorPlan = () => {
         </div>
       </div>
       <ProgressBar
-        progress={6.25 * 1}
-        back={urlConstants["floorPlan"].url}
+        progress={6.25 * 3}
+        back={urlConstants["address"].url}
         front={urlConstants["occupancy"].url}
         isBackDisable={false}
         isFrontDisable={false}

@@ -9,9 +9,9 @@ const Address = () => {
         {/* <div className="w-130 mt-4 flex flex-wrap gap-2.5"></div> */}
       </div>
       <ProgressBar
-        progress={6.25 * 1}
+        progress={6.25 * 2}
         back={urlConstants["structure"].url}
-        front={urlConstants["floorPlan"].url} 
+        front={urlConstants["floorPlan"].url}
         isBackDisable={false}
         isFrontDisable={false}
         pathname={urlConstants["structure"].url}

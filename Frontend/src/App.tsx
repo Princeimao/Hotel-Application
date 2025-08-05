@@ -17,6 +17,7 @@ import Address from "./pages/steps/listing/Address";
 import BecomeAHost from "./pages/steps/listing/BecomeAHost";
 import CreateListing from "./pages/steps/listing/CreatingListing";
 import FloorPlan from "./pages/steps/listing/FloorPlan";
+import Occupancy from "./pages/steps/listing/Occupancy";
 import Structure from "./pages/steps/listing/Structure";
 import UserDetailForm from "./pages/steps/user/UserDetailForm";
 import UserOtpVerification from "./pages/steps/user/UserOtpVerification";
@@ -70,6 +71,7 @@ function App() {
             <Route path="/structure" element={<Structure />} />
             <Route path="/address" element={<Address />} />
             <Route path="/floor-plan" element={<FloorPlan />} />
+            <Route path="/occupancy" element={<Occupancy />} />
           </Route>
         </Routes>
       </Router>
