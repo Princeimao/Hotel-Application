@@ -14,6 +14,7 @@ import HostAddressForm from "./pages/steps/host/HostAddressForm";
 import HostDetailForm from "./pages/steps/host/HostDetailForm";
 import HostOtpVerification from "./pages/steps/host/HostOtpVerification";
 import Address from "./pages/steps/listing/Address";
+import Amenities from "./pages/steps/listing/Amenities";
 import BecomeAHost from "./pages/steps/listing/BecomeAHost";
 import CreateListing from "./pages/steps/listing/CreatingListing";
 import FloorPlan from "./pages/steps/listing/FloorPlan";
@@ -72,6 +73,7 @@ function App() {
             <Route path="/address" element={<Address />} />
             <Route path="/floor-plan" element={<FloorPlan />} />
             <Route path="/occupancy" element={<Occupancy />} />
+            <Route path="/amenities" element={<Amenities />} />
           </Route>
         </Routes>
       </Router>

@@ -35,7 +35,7 @@ const Occupancy = () => {
               }`}
               onClick={() => toggleButton(occ.label)}
             >
-              <div>
+              <div className="">
                 {occ.icon}
                 <h1>{occ.name}</h1>
               </div>
@@ -48,8 +48,8 @@ const Occupancy = () => {
       </div>
       <ProgressBar
         progress={6.25 * 2}
-        back={urlConstants["structure"].url}
-        front={urlConstants["floorPlan"].url}
+        back={urlConstants["floorPlan"].url}
+        front={urlConstants["amenities"].url}
         isBackDisable={false}
         isFrontDisable={false}
         pathname={urlConstants["structure"].url}

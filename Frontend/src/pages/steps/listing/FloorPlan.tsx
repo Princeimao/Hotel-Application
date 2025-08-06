@@ -24,10 +24,9 @@ const FloorPlan = () => {
                 <Button
                   className="bg-transparent border-2 border-gray-400 hover:bg-transparent active:border-black text-black rounded-full px-2 py-3 h-0"
                   onClick={() => {
-                    if (guest === 1) {
-                      return;
+                    if (guest > 1) {
+                      setGuest((prev) => prev - 1);
                     }
-                    setGuest((prev) => prev - 1);
                   }}
                 >
                   -
@@ -49,10 +48,9 @@ const FloorPlan = () => {
                 <Button
                   className="bg-transparent border-2 border-gray-400 hover:bg-transparent active:border-black text-black rounded-full px-2 py-3 h-0"
                   onClick={() => {
-                    if (guest === 1) {
-                      return;
+                    if (bedrooms > 1) {
+                      setBedrooms((prev) => prev - 1);
                     }
-                    setBedrooms((prev) => prev - 1);
                   }}
                 >
                   -
@@ -76,10 +74,9 @@ const FloorPlan = () => {
                 <Button
                   className="bg-transparent border-2 border-gray-400 hover:bg-transparent active:border-black text-black rounded-full px-2 py-3 h-0"
                   onClick={() => {
-                    if (guest === 1) {
-                      return;
+                    if (beds > 1) {
+                      setBeds((prev) => prev - 1);
                     }
-                    setBeds((prev) => prev - 1);
                   }}
                 >
                   -

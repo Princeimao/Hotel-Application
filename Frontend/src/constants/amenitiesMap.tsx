@@ -100,3 +100,83 @@ export const amenitiesMap: Record<string, { icon: ReactNode; label: string }> =
     //   label: "First Aid Kit",
     // },
   };
+
+export const amenitiesArrayMap = [
+  {
+    icon: <Wifi />,
+    label: "wifi",
+    name: "Wifi",
+  },
+  {
+    icon: <Snowflake />,
+    label: "air_conditioner",
+    name: "Air Conditioner",
+  },
+  {
+    icon: <Heater />,
+    label: "heater",
+    name: "Heater",
+  },
+  {
+    icon: <Utensils />,
+    label: "kitchen",
+    name: "Kitchen",
+  },
+  {
+    icon: <CircleParking />,
+    label: "parking_space",
+    name: "Parking Space",
+  },
+  {
+    icon: <WavesLadder />,
+    label: "swimming_pool",
+    name: "Swimming Pool",
+  },
+  {
+    icon: <Dumbbell />,
+    label: "gym",
+    name: "Gym",
+  },
+  {
+    icon: <WashingMachine />,
+    label: "washing_machine",
+    name: "Washing Machine",
+  },
+  {
+    icon: <Wind />,
+    label: "dryer",
+    name: "Dryer",
+  },
+  {
+    icon: <UtensilsCrossed />,
+    label: "breakfast_included",
+    name: "Break Fast Included",
+  },
+  {
+    icon: <Dog />,
+    label: "pet_friendly",
+    name: "Pet Friendly",
+  },
+  {
+    icon: <Cigarette />,
+    label: "smoking_allowed",
+    name: "Smoking Allowed",
+  },
+
+  {
+    icon: <LampDesk />,
+    label: "workspace",
+    name: "WorkSpace",
+  },
+
+  {
+    icon: <Cctv />,
+    label: "security",
+    name: "Security",
+  },
+  {
+    icon: <Bath />,
+    label: "private_bathroom",
+    name: "Private Bathroom",
+  },
+];

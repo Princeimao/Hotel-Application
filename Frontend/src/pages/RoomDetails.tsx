@@ -137,7 +137,7 @@ const RoomDetails = () => {
                 What this place offers
               </h3>
               <div className="grid grid-cols-2 gap-4">
-                <Amenities amenities={room?.amenities} />
+                <Amenitie amenities={room?.amenities} />
               </div>
             </div>
           </div>
@@ -253,7 +253,7 @@ const RoomDetails = () => {
 
 export default RoomDetails;
 
-export const Amenities = ({
+export const Amenitie = ({
   amenities,
 }: {
   amenities: string[] | undefined;

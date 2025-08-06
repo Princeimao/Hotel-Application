@@ -26,10 +26,10 @@ const BecomeAHost = () => {
             </div>
             <div className="w-120 h-26 border-b-2 flex">
               <div>
-                <h3 className="font-semibold text-sm">Tell About Your Place</h3>
+                <h3 className="font-semibold text-sm">Make it stand out</h3>
                 <p className="text-xs font-black text-gray-500">
-                  Share some basic info, such as where it is and how many guest
-                  can stay
+                  Add 5 or more photos plus a title and description - we'll help
+                  you out.
                 </p>
               </div>
               <div className="w-30">
@@ -38,10 +38,12 @@ const BecomeAHost = () => {
             </div>
             <div className="w-120 h-26 flex">
               <div>
-                <h3 className="font-semibold text-sm">Tell About Your Place</h3>
+                <h3 className="font-semibold text-sm">
+                  Finish up and publish{" "}
+                </h3>
                 <p className="text-xs font-black text-gray-500">
-                  Share some basic info, such as where it is and how many guest
-                  can stay
+                  Choose if you'd like to start with an experienced guest, set a
+                  starting price and publish your listing
                 </p>
               </div>
               <div className="w-30">
