@@ -20,6 +20,7 @@ import CreateListing from "./pages/steps/listing/CreatingListing";
 import FloorPlan from "./pages/steps/listing/FloorPlan";
 import Occupancy from "./pages/steps/listing/Occupancy";
 import Structure from "./pages/steps/listing/Structure";
+import UploadListingImages from "./pages/steps/listing/UploadListingImages";
 import UserDetailForm from "./pages/steps/user/UserDetailForm";
 import UserOtpVerification from "./pages/steps/user/UserOtpVerification";
 
@@ -74,6 +75,7 @@ function App() {
             <Route path="/floor-plan" element={<FloorPlan />} />
             <Route path="/occupancy" element={<Occupancy />} />
             <Route path="/amenities" element={<Amenities />} />
+            <Route path="/upload-photos" element={<UploadListingImages />} />
           </Route>
         </Routes>
       </Router>
