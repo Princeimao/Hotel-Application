@@ -14,8 +14,10 @@ app.use(
 app.use(cookieParser());
 
 // Public Routes
+import fileUpload from "./src/routes/fileUploda.route";
 import roomRoute from "./src/routes/room.route";
 import seasonRoute from "./src/routes/season.route";
 
 app.use("/", roomRoute);
 app.use("/", seasonRoute);
+app.use("/", fileUpload);
