@@ -17,8 +17,10 @@ import Address from "./pages/steps/listing/Address";
 import Amenities from "./pages/steps/listing/Amenities";
 import BecomeAHost from "./pages/steps/listing/BecomeAHost";
 import CreateListing from "./pages/steps/listing/CreatingListing";
+import Details from "./pages/steps/listing/Details";
 import FloorPlan from "./pages/steps/listing/FloorPlan";
 import Occupancy from "./pages/steps/listing/Occupancy";
+import ReservationType from "./pages/steps/listing/ReservationType";
 import Structure from "./pages/steps/listing/Structure";
 import UploadListingImages from "./pages/steps/listing/UploadListingImages";
 import UserDetailForm from "./pages/steps/user/UserDetailForm";
@@ -76,6 +78,8 @@ function App() {
             <Route path="/occupancy" element={<Occupancy />} />
             <Route path="/amenities" element={<Amenities />} />
             <Route path="/upload-photos" element={<UploadListingImages />} />
+            <Route path="/accommodation-details" element={<Details />} />
+            <Route path="/reservation-type" element={<ReservationType />} />
           </Route>
         </Routes>
       </Router>

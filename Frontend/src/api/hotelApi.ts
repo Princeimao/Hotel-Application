@@ -27,7 +27,7 @@ export const fetchRoomDetails = async (accommodationId: string) => {
 export const generateUploadToken = async (): Promise<{
   success: boolean;
   message: string;
-  imagekit?: {
+  imageKit?: {
     token: string;
     expire: number;
     signature: string;
@@ -35,10 +35,11 @@ export const generateUploadToken = async (): Promise<{
   };
 }> => {
   try {
-    const response = await instance.get("/upload-token", {
+    const response = await instance.get("/listing/upload-token", {
       signal: controller.signal,
     });
 
+    console.log(response.data);
     return response.data;
   } catch (error) {
     if (error.name === "CanceledError") {
@@ -53,6 +54,29 @@ export const generateUploadToken = async (): Promise<{
     return {
       success: false,
       message: "something went wrong while getting upload token",
+    };
+  }
+};
+
+export const uploadImage = async (
+  hotelId: string,
+  images: string[]
+): Promise<{
+  success: boolean;
+  message: string;
+}> => {
+  try {
+    const response = await instance.post(
+      `/accommodation-images/${hotelId}`,
+      images
+    );
+
+    return response.data;
+  } catch (error) {
+    console.log("something went wrontg while upload the image", error);
+    return {
+      success: false,
+      message: "something went wrontg while upload the image",
     };
   }
 };

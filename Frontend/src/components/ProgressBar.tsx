@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { Loader } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface Props {
@@ -9,6 +10,7 @@ interface Props {
   isBackDisable: boolean;
   isFrontDisable: boolean;
   pathname: string;
+  loading?: boolean;
 }
 
 const ProgressBar = ({
@@ -18,6 +20,7 @@ const ProgressBar = ({
   isBackDisable,
   isFrontDisable,
   pathname,
+  loading = false,
 }: Props) => {
   const navigate = useNavigate();
 
@@ -51,7 +54,7 @@ const ProgressBar = ({
               onClick={() => navigate(front)}
               className="border px-8 text-white bg-red-600 hover:bg-red-700 rounded-xl hover:text-white"
             >
-              Next
+              {loading ? <Loader className="animate-spin" /> : "Next"}
             </Button>
           </>
         )}

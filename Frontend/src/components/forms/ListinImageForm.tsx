@@ -1,22 +1,17 @@
 import { generateUploadToken } from "@/api/hotelApi";
 import { imageUpload } from "@/utils/imageKitUpload";
-import {
-  ImageKitAbortError,
-  ImageKitInvalidRequestError,
-  ImageKitServerError,
-  ImageKitUploadNetworkError,
-} from "@imagekit/react";
-import crypto from "crypto";
 import { useState } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 
-const ListingForm = () => {
+interface Props {
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+const ListinImageForm = ({ setLoading }: Props) => {
   const [images, setImages] = useState<File[]>([]);
   const [imageUrl, setImageUrl] = useState<string[]>([]);
-
-  console.log(imageUrl);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -28,37 +23,32 @@ const ListingForm = () => {
     setImages(images.filter((_, index) => index !== indexToRemove));
   };
 
-  const authenticator = async () => {
-    try {
-      const response = await generateUploadToken();
-      if (response.success === false) {
-        throw new Error(`${response.message}`);
-      }
-
-      if (!response.imagekit) {
-        throw new Error("Credentials not found");
-      }
-
-      const { signature, expire, token, publicKey } = response.imagekit;
-      return { signature, expire, token, publicKey };
-    } catch (error) {
-      console.error("Authentication error:", error);
-      throw new Error("Authentication request failed");
-    }
-  };
-
   const handleUpload = async () => {
-    let authParams;
-    try {
-      authParams = await authenticator();
-    } catch (authError) {
-      console.error("Failed to authenticate for upload:", authError);
-      return;
+    if (images.length === 0) {
+      throw new Error("images not found");
     }
-    const { signature, expire, token, publicKey } = authParams;
 
     try {
-      images.map(async (image) => {
+      const authParams = await generateUploadToken();
+
+      if (authParams.success === false) {
+        console.log("something went wrong while getting token");
+        return;
+      }
+
+      console.log("authParams", authParams);
+
+      if (!authParams.imageKit) {
+        throw new Error("Auth Params not found");
+      }
+      console.log(authParams.imageKit);
+
+      const { expire, token, signature, publicKey } = authParams.imageKit;
+      if (authParams === undefined) {
+        throw new Error("auth params not found");
+      }
+
+      const uploadPromises = images.map(async (image) => {
         const response = await imageUpload(
           expire,
           token,
@@ -69,24 +59,20 @@ const ListingForm = () => {
           "listing"
         );
 
-        if (response.url === undefined) {
-          throw new Error("url not found");
-        }
-
-        setImageUrl((prev) => [...prev, response.url!]);
+        if (!response?.url) throw new Error("URL not found");
+        return response.url;
       });
+
+      const urls = await Promise.all(uploadPromises);
+
+      // upload all the images url in the database,
+      console.log(imageUrl);
+
+      setLoading(false);
+
+      setImageUrl((prev) => [...prev, ...urls]);
     } catch (error) {
-      if (error instanceof ImageKitAbortError) {
-        console.error("Upload aborted:", error.reason);
-      } else if (error instanceof ImageKitInvalidRequestError) {
-        console.error("Invalid request:", error.message);
-      } else if (error instanceof ImageKitUploadNetworkError) {
-        console.error("Network error:", error.message);
-      } else if (error instanceof ImageKitServerError) {
-        console.error("Server error:", error.message);
-      } else {
-        console.error("Upload error:", error);
-      }
+      console.error("Upload error:", error);
     }
   };
 
@@ -135,4 +121,4 @@ const ListingForm = () => {
   );
 };
 
-export default ListingForm;
+export default ListinImageForm;

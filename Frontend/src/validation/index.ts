@@ -19,3 +19,11 @@ export const hostAddressValidation = z.object({
   state: z.string(),
   pincode: z.string().min(6, { message: "Incorrect Pincode" }),
 });
+
+export const listingDetailsValidation = z.object({
+  title: z
+    .string()
+    .min(3, { message: "title cannot be less than 3 character" }),
+  details: z.string().min(1),
+  basePrice: z.string().min(1),
+});
