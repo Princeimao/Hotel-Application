@@ -53,8 +53,17 @@ export const accommodationAddress = async (req: Request, res: Response) => {
   try {
     const { hostId } = req.params;
 
-    const { hosueAddress, country, state, city, pincode, coordinates } =
-      addressSchema.parse(req.body);
+    const {
+      flatNo,
+      street,
+      nearbyLandmark,
+      locality,
+      country,
+      state,
+      city,
+      pincode,
+      coordinates,
+    } = addressSchema.parse(req.body);
 
     const roomId = await redis.get(`RoomDraft:${hostId}`);
 
@@ -65,7 +74,10 @@ export const accommodationAddress = async (req: Request, res: Response) => {
       {
         $set: {
           location: {
-            hosueAddress,
+            flatNo,
+            street,
+            nearbyLandmark,
+            locality,
             country,
             state,
             city,

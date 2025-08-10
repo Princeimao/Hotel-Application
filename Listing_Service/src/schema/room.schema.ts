@@ -10,7 +10,10 @@ export const accomodationTypeSchema = z.object({
 });
 
 export const addressSchema = z.object({
-  hosueAddress: z.string(),
+  flatNo: z.string(),
+  street: z.string(),
+  nearbyLandmark: z.string(),
+  locality: z.string(),
   country: z.string(),
   state: z.string(),
   city: z.string(),
