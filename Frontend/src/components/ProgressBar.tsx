@@ -11,6 +11,7 @@ interface Props {
   isFrontDisable: boolean;
   pathname: string;
   loading?: boolean;
+  handleSubmit: any;
 }
 
 const ProgressBar = ({
@@ -21,8 +22,19 @@ const ProgressBar = ({
   isFrontDisable,
   pathname,
   loading = false,
+  handleSubmit,
 }: Props) => {
   const navigate = useNavigate();
+
+  const onSubmit = async () => {
+    try {
+      const response = await handleSubmit();
+
+      console.log(response);
+    } catch (error) {
+      console.log("something went wrong - Progress bar", error);
+    }
+  };
 
   return (
     <div className="w-full h-20 absolute bottom-0 left-0">
@@ -35,7 +47,7 @@ const ProgressBar = ({
         {pathname === "/become-a-host" ? (
           <Button
             disabled={isFrontDisable}
-            onClick={() => navigate(front)}
+            onClick={() => onSubmit()}
             className="border px-8 text-white bg-red-600 hover:bg-red-700 rounded-xl hover:text-white"
           >
             Next
@@ -51,7 +63,7 @@ const ProgressBar = ({
             </Button>
             <Button
               disabled={isFrontDisable}
-              onClick={() => navigate(front)}
+              onClick={() => onSubmit()}
               className="border px-8 text-white bg-red-600 hover:bg-red-700 rounded-xl hover:text-white"
             >
               {loading ? <Loader className="animate-spin" /> : "Next"}

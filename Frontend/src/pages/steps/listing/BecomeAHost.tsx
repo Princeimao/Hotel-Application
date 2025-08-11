@@ -1,7 +1,24 @@
+import { becomaAHost } from "@/api/hotelApi";
 import ProgressBar from "@/components/ProgressBar";
 import { urlConstants } from "@/constants/listingUrlConstants";
+import { useParams } from "react-router-dom";
 
 const BecomeAHost = () => {
+  const { hostId } = useParams();
+  console.log(hostId);
+
+  const handleSubmit = async () => {
+    try {
+      if (!hostId) {
+        throw new Error("something went wrong - hostId not found");
+      }
+
+      await becomaAHost(hostId);
+    } catch (error) {
+      console.log("something went wrong while listing accommodation", error);
+    }
+  };
+
   return (
     <div className="w-full h-[80%]">
       <div className="w-full h-[100%] flex">
@@ -55,12 +72,13 @@ const BecomeAHost = () => {
       </div>
 
       <ProgressBar
-        progress={0 / 16}
+        progress={11.111 * 1}
         back=""
         front={urlConstants["structure"].url}
         isBackDisable={true}
         isFrontDisable={false}
         pathname={urlConstants["becomeAHost"].url}
+        handleSubmit={handleSubmit}
       />
     </div>
   );

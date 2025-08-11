@@ -5,5 +5,5 @@ RUN npm install
 COPY . .
 RUN npm install -g ts-node-dev
 EXPOSE 3003
-CMD ["ts-node-dev", "--respawn", "--transpile-only", "src/index.ts"]
+CMD ["ts-node-dev", "--respawn", "--transpile-only", "index.ts"]
 

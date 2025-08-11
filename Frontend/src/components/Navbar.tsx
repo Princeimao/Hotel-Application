@@ -71,16 +71,10 @@ const Navbar = ({ authLayout }: Props) => {
         {host.isAuthenticated ? (
           <>
             <Button
-              onClick={() =>
-                navigate(
-                  `/hostSignup/?${new URLSearchParams({
-                    redirect: "become a host",
-                  })}`
-                )
-              }
+              onClick={() => navigate(`/become-a-host/${host.host?.id}`)}
               className="bg-secondary text-black px-4 py-5 rounded-full hover:bg-[#EBEBEB] shadow-none"
             >
-              Become a host
+              List Accommodation
             </Button>
 
             <DropdownMenu>

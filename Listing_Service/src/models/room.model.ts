@@ -9,7 +9,6 @@ import {
 const RoomSchema = new Schema({
   hostId: {
     type: String,
-    unique: true,
   },
   title: {
     type: String,

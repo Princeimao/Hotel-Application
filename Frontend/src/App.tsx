@@ -71,7 +71,7 @@ function App() {
           </Route>
 
           <Route element={<ListingLayout />}>
-            <Route path="/become-a-host" element={<BecomeAHost />} />
+            <Route path="/become-a-host/:hostId" element={<BecomeAHost />} />
             <Route path="/structure" element={<Structure />} />
             <Route path="/address" element={<Address />} />
             <Route path="/floor-plan" element={<FloorPlan />} />

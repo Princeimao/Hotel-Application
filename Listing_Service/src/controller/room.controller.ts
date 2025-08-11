@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 
 import { ZodError } from "zod";
-import { redis } from "../db/redis.client";
 import roomModel from "../models/room.model";
 import {
   accommodationAmenitiesSchema,
@@ -15,18 +14,45 @@ import {
   peopleAtAccommodationSchema,
 } from "../schema/room.schema";
 
-export const accommodationType = async (req: Request, res: Response) => {
+export const listAccommodation = async (req: Request, res: Response) => {
   try {
-    console.log(req.body);
     const { hostId } = req.params;
-    const { roomType } = accomodationTypeSchema.parse(req.body);
 
     const room = await roomModel.create({
       hostId,
-      accommodationType: roomType,
     });
 
-    await redis.set(`RoomDraft:${hostId}`, `${room._id}`);
+    res.status(200).json({
+      success: true,
+      message: "Accommodation setup successfully",
+      roomId: room._id,
+    });
+  } catch (error) {
+    console.log("something went wrong while creating accomodation type", error);
+    res.status(500).json({
+      success: false,
+      message: "something went wrong while creating accomodation type",
+      error,
+    });
+  }
+};
+
+export const accommodationType = async (req: Request, res: Response) => {
+  try {
+    const { roomId } = req.params;
+    const { roomType } = accomodationTypeSchema.parse(req.body);
+
+    await roomModel.updateOne(
+      {
+        _id: roomId,
+      },
+      {
+        $set: {
+          accommodationType: roomType,
+        },
+      },
+      { upsert: true }
+    );
 
     res.status(200).json({
       success: true,
@@ -51,8 +77,7 @@ export const accommodationType = async (req: Request, res: Response) => {
 
 export const accommodationAddress = async (req: Request, res: Response) => {
   try {
-    const { hostId } = req.params;
-
+    const { roomId } = req.params;
     const {
       flatNo,
       street,
@@ -64,8 +89,6 @@ export const accommodationAddress = async (req: Request, res: Response) => {
       pincode,
       coordinates,
     } = addressSchema.parse(req.body);
-
-    const roomId = await redis.get(`RoomDraft:${hostId}`);
 
     await roomModel.updateOne(
       {
@@ -115,7 +138,7 @@ export const accommodationAddress = async (req: Request, res: Response) => {
 
 export const accommodationDetails = async (req: Request, res: Response) => {
   try {
-    const { hostId } = req.params;
+    const { roomId } = req.params;
     const {
       maxGuests,
       adultOccupancy,
@@ -125,8 +148,6 @@ export const accommodationDetails = async (req: Request, res: Response) => {
       bedroomLock,
       petsAllowed,
     } = accommodationDetailsSchema.parse(req.body);
-
-    const roomId = await redis.get(`RoomDraft:${hostId}`);
 
     await roomModel.updateOne(
       {
@@ -168,10 +189,8 @@ export const accommodationDetails = async (req: Request, res: Response) => {
 
 export const peopleAtAccommodation = async (req: Request, res: Response) => {
   try {
-    const { hostId } = req.params;
+    const { roomId } = req.params;
     const { sharedWith } = peopleAtAccommodationSchema.parse(req.body);
-
-    const roomId = await redis.get(`RoomDraft:${hostId}`);
 
     await roomModel.updateOne(
       {
@@ -207,10 +226,8 @@ export const peopleAtAccommodation = async (req: Request, res: Response) => {
 
 export const accommodationAmenities = async (req: Request, res: Response) => {
   try {
-    const { hostId } = req.params;
+    const { roomId } = req.params;
     const { amenities } = accommodationAmenitiesSchema.parse(req.body);
-
-    const roomId = await redis.get(`RoomDraft:${hostId}`);
 
     await roomModel.updateOne(
       {
@@ -248,10 +265,8 @@ export const accommodationAmenities = async (req: Request, res: Response) => {
 // image will directly store to cloud bucket (can be S3, GCP bucket), i will use imagekit.io
 export const accommodationImages = async (req: Request, res: Response) => {
   try {
-    const { hostId } = req.params;
+    const { roomId } = req.params;
     const { images } = accommodationPhotoSchema.parse(req.body);
-
-    const roomId = await redis.get(`RoomDraft:${hostId}`);
 
     await roomModel.updateOne(
       {
@@ -291,10 +306,8 @@ export const accommodationBasicDetails = async (
   res: Response
 ) => {
   try {
-    const { hostId } = req.params;
+    const { roomId } = req.params;
     const { title, description, basePrice } = detailsSchema.parse(req.body);
-
-    const roomId = await redis.get(`RoomDraft:${hostId}`);
 
     await roomModel.updateOne(
       {
@@ -336,12 +349,10 @@ export const accommodationCompleteSetup = async (
   res: Response
 ) => {
   try {
-    const { hostId } = req.params;
+    const { roomId } = req.params;
     const { minimumBookingDays, petsAllowed } = accommodationSchema.parse(
       req.body
     );
-
-    const roomId = await redis.get(`RoomDraft:${hostId}`);
 
     const room = await roomModel.findByIdAndUpdate(
       { _id: roomId },
