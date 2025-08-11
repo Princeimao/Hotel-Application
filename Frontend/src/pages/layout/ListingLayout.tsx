@@ -1,11 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { Outlet, useLocation } from "react-router-dom";
+import { Toaster } from "sonner";
 
 const ListingLayout = () => {
   const location = useLocation();
 
   return (
     <main className="w-full h-screen">
+      <Toaster />
       <div className="w-full h-20 flex justify-between items-center px-10">
         <svg
           width="35"

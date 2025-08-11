@@ -1,3 +1,6 @@
+import type { Location } from "@/pages/steps/listing/Address";
+import type { listingAddressValidation } from "@/validation";
+import type { z } from "zod";
 import { instance } from "./axios";
 const controller = new AbortController();
 
@@ -93,14 +96,128 @@ export const becomaAHost = async (
       `/listing/list-accommodation/${hostId}`
     );
 
-    console.log(response);
-
     return response.data;
   } catch (error) {
     console.log("something went wrong while setting up", error);
     return {
       success: false,
       message: "something went wrong while setting up",
+    };
+  }
+};
+
+export const structure = async (
+  roomId: string,
+  roomType: string
+): Promise<{
+  success: boolean;
+  message: string;
+}> => {
+  try {
+    const response = await instance.post(
+      `/listing/accommodation-type/${roomId}`,
+      { roomType: roomType }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.log(
+      "something went wrong while updating accommodation structure",
+      error
+    );
+    return {
+      success: false,
+      message: "something went wrong while updating accommodation structure",
+    };
+  }
+};
+
+export const address = async (
+  roomId: string,
+  data: z.infer<typeof listingAddressValidation>,
+  coordinates: Location
+) => {
+  try {
+    const response = await instance.post(
+      `/listing/accommodation-address/${roomId}`,
+      {
+        flatNo: data.flatNo,
+        street: data.street,
+        nearbyLandmark: data.nearbyLandmark,
+        locality: data.locality,
+        country: data.country,
+        state: data.state,
+        city: data.city,
+        pincode: data.pincode,
+        coordinates: [coordinates.lng, coordinates.lat],
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.log(
+      "something went wrong while updating accommodation address",
+      error
+    );
+    return {
+      success: false,
+      message: "something went wrong while updating accommodation address",
+    };
+  }
+};
+
+// Need Backend Changes
+// export const floorPlan = async (roomId: string) => {
+//   try {
+//     const response = instance.post(`/listing/accommodation-details/${roomId}`);
+//   } catch (error) {
+//     console.log(
+//       "something went wrong while updating accommodation floor plan",
+//       error
+//     );
+//     return {
+//       success: false,
+//       message: "something went wrong while updating accommodation floor plan",
+//     };
+//   }
+// };
+
+export const occupancyApi = async (roomId: string, sharedWith: string[]) => {
+  try {
+    const response = await instance.post(
+      `/listing/accommodation-people/${roomId}`,
+      { sharedWith: [...sharedWith] }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.log(
+      "something went wrong while updating accommodation occupancy",
+      error
+    );
+    return {
+      success: false,
+      message: "something went wrong while updating accommodation occupancy",
+    };
+  }
+};
+
+export const amenitiesApi = async (roomId: string, amenities: string[]) => {
+  try {
+    const response = await instance.post(
+      `/listing/accommodation-amenities/${roomId}`,
+      { amenities: [...amenities] }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.log(
+      "something went wrong while updating accommodation occupancy",
+      error
+    );
+    return {
+      success: false,
+      message: "something went wrong while updating accommodation occupancy",
     };
   }
 };

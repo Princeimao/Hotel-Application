@@ -1,11 +1,15 @@
+import { occupancyApi } from "@/api/hotelApi";
 import ProgressBar from "@/components/ProgressBar";
 import { Button } from "@/components/ui/button";
 import { urlConstants } from "@/constants/listingUrlConstants";
 import { occupancyMap } from "@/constants/occupancyMap";
 import { useState } from "react";
+import { useParams } from "react-router-dom";
 
 const Occupancy = () => {
+  const { roomId } = useParams();
   const [occupancy, setOccupancy] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const toggleButton = (label: string) => {
     if (occupancy.includes(label)) {
@@ -13,6 +17,24 @@ const Occupancy = () => {
       setOccupancy(occupancies);
     } else {
       setOccupancy((prev) => [...prev, label]);
+    }
+  };
+
+  const handleSubmit = async () => {
+    setIsLoading(true);
+    try {
+      if (!roomId) throw new Error("Host ID missing");
+
+      const response = await occupancyApi(roomId, occupancy);
+
+      if (!response?.success) throw new Error("Invalid response");
+
+      return `${urlConstants["amenities"].url}/${response.roomId}`;
+    } catch (error) {
+      console.error("Error in handleSubmit", error);
+      return null;
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -47,12 +69,13 @@ const Occupancy = () => {
         </p>
       </div>
       <ProgressBar
-        progress={6.25 * 2}
+        progress={11.111 * 6}
         back={urlConstants["floorPlan"].url}
-        front={urlConstants["amenities"].url}
         isBackDisable={false}
-        isFrontDisable={false}
+        isFrontDisable={occupancy.length === 0 ? true : false}
         pathname={urlConstants["structure"].url}
+        handleSubmit={handleSubmit}
+        loading={isLoading}
       />
     </div>
   );

@@ -189,6 +189,7 @@ export const accommodationDetails = async (req: Request, res: Response) => {
 
 export const peopleAtAccommodation = async (req: Request, res: Response) => {
   try {
+    console.log(req.body);
     const { roomId } = req.params;
     const { sharedWith } = peopleAtAccommodationSchema.parse(req.body);
 
@@ -226,6 +227,7 @@ export const peopleAtAccommodation = async (req: Request, res: Response) => {
 
 export const accommodationAmenities = async (req: Request, res: Response) => {
   try {
+    console.log(req.body);
     const { roomId } = req.params;
     const { amenities } = accommodationAmenitiesSchema.parse(req.body);
 

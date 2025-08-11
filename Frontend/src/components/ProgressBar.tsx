@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 interface Props {
   progress: number;
   back: string;
-  front: string;
+  front?: string;
   isBackDisable: boolean;
   isFrontDisable: boolean;
   pathname: string;
@@ -17,7 +17,6 @@ interface Props {
 const ProgressBar = ({
   progress,
   back,
-  front,
   isBackDisable,
   isFrontDisable,
   pathname,
@@ -28,11 +27,12 @@ const ProgressBar = ({
 
   const onSubmit = async () => {
     try {
-      const response = await handleSubmit();
-
-      console.log(response);
-    } catch (error) {
-      console.log("something went wrong - Progress bar", error);
+      const nextUrl = await handleSubmit();
+      if (nextUrl) {
+        navigate(nextUrl);
+      }
+    } catch (err) {
+      console.error("Progress bar error", err);
     }
   };
 

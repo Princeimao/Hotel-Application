@@ -2,13 +2,34 @@ import ProgressBar from "@/components/ProgressBar";
 import { Button } from "@/components/ui/button";
 import { urlConstants } from "@/constants/listingUrlConstants";
 import { useState } from "react";
+import { useParams } from "react-router-dom";
 
 const FloorPlan = () => {
+  const { roomId } = useParams();
   const [guest, setGuest] = useState<number>(1);
   const [bedrooms, setBedrooms] = useState<number>(1);
   const [beds, setBeds] = useState<number>(1);
   const [lock, setLock] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
+  // const handleSubmit = async () => {
+  //   setIsLoading(true);
+  //   try {
+  //     if (!roomId) throw new Error("Host ID missing");
+
+  //     const response = await becomaAHost(hostId);
+
+  //     if (!response?.success || !response?.roomId)
+  //       throw new Error("Invalid response");
+
+  //     return `${urlConstants["structure"].url}/${response.roomId}`;
+  //   } catch (error) {
+  //     console.error("Error in handleSubmit", error);
+  //     return null;
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
   return (
     <div className="w-full h-[80%]">
       <div className="w-full h-[100%] flex flex-col items-center justify-center">
@@ -124,10 +145,11 @@ const FloorPlan = () => {
       <ProgressBar
         progress={6.25 * 3}
         back={urlConstants["address"].url}
-        front={urlConstants["occupancy"].url}
         isBackDisable={false}
         isFrontDisable={false}
         pathname={urlConstants["structure"].url}
+        handleSubmit={handleSubmit}
+        loading={isLoading}
       />
     </div>
   );

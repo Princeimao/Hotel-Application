@@ -1,11 +1,15 @@
+import { amenitiesApi } from "@/api/hotelApi";
 import ProgressBar from "@/components/ProgressBar";
 import { Button } from "@/components/ui/button";
 import { amenitiesArrayMap } from "@/constants/amenitiesMap";
 import { urlConstants } from "@/constants/listingUrlConstants";
 import { useState } from "react";
+import { useParams } from "react-router-dom";
 
 const Amenities = () => {
   const [amenities, setAmenities] = useState<string[]>([]);
+  const { roomId } = useParams();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const toggleButton = (label: string) => {
     if (amenities.includes(label)) {
@@ -13,6 +17,24 @@ const Amenities = () => {
       setAmenities(occupancies);
     } else {
       setAmenities((prev) => [...prev, label]);
+    }
+  };
+
+  const handleSubmit = async () => {
+    setIsLoading(true);
+    try {
+      if (!roomId) throw new Error("Host ID missing");
+
+      const response = await amenitiesApi(roomId, amenities);
+
+      if (!response?.success) throw new Error("Invalid response");
+
+      return `${urlConstants["photo"].url}/${roomId}`;
+    } catch (error) {
+      console.error("Error in handleSubmit", error);
+      return null;
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -48,12 +70,14 @@ const Amenities = () => {
         </div>
       </div>
       <ProgressBar
-        progress={6.25 * 6}
+        progress={11.111 * 7}
         back={urlConstants["occupancy"].url}
         front={urlConstants["photo"].url}
         isBackDisable={false}
         isFrontDisable={amenities.length === 0 ? true : false}
         pathname={urlConstants["amenities"].url}
+        loading={isLoading}
+        handleSubmit={handleSubmit}
       />
     </div>
   );

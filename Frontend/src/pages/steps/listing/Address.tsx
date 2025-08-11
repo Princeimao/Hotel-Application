@@ -19,14 +19,18 @@ import { urlConstants } from "@/constants/listingUrlConstants";
 import type { UserLocation } from "@/types/maps.types";
 import { zodResolver } from "@hookform/resolvers/zod";
 
+import { address } from "@/api/hotelApi";
+import { listingAddressValidation } from "@/validation";
 import { Loader } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { MapContainer, Marker, TileLayer, useMapEvents } from "react-leaflet";
+import { useParams } from "react-router-dom";
+import { toast } from "sonner";
 import { z } from "zod";
 import countries from "../../../constants/countries.json";
 
-interface Location {
+export interface Location {
   lat: number;
   lng: number;
 }
@@ -34,20 +38,11 @@ interface Location {
 const Address = () => {
   const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
   const [position, setPosition] = useState<Location | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const { roomId } = useParams();
 
-  const FormSchema = z.object({
-    flatNo: z.string(),
-    street: z.string(),
-    nearbyLandmark: z.string(),
-    locality: z.string(),
-    country: z.string(),
-    state: z.string(),
-    city: z.string(),
-    pincode: z.string().min(5).max(10),
-  });
-
-  const form = useForm<z.infer<typeof FormSchema>>({
-    resolver: zodResolver(FormSchema),
+  const form = useForm<z.infer<typeof listingAddressValidation>>({
+    resolver: zodResolver(listingAddressValidation),
     defaultValues: {
       flatNo: "",
       street: "",
@@ -60,8 +55,28 @@ const Address = () => {
     },
   });
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {
+  async function onSubmit(data: z.infer<typeof listingAddressValidation>) {
+    setIsLoading(true);
     console.log(data);
+    try {
+      if (!roomId) throw new Error("Host ID missing");
+
+      if (!position) {
+        toast("Location is required");
+        throw new Error("something went wrong");
+      }
+
+      const response = await address(roomId, data, position);
+
+      if (!response?.success) throw new Error("Invalid response");
+
+      return `${urlConstants["floorPlan"].url}/${roomId}`;
+    } catch (error) {
+      console.error("Error in handleSubmit", error);
+      return null;
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   function LocationPicker({ onLocationSelected }) {
@@ -279,6 +294,7 @@ const Address = () => {
               </p>
             </div>
 
+            {/*   have to update the center again after the pincode for near location */}
             <div className="w-full h-[70%] flex justify-center items-center rounded-2xl mb-35">
               {userLocation?.longitude !== undefined &&
               userLocation?.latitude !== undefined ? (
@@ -308,12 +324,14 @@ const Address = () => {
         </div>
       </div>
       <ProgressBar
-        progress={6.25 * 2}
+        progress={6.25 * 3}
         back={urlConstants["structure"].url}
         front={urlConstants["floorPlan"].url}
         isBackDisable={false}
         isFrontDisable={false}
         pathname={urlConstants["structure"].url}
+        handleSubmit={form.handleSubmit(onSubmit)}
+        loading={isLoading}
       />
     </div>
   );

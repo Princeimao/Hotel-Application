@@ -1,21 +1,29 @@
 import { becomaAHost } from "@/api/hotelApi";
 import ProgressBar from "@/components/ProgressBar";
 import { urlConstants } from "@/constants/listingUrlConstants";
+import { useState } from "react";
 import { useParams } from "react-router-dom";
 
 const BecomeAHost = () => {
   const { hostId } = useParams();
-  console.log(hostId);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const handleSubmit = async () => {
+    setIsLoading(true);
     try {
-      if (!hostId) {
-        throw new Error("something went wrong - hostId not found");
-      }
+      if (!hostId) throw new Error("Host ID missing");
 
-      await becomaAHost(hostId);
+      const response = await becomaAHost(hostId);
+
+      if (!response?.success || !response?.roomId)
+        throw new Error("Invalid response");
+
+      return `${urlConstants["structure"].url}/${response.roomId}`;
     } catch (error) {
-      console.log("something went wrong while listing accommodation", error);
+      console.error("Error in handleSubmit", error);
+      return null;
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -74,11 +82,11 @@ const BecomeAHost = () => {
       <ProgressBar
         progress={11.111 * 1}
         back=""
-        front={urlConstants["structure"].url}
         isBackDisable={true}
         isFrontDisable={false}
         pathname={urlConstants["becomeAHost"].url}
         handleSubmit={handleSubmit}
+        loading={isLoading}
       />
     </div>
   );

@@ -72,14 +72,23 @@ function App() {
 
           <Route element={<ListingLayout />}>
             <Route path="/become-a-host/:hostId" element={<BecomeAHost />} />
-            <Route path="/structure" element={<Structure />} />
-            <Route path="/address" element={<Address />} />
-            <Route path="/floor-plan" element={<FloorPlan />} />
-            <Route path="/occupancy" element={<Occupancy />} />
-            <Route path="/amenities" element={<Amenities />} />
-            <Route path="/upload-photos" element={<UploadListingImages />} />
-            <Route path="/accommodation-details" element={<Details />} />
-            <Route path="/reservation-type" element={<ReservationType />} />
+            <Route path="/structure/:roomId" element={<Structure />} />
+            <Route path="/address/:roomId" element={<Address />} />
+            <Route path="/floor-plan/:roomId" element={<FloorPlan />} />
+            <Route path="/occupancy/:roomId" element={<Occupancy />} />
+            <Route path="/amenities/:roomId" element={<Amenities />} />
+            <Route
+              path="/upload-photos/:roomId"
+              element={<UploadListingImages />}
+            />
+            <Route
+              path="/accommodation-details/:roomId"
+              element={<Details />}
+            />
+            <Route
+              path="/reservation-type/:roomId"
+              element={<ReservationType />}
+            />
           </Route>
         </Routes>
       </Router>

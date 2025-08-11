@@ -27,7 +27,7 @@ export const occupancyMap: [{ icon: ReactNode; label: string; name: string }] =
     },
     {
       icon: <FaPeopleGroup />,
-      lable: "staff",
+      label: "staff",
       name: "Staff",
     },
     {

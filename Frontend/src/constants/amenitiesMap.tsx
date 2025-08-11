@@ -109,12 +109,12 @@ export const amenitiesArrayMap = [
   },
   {
     icon: <Snowflake />,
-    label: "air_conditioner",
+    label: "air_conditioning",
     name: "Air Conditioner",
   },
   {
     icon: <Heater />,
-    label: "heater",
+    label: "heating",
     name: "Heater",
   },
   {
@@ -124,7 +124,7 @@ export const amenitiesArrayMap = [
   },
   {
     icon: <CircleParking />,
-    label: "parking_space",
+    label: "parking",
     name: "Parking Space",
   },
   {
