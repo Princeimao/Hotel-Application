@@ -13,6 +13,7 @@ import {
   listAccommodation,
   peopleAtAccommodation,
 } from "../controller/room.controller";
+import { upload } from "../utils/multer";
 import { authMiddleware } from "./../middleware/auth.middleware";
 
 const router = express.Router();
@@ -37,7 +38,7 @@ router
   .post(authMiddleware, accommodationAmenities);
 router
   .route("/accommodation-images/:roomId")
-  .post(authMiddleware, accommodationImages);
+  .post(authMiddleware, upload.array("roomImages"), accommodationImages);
 router
   .route("/accommodation-baiscDetails/:roomId")
   .post(authMiddleware, accommodationBasicDetails);

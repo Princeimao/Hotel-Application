@@ -2,10 +2,10 @@ import { Request, Response } from "express";
 
 import { ZodError } from "zod";
 import roomModel from "../models/room.model";
+import { producer } from "../rabbitMq/producer";
 import {
   accommodationAmenitiesSchema,
   accommodationDetailsSchema,
-  accommodationPhotoSchema,
   accommodationSchema,
   accomodationTypeSchema,
   addressSchema,
@@ -13,6 +13,9 @@ import {
   detailsSchema,
   peopleAtAccommodationSchema,
 } from "../schema/room.schema";
+
+import fs from "fs";
+import path from "path";
 
 export const listAccommodation = async (req: Request, res: Response) => {
   try {
@@ -265,27 +268,65 @@ export const accommodationAmenities = async (req: Request, res: Response) => {
 };
 
 // image will directly store to cloud bucket (can be S3, GCP bucket), i will use imagekit.io
+// export const accommodationImages = async (req: Request, res: Response) => {
+//   try {
+//     const { roomId } = req.params;
+//     const { images } = accommodationPhotoSchema.parse(req.body);
+
+//     await roomModel.updateOne(
+//       {
+//         _id: roomId,
+//       },
+//       {
+//         $set: {
+//           photo: images,
+//         },
+//       },
+//       { upsert: true }
+//     );
+
+//     res.status(200).json({
+//       success: true,
+//       message: "updated accommodation photo",
+//     });
+//   } catch (error) {
+//     if (error instanceof ZodError) {
+//       res.status(400).json({
+//         success: false,
+//         error: error,
+//       });
+//     }
+
+//     console.log("something went wrong while creating photo", error);
+//     res.status(500).json({
+//       success: false,
+//       message: "something went wrong while creating address",
+//       error,
+//     });
+//   }
+// };
+
 export const accommodationImages = async (req: Request, res: Response) => {
   try {
     const { roomId } = req.params;
-    const { images } = accommodationPhotoSchema.parse(req.body);
+    const result = await producer("room-queue", roomId);
 
-    await roomModel.updateOne(
-      {
-        _id: roomId,
-      },
-      {
-        $set: {
-          photo: images,
-        },
-      },
-      { upsert: true }
-    );
+    if (!result) {
+      const imagePath = path.join(
+        process.cwd(),
+        "Listing_Service",
+        "temp-file-store"
+      );
 
-    res.status(200).json({
-      success: true,
-      message: "updated accommodation photo",
-    });
+      if (fs.existsSync(path.join(imagePath, roomId))) {
+        fs.unlinkSync(path.join(imagePath, roomId));
+      }
+
+      res.status(500).json({
+        success: false,
+        message: "something went wrong while uploading the image",
+      });
+    }
   } catch (error) {
     if (error instanceof ZodError) {
       res.status(400).json({
@@ -294,10 +335,10 @@ export const accommodationImages = async (req: Request, res: Response) => {
       });
     }
 
-    console.log("something went wrong while creating photo", error);
+    console.log("something went wrong while uploading photo", error);
     res.status(500).json({
       success: false,
-      message: "something went wrong while creating address",
+      message: "something went wrong while uploading photo",
       error,
     });
   }
@@ -337,10 +378,13 @@ export const accommodationBasicDetails = async (
       });
     }
 
-    console.log("something went wrong while creating photo", error);
+    console.log(
+      "something went wrong while updating accommoadtion details",
+      error
+    );
     res.status(500).json({
       success: false,
-      message: "something went wrong while creating address",
+      message: "something went wrong while updating accommoadtion details",
       error,
     });
   }
