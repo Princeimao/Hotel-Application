@@ -25,25 +25,32 @@ export const imageKitUpload = async (
     const uploadPromise = images.map((image) => {
       const filePath = path.join(
         process.cwd(),
-        "Listing_Service",
         "temp-file-store",
         roomId,
         image
       );
       const fileBuffer = fs.readFileSync(filePath);
 
-      imagekit.upload({
+      return imagekit.upload({
         file: fileBuffer,
         fileName: image,
       });
     });
 
+    console.log("upload --> ", uploadPromise);
+
     const result = await Promise.all(uploadPromise);
 
-    // @ts-ignore
     return result.map((res) => res.url);
   } catch (error) {
     console.log("something went wrong", error);
+
+    const imagePath = path.join(process.cwd(), "temp-file-store");
+
+    if (fs.existsSync(path.join(imagePath, roomId))) {
+      fs.unlinkSync(path.join(imagePath, roomId));
+    }
+
     return null;
   }
 };

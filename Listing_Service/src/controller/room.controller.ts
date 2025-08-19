@@ -314,7 +314,6 @@ export const accommodationImages = async (req: Request, res: Response) => {
     if (!result) {
       const imagePath = path.join(
         process.cwd(),
-        "Listing_Service",
         "temp-file-store"
       );
 
@@ -327,6 +326,11 @@ export const accommodationImages = async (req: Request, res: Response) => {
         message: "something went wrong while uploading the image",
       });
     }
+
+    res.status(200).json({
+      success: true,
+      message: "accommodation uploaded successfully",
+    });
   } catch (error) {
     if (error instanceof ZodError) {
       res.status(400).json({
