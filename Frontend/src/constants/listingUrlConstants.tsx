@@ -20,4 +20,10 @@ export const urlConstants: Record<string, { url: string }> = {
   photo: {
     url: "/upload-photos",
   },
+  basicDetails: {
+    url: "/accommodation-details",
+  },
+  reservation: {
+    url: "/reservation-type",
+  },
 };

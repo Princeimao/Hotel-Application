@@ -1,18 +1,13 @@
-import { generateUploadToken } from "@/api/hotelApi";
-import { imageUpload } from "@/utils/imageKitUpload";
-import { useState } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 
 interface Props {
-  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  images: File[];
+  setImages: React.Dispatch<React.SetStateAction<File[]>>;
 }
 
-const ListinImageForm = ({ setLoading }: Props) => {
-  const [images, setImages] = useState<File[]>([]);
-  const [imageUrl, setImageUrl] = useState<string[]>([]);
-
+const ListinImageForm = ({ images, setImages }: Props) => {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       setImages([...e.target.files]);
@@ -21,59 +16,6 @@ const ListinImageForm = ({ setLoading }: Props) => {
 
   const handleRemoveImage = (indexToRemove: number) => {
     setImages(images.filter((_, index) => index !== indexToRemove));
-  };
-
-  const handleUpload = async () => {
-    if (images.length === 0) {
-      throw new Error("images not found");
-    }
-
-    try {
-      const authParams = await generateUploadToken();
-
-      if (authParams.success === false) {
-        console.log("something went wrong while getting token");
-        return;
-      }
-
-      console.log("authParams", authParams);
-
-      if (!authParams.imageKit) {
-        throw new Error("Auth Params not found");
-      }
-      console.log(authParams.imageKit);
-
-      const { expire, token, signature, publicKey } = authParams.imageKit;
-      if (authParams === undefined) {
-        throw new Error("auth params not found");
-      }
-
-      const uploadPromises = images.map(async (image) => {
-        const response = await imageUpload(
-          expire,
-          token,
-          signature,
-          publicKey,
-          image,
-          `listing-${crypto.randomUUID()}.jpg`,
-          "listing"
-        );
-
-        if (!response?.url) throw new Error("URL not found");
-        return response.url;
-      });
-
-      const urls = await Promise.all(uploadPromises);
-
-      // upload all the images url in the database,
-      console.log(imageUrl);
-
-      setLoading(false);
-
-      setImageUrl((prev) => [...prev, ...urls]);
-    } catch (error) {
-      console.error("Upload error:", error);
-    }
   };
 
   return (
@@ -86,6 +28,7 @@ const ListinImageForm = ({ setLoading }: Props) => {
           </h4>
           <Input
             type="file"
+            name="roomImages"
             accept="image/*"
             multiple
             onChange={handleImageChange}
@@ -112,10 +55,6 @@ const ListinImageForm = ({ setLoading }: Props) => {
             </div>
           ))}
         </div>
-
-        <Button className="mt-4" onClick={handleUpload}>
-          Upload Images
-        </Button>
       </div>
     </div>
   );

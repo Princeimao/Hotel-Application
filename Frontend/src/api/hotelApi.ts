@@ -1,8 +1,10 @@
 import type { Location } from "@/pages/steps/listing/Address";
-import type { listingAddressValidation } from "@/validation";
-import type { z } from "zod";
+import type {
+  listingAddressValidation,
+  listingDetailsValidation,
+} from "@/validation";
+import { z } from "zod";
 import { instance } from "./axios";
-const controller = new AbortController();
 
 export const fetchRoomDetailsFromSearch = async () => {
   try {
@@ -27,51 +29,62 @@ export const fetchRoomDetails = async (accommodationId: string) => {
   }
 };
 
-export const generateUploadToken = async (): Promise<{
-  success: boolean;
-  message: string;
-  imageKit?: {
-    token: string;
-    expire: number;
-    signature: string;
-    publicKey: string;
-  };
-}> => {
-  try {
-    const response = await instance.get("/listing/upload-token", {
-      signal: controller.signal,
-    });
+// export const generateUploadToken = async (): Promise<{
+//   success: boolean;
+//   message: string;
+//   imageKit?: {
+//     token: string;
+//     expire: number;
+//     signature: string;
+//     publicKey: string;
+//   };
+// }> => {
+//   try {
+//     const response = await instance.get("/listing/upload-token", {
+//       signal: controller.signal,
+//     });
 
-    console.log(response.data);
-    return response.data;
-  } catch (error) {
-    if (error.name === "CanceledError") {
-      console.log("Request cancelled", error);
-      return {
-        success: false,
-        message: "Request cancelled",
-      };
-    }
-
-    console.log("something went wrong while getting upload token", error);
-    return {
-      success: false,
-      message: "something went wrong while getting upload token",
-    };
-  }
-};
+//     console.log(response.data);
+//     return response.data;
+//   } catch (error) {
+//     if (error.name === "CanceledError") {
+//       console.log("Request cancelled", error);
+//       return {
+//         success: false,
+//         message: "Request cancelled",
+//       };
+//     }
+//
+//     console.log("something went wrong while getting upload token", error);
+//     return {
+//       success: false,
+//       message: "something went wrong while getting upload token",
+//     };
+//   }
+// };
 
 export const uploadImage = async (
-  hotelId: string,
-  images: string[]
+  roomId: string,
+  files: File[]
 ): Promise<{
   success: boolean;
   message: string;
 }> => {
   try {
+    const formData = new FormData();
+
+    files.map((file) => {
+      formData.append("roomImages", file);
+    });
+
     const response = await instance.post(
-      `/accommodation-images/${hotelId}`,
-      images
+      `listing/accommodation-images/${roomId}`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
     );
 
     return response.data;
@@ -218,6 +231,77 @@ export const amenitiesApi = async (roomId: string, amenities: string[]) => {
     return {
       success: false,
       message: "something went wrong while updating accommodation occupancy",
+    };
+  }
+};
+
+export const uploadUrl = async (roomId: string, imageUrls: string[]) => {
+  try {
+    const response = await instance.post(
+      `/listing/accommodation-images/${roomId}`,
+      { images: [...imageUrls] }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.log("something went wrong while uploading image urls to db", error);
+    return {
+      success: false,
+      message: "something went wrong while uploading image urls to db",
+    };
+  }
+};
+
+export const basicDetails = async (
+  roomId: string,
+  data: z.infer<typeof listingDetailsValidation>
+): Promise<{
+  success: boolean;
+  message: string;
+}> => {
+  try {
+    const response = await instance.post(
+      `/listing/accommodation-baiscDetails/${roomId}`,
+      {
+        title: data.title,
+        description: data.details,
+        basePrice: Number(data.basePrice),
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.log("something went wrong while updating basic details", error);
+    return {
+      success: false,
+      message: "something went wrong while updating basic details",
+    };
+  }
+};
+
+export const reservationType = async (
+  roomId: string,
+  minimumBookingDays: number,
+  petsAllowed: boolean
+): Promise<{
+  success: boolean;
+  message: string;
+}> => {
+  try {
+    const response = await instance.post(
+      `/listing/accommodation-complete/${roomId}`,
+      {
+        minimumBookingDays,
+        petsAllowed,
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.log("something went wrong while updating basic details", error);
+    return {
+      success: false,
+      message: "something went wrong while updating basic details",
     };
   }
 };

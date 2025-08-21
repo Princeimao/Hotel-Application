@@ -57,7 +57,6 @@ const Address = () => {
 
   async function onSubmit(data: z.infer<typeof listingAddressValidation>) {
     setIsLoading(true);
-    console.log(data);
     try {
       if (!roomId) throw new Error("Host ID missing");
 

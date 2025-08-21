@@ -1,7 +1,7 @@
 import ProgressBar from "@/components/ProgressBar";
 import { urlConstants } from "@/constants/listingUrlConstants";
 
-import { Button } from "@/components/ui/button";
+import { basicDetails } from "@/api/hotelApi";
 import {
   Form,
   FormControl,
@@ -13,18 +13,41 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { listingDetailsValidation } from "@/validation";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useParams } from "react-router-dom";
 import { z } from "zod";
 
 const Details = () => {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const { roomId } = useParams();
   const form = useForm<z.infer<typeof listingDetailsValidation>>({
     resolver: zodResolver(listingDetailsValidation),
     defaultValues: {
       title: "",
+      details: "",
+      basePrice: "",
     },
   });
 
-  function onSubmit(values: z.infer<typeof listingDetailsValidation>) {
+  async function onSubmit(values: z.infer<typeof listingDetailsValidation>) {
+    setIsLoading(true);
+    try {
+      if (!roomId) {
+        throw new Error("room id is not define");
+      }
+
+      const response = await basicDetails(roomId, values);
+
+      if (response.success === false) throw new Error("Invalid response");
+      console.log(`${urlConstants["reservation"].url}/${roomId}`);
+
+      return `${urlConstants["reservation"].url}/${roomId}`;
+    } catch (error) {
+      console.log("something went wrong", error);
+    } finally {
+      setIsLoading(false);
+    }
     console.log(values);
   }
 
@@ -83,20 +106,18 @@ const Details = () => {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full">
-                Submit
-              </Button>
             </form>
           </Form>
         </div>
       </div>
       <ProgressBar
         progress={6.25 * 8}
-        back={urlConstants["structure"].url}
-        front={urlConstants["floorPlan"].url}
+        back={urlConstants["photo"].url}
         isBackDisable={false}
         isFrontDisable={false}
-        pathname={urlConstants["structure"].url}
+        pathname={urlConstants["basicDetails"].url}
+        loading={isLoading}
+        handleSubmit={form.handleSubmit(onSubmit)}
       />
     </div>
   );
