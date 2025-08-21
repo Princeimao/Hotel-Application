@@ -1,15 +1,16 @@
+import "dotenv/config";
 import fs from "fs";
 import ImageKit from "imagekit";
 import path from "path";
 
 if (!process.env.IMAGEKIT_URL_ENDPOINT) {
-  throw new Error("ImageKitp public key not define");
+  throw new Error("ImageKit Url Endpoint is not define");
 }
 if (!process.env.IMAGEKIT_PUBLIC_KEY) {
-  throw new Error("ImageKitp public key not define");
+  throw new Error("ImageKit Public key not define");
 }
 if (!process.env.IMAGEKIT_PRIVATE_KEY) {
-  throw new Error("ImageKitp public key not define");
+  throw new Error("ImageKit private key not define");
 }
 export const imagekit = new ImageKit({
   urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT,
@@ -36,8 +37,6 @@ export const imageKitUpload = async (
         fileName: image,
       });
     });
-
-    console.log("upload --> ", uploadPromise);
 
     const result = await Promise.all(uploadPromise);
 

@@ -13,7 +13,7 @@ import {
   listAccommodation,
   peopleAtAccommodation,
 } from "../controller/room.controller";
-import { upload } from "../utils/multer";
+import { upload } from "../middleware/multer";
 import { authMiddleware } from "./../middleware/auth.middleware";
 
 const router = express.Router();

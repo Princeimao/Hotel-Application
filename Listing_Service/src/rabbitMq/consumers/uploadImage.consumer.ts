@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { dbConnection } from "../../db/mongo.connection";
 import { getRabbitMqChannel } from "../../db/rabbitMq.connection";
 import roomModel from "../../models/room.model";
 import { imageKitUpload } from "../../utils/imageKit";
@@ -8,6 +9,7 @@ const uploadRoomImage = async () => {
   console.log("Consumer is running");
   try {
     const channel = await getRabbitMqChannel();
+    await dbConnection();
     const imagePath = path.join(process.cwd(), "temp-file-store");
 
     channel.assertQueue("room-queue", {
@@ -28,7 +30,6 @@ const uploadRoomImage = async () => {
 
         const images = fs.readdirSync(imagesFolder);
         const imagesUrl = await imageKitUpload(images, msg);
-        console.log(imagesUrl);
 
         await roomModel.updateOne(
           {
@@ -42,7 +43,8 @@ const uploadRoomImage = async () => {
           { upsert: true }
         );
 
-        fs.unlinkSync(imagesFolder);
+        fs.rmSync(imagesFolder, { recursive: true, force: true });
+
 
         channel.ack(message);
       } catch (error) {
