@@ -43,15 +43,12 @@ router
   .route("/accommodation-baiscDetails/:roomId")
   .post(authMiddleware, accommodationBasicDetails);
 router
-  .route("/accommodation-metaData/:roomId")
-  .post(authMiddleware, accommodationBasicDetails);
-router
   .route("/accommodation-complete/:roomId")
   .post(authMiddleware, accommodationCompleteSetup);
 
 router
   .route("/get-accommodation/:roomId")
-  .get(authMiddleware, getAccommodation);
+  .get(getAccommodation);
 router
   .route("/get-accommodations")
   .get(authMiddleware, getAccommodationsByArea);

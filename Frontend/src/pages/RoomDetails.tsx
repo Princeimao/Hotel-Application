@@ -1,9 +1,9 @@
 import { fetchRoomDetails } from "@/api/hotelApi";
 import { amenitiesMap } from "@/constants/amenitiesMap";
-import type { RoomDetials } from "@/types/hotel.types";
+import type { Room } from "@/types/hotel.types";
 import { addDays, differenceInDays, format, isValid, parse } from "date-fns";
 import { Heart, Loader, MapPin } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
 import { useParams, useSearchParams } from "react-router-dom";
@@ -14,41 +14,56 @@ const RoomDetails = () => {
   const [checkIn, setCheckIn] = useState<Date | undefined>();
   const [checkOut, setCheckOut] = useState<Date | undefined>();
   const [guests, setGuests] = useState(1);
-  const [room, setRoom] = useState<RoomDetials>();
+  const [room, setRoom] = useState<Room>();
 
   useEffect(() => {
     async function hotelDetails() {
       if (!id) return;
 
-      const RoomDetail: RoomDetials = await fetchRoomDetails(id);
+      const response = await fetchRoomDetails(id);
+      console.log(response);
 
-      setRoom(RoomDetail);
+      if (response.success === false) {
+        throw new Error("something went wrong while getting room");
+      }
+
+      if (!response.roomDetails) {
+        throw new Error("something went wrong while getting room");
+      }
+
+      setRoom({
+        listing: response.roomDetails.listing.room,
+        host: response.roomDetails.host.host,
+        bookings: response.roomDetails.bookings,
+      });
     }
 
     hotelDetails();
   }, [id]);
 
-  const calculateTotal = useCallback(() => {
-    if (!checkIn || !checkOut) return 0;
-    const days = differenceInDays(checkOut, checkIn);
-    return days * Number(room?.basePrice);
-  }, [checkIn, checkOut, room?.basePrice]);
+  console.log(room);
 
-  useEffect(() => {
-    const checkInString = searchParams.get("checkIn");
-    const checkOutString = searchParams.get("checkOut");
+  // const calculateTotal = useCallback(() => {
+  //   if (!checkIn || !checkOut) return 0;
+  //   const days = differenceInDays(checkOut, checkIn);
+  //   return days * Number(room?.);
+  // }, [checkIn, checkOut, room?.basePrice]);
 
-    if (checkInString && checkOutString) {
-      const parseCheckIn = parse(checkInString, "dd-MM-yyyy", new Date());
-      const parseCheckOut = parse(checkOutString, "dd-MM-yyyy", new Date());
+  // useEffect(() => {
+  //   const checkInString = searchParams.get("checkIn");
+  //   const checkOutString = searchParams.get("checkOut");
 
-      if (isValid(parseCheckIn) && isValid(parseCheckOut)) {
-        setCheckIn(parseCheckIn);
-        setCheckOut(parseCheckOut);
-      }
-    }
-    calculateTotal();
-  }, [searchParams, calculateTotal]);
+  //   if (checkInString && checkOutString) {
+  //     const parseCheckIn = parse(checkInString, "dd-MM-yyyy", new Date());
+  //     const parseCheckOut = parse(checkOutString, "dd-MM-yyyy", new Date());
+
+  //     if (isValid(parseCheckIn) && isValid(parseCheckOut)) {
+  //       //setCheckIn(parseCheckIn);
+  //       // setCheckOut(parseCheckOut);
+  //     }
+  //   }
+  //   calculateTotal();
+  // }, [searchParams, calculateTotal]);
 
   if (room === null || undefined) {
     return (
@@ -64,12 +79,12 @@ const RoomDetails = () => {
         {/* Header */}
         <div className="mb-6">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            {room?.title}
+            {room?.listing.title}
           </h1>
           <div className="flex items-center space-x-4 text-sm text-gray-600">
             <div className="flex items-center space-x-1">
               <MapPin className="h-4 w-4" />
-              <span>{room?.location.city}</span>
+              <span>{room?.listing.location.city}</span>
             </div>
           </div>
         </div>
@@ -78,17 +93,17 @@ const RoomDetails = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 mb-8 rounded-xl overflow-hidden">
           <div className="lg:row-span-2">
             <img
-              src={room?.photo[0]}
-              alt={room?.title}
+              src={room?.listing.photo[0]}
+              alt={room?.listing.title}
               className="w-full h-100 object-cover "
             />
           </div>
           <div className="grid grid-cols-2 gap-2">
-            {room?.photo.slice(1, 5).map((image, index) => (
+            {room?.listing.photo.slice(1, 5).map((image, index) => (
               <img
                 key={index}
                 src={image}
-                alt={`${room?.title} ${index + 2}`}
+                alt={`${room?.listing.title} ${index + 2}`}
                 className="w-full h-48 object-cover"
               />
             ))}
@@ -103,12 +118,12 @@ const RoomDetails = () => {
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <h2 className="text-xl font-semibold text-gray-900">
-                    Hosted by {room?.hostId}
+                    Hosted by {room?.host.name}
                   </h2>
                   <div className="flex items-center space-x-4 text-gray-600 mt-1">
-                    <span>{room?.maxGuests} guests</span>
-                    <span>{room?.bedrooms} bedrooms</span>
-                    <span>{room?.beds} beds</span>
+                    <span>{room?.listing.maxGuests} guests</span>
+                    <span>{room?.listing.bedrooms} bedrooms</span>
+                    <span>{room?.listing.beds} beds</span>
                   </div>
                 </div>
                 {/* <img
@@ -122,10 +137,12 @@ const RoomDetails = () => {
             {/* Description */}
             <div className="border-b border-gray-200 pb-6 mb-6">
               <p className="text-gray-700 leading-relaxed">
-                {room?.description && (
+                {room?.listing.description && (
                   <div
                     className="prose lg:prose-xl prose-neutral max-w-none"
-                    dangerouslySetInnerHTML={{ __html: room.description }}
+                    dangerouslySetInnerHTML={{
+                      __html: room.listing.description,
+                    }}
                   />
                 )}
               </p>
@@ -137,7 +154,7 @@ const RoomDetails = () => {
                 What this place offers
               </h3>
               <div className="grid grid-cols-2 gap-4">
-                <Amenitie amenities={room?.amenities} />
+                <Amenitie amenities={room?.listing.amenities} />
               </div>
             </div>
           </div>
@@ -148,7 +165,7 @@ const RoomDetails = () => {
               <div className="flex items-center justify-between mb-6">
                 <div>
                   <span className="text-2xl font-bold text-gray-900">
-                    &#8377;{room?.basePrice}
+                    &#8377;{room?.listing.basePrice}
                   </span>
                   <span className="text-gray-600"> / night</span>
                 </div>
@@ -208,7 +225,7 @@ const RoomDetails = () => {
                     onChange={(e) => setGuests(parseInt(e.target.value))}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                   >
-                    {[...Array(room?.maxGuests)].map((_, i) => (
+                    {[...Array(room?.listing.maxGuests)].map((_, i) => (
                       <option key={i + 1} value={i + 1}>
                         {i + 1} guest{i > 0 ? "s" : ""}
                       </option>
@@ -221,16 +238,16 @@ const RoomDetails = () => {
                 <div className="border-t border-gray-200 pt-4 mb-6">
                   <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
                     <span>
-                      ${room?.basePrice} x {differenceInDays(checkOut, checkIn)}{" "}
-                      nights
+                      ${room?.listing.basePrice} x{" "}
+                      {differenceInDays(checkOut, checkIn)} nights
                     </span>
-                    <span>${calculateTotal()}</span>
+                    {/* <span>${calculateTotal()}</span> */}
                   </div>
 
                   <div className="flex items-center justify-between font-semibold text-gray-900 pt-2 border-t">
                     <span>Total</span>
                     <span>
-                      ${calculateTotal() + Math.round(calculateTotal() * 0.1)}
+                      {/* ${calculateTotal() + Math.round(calculateTotal() * 0.1)} */}
                     </span>
                   </div>
                 </div>

@@ -11,6 +11,3 @@ export const dbConnection = async () => {
     process.exit(0);
   }
 };
-
-
-process.en

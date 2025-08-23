@@ -4,13 +4,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { urlConstants } from "@/constants/listingUrlConstants";
 import { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 const ReservationType = () => {
   const [petsAllowed, setPetsAllowed] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [minBookingDays, setMinBookingDays] = useState<string>("");
   const { roomId } = useParams();
+  const navigate = useNavigate();
 
   const onSubmit = async () => {
     setIsLoading(true);
@@ -31,7 +32,7 @@ const ReservationType = () => {
         throw new Error("something went wrong");
       }
 
-      return;
+      navigate("/");
     } catch (error) {
       console.log("something went wrong", error);
     } finally {

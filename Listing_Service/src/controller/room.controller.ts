@@ -312,10 +312,7 @@ export const accommodationImages = async (req: Request, res: Response) => {
     const result = await producer("room-queue", roomId);
 
     if (!result) {
-      const imagePath = path.join(
-        process.cwd(),
-        "temp-file-store"
-      );
+      const imagePath = path.join(process.cwd(), "temp-file-store");
 
       if (fs.existsSync(path.join(imagePath, roomId))) {
         fs.unlinkSync(path.join(imagePath, roomId));

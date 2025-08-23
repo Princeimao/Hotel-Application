@@ -1,3 +1,5 @@
+import type { RoomHost } from "./host.types";
+
 export interface RoomDetials {
   location: {
     geo: {
@@ -30,4 +32,10 @@ export interface RoomDetials {
   basePrice: string;
   description: string;
   title: string;
+}
+
+export interface Room {
+  listing: RoomDetials;
+  host: RoomHost;
+  bookings: [];
 }

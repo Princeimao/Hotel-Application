@@ -1,4 +1,6 @@
 import type { Location } from "@/pages/steps/listing/Address";
+import type { RoomHost } from "@/types/host.types";
+import type { RoomDetials } from "@/types/hotel.types";
 import type {
   listingAddressValidation,
   listingDetailsValidation,
@@ -16,16 +18,34 @@ export const fetchRoomDetailsFromSearch = async () => {
   }
 };
 
-export const fetchRoomDetails = async (accommodationId: string) => {
+export const fetchRoomDetails = async (
+  accommodationId: string
+): Promise<{
+  success: boolean;
+  message: string;
+  roomDetails?: {
+    bookings: [];
+    host: { host: RoomHost };
+    listing: { room: RoomDetials };
+  };
+}> => {
   try {
     const response = await instance.get(
-      `/listing/get-accommodation/${accommodationId}`
+      `/overview/accommodation-details/${accommodationId}`
     );
 
     console.log(response);
-    return response.data.room;
+    return {
+      success: true,
+      message: "get room successful",
+      roomDetails: response.data.accommodationDetails,
+    };
   } catch (error) {
     console.log("something went wrong while getting the hotel", error);
+    return {
+      success: false,
+      message: "something went wrong while getting the hotel",
+    };
   }
 };
 

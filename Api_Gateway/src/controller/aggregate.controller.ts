@@ -7,17 +7,17 @@ export const getAccommodationDetails = async (req: Request, res: Response) => {
     const d = new Date();
     const date = new Date(d);
 
-    const result = Promise.all([
+    const [hostRes, listingRes, bookingRes] = await Promise.all([
       instance.get(
-        `${process.env.HOST_SERVICE_URL}/api/v1/host/get-host-accommodationId/${accommodationId}`
+        `${process.env.HOST_SERVICE_URL}/get-host-accommodationId/${accommodationId}`
       ),
       instance.get(
-        `${process.env.LISTING_SERVICE_URL}/api/v1/listing/get-accommodation/${accommodationId}`
+        `${process.env.LISTING_SERVICE_URL}/get-accommodation/${accommodationId}`
       ),
       instance.get(
         `${
           process.env.BOOKING_SERVICE_URL
-        }/api/v1/booking/calendar-availability/${accommodationId}?checkIn=${date.setDate(
+        }/calendar-availability/${accommodationId}?checkIn=${date.setDate(
           date.getDate() + 1
         )}&checkOut=${date.setDate(date.getDate() + 3)}`
       ),
@@ -26,7 +26,11 @@ export const getAccommodationDetails = async (req: Request, res: Response) => {
     res.status(200).json({
       success: true,
       message: "accommodation details get successfully",
-      accommodationDetails: result,
+      accommodationDetails: {
+        host: hostRes.data,
+        listing: listingRes.data,
+        bookings: bookingRes.data,
+      },
     });
   } catch (error) {
     console.log(
@@ -66,7 +70,6 @@ export const getHostDetails = async (req: Request, res: Response) => {
 // user related combined routes
 export const getUserBookings = (req: Request, res: Response) => {
   try {
-    
   } catch (error) {
     console.log("something went wrong while getting user detaisl", error);
     res.status(400).json({
