@@ -6,11 +6,10 @@ import { Heart, Loader, MapPin } from "lucide-react";
 import { useEffect, useState } from "react";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
-import { useParams, useSearchParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 const RoomDetails = () => {
   const { id } = useParams();
-  const [searchParams] = useSearchParams();
   const [checkIn, setCheckIn] = useState<Date | undefined>();
   const [checkOut, setCheckOut] = useState<Date | undefined>();
   const [guests, setGuests] = useState(1);
@@ -41,8 +40,6 @@ const RoomDetails = () => {
     hotelDetails();
   }, [id]);
 
-  console.log(room);
-
   // const calculateTotal = useCallback(() => {
   //   if (!checkIn || !checkOut) return 0;
   //   const days = differenceInDays(checkOut, checkIn);
@@ -65,10 +62,10 @@ const RoomDetails = () => {
   //   calculateTotal();
   // }, [searchParams, calculateTotal]);
 
-  if (room === null || undefined) {
+  if (room === undefined) {
     return (
-      <div className="w-full h-screen">
-        <Loader />
+      <div className="w-full h-[80vh] flex justify-center items-center">
+        <Loader className="animate-spin" />
       </div>
     );
   }

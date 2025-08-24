@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 const RoomCard = () => {
   return (
     <Link
-      to={`/room/6888dc20231fa3628a1b010c/?${new URLSearchParams({
+      to={`/room/6899fd25205bfa383a5a2f26/?${new URLSearchParams({
         checkIn: `${format(addDays(new Date(), 1), "dd-mm-yyyy")}`,
         checkOut: `${format(addDays(new Date(), 3), "dd-mm-yyyy")}`,
         adults: "2",

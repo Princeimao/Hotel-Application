@@ -2,8 +2,12 @@ import { searchSuggestion } from "@/api/mapsApi";
 import type { PhotonFeature } from "@/types/maps.types";
 import { Search } from "lucide-react";
 import { useState } from "react";
+import { DateRange } from "react-date-range";
+import "react-date-range/dist/styles.css"; // main css file
+import "react-date-range/dist/theme/default.css"; // theme css file
 import AutoComplete from "../AutoComplete";
 import { Button } from "../ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Separator } from "../ui/separator";
 
 export interface Query {
@@ -15,10 +19,10 @@ export interface Query {
   checkIn: string;
   checkOut: string;
   guest: {
-    adult: number;
+    adults: number;
     children: number;
     infants: number;
-    pets: boolean;
+    pets: number;
   };
 }
 
@@ -32,15 +36,22 @@ const SearchBar = () => {
     checkIn: "",
     checkOut: "",
     guest: {
-      adult: 1,
+      adults: 0,
       children: 0,
       infants: 0,
-      pets: false,
+      pets: 0,
     },
   });
   const [suggestions, setSuggestions] = useState<PhotonFeature[]>([]);
   const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | null>(null);
   const [showSuggestions, setShowSuggestions] = useState<boolean>(false);
+  const [dateRange, setDateRange] = useState([
+    {
+      startDate: new Date(),
+      endDate: new Date(),
+      key: "selection",
+    },
+  ]);
 
   const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -67,18 +78,6 @@ const SearchBar = () => {
 
       setTimeoutId(newTimeoutId);
     }
-
-    if (name === "checkIn") {
-      setQuery((prev) => ({
-        ...prev,
-        checkIn: value,
-      }));
-    } else {
-      setQuery((prev) => ({
-        ...prev,
-        checkOut: value,
-      }));
-    }
   };
 
   const handleSubmit = () => {};
@@ -93,7 +92,7 @@ const SearchBar = () => {
 
         <div className="flex relative items-center space-x-2 px-2 py-1 rounded-full hover:bg-secondary transition-colors">
           <div className="flex-1 p-1 w-40">
-            <label className="block text-xs font-medium text-gray-700 mb-1">
+            <label className="block text-xs font-bold text-gray-700 mb-1">
               Where
             </label>
             <input
@@ -122,41 +121,282 @@ const SearchBar = () => {
         {/* Check-in */}
         <div className="flex items-center space-x-2 px-2 py-1 rounded-full hover:bg-secondary transition-colors">
           <div className="flex-1 p-1 w-40">
-            <label className="block text-xs font-medium text-gray-700 mb-1">
+            <label className="block text-xs font-bold text-gray-700 mb-1">
               Check-in
             </label>
-            <input
-              type="date"
-              name="checkIn"
-              value={query.checkIn}
-              onChange={handleOnChange}
-              className="w-full text-sm text-gray-900 border-0 p-0 focus:ring-0 focus:outline-none bg-transparent"
-            />
+            <Popover>
+              <PopoverTrigger asChild>
+                <p className="w-full text-sm cursor-pointer text-gray-900 border-0 p-0 focus:ring-0 focus:outline-none bg-transparent">
+                  {dateRange[0].startDate.toDateString()}
+                </p>
+              </PopoverTrigger>
+
+              <PopoverContent className="p-4 w-auto mt-6">
+                <DateRange
+                  editableDateInputs={true}
+                  onChange={(item) => setDateRange([item.selection])}
+                  moveRangeOnFirstSelection={false}
+                  ranges={dateRange}
+                  months={2} // show 2 months side by side like Airbnb
+                  direction="horizontal"
+                  minDate={new Date()} // block past dates
+                />
+              </PopoverContent>
+            </Popover>
           </div>
         </div>
 
         {/* Check-out */}
         <div className="flex items-center space-x-2 px-2 py-1 rounded-full hover:bg-secondary transition-colors">
           <div className="flex-1 p-1 w-40">
-            <label className="block text-xs font-medium text-gray-700 mb-1">
+            <label className="block text-xs font-bold text-gray-700 mb-1">
               Check-out
             </label>
-            <input
-              type="date"
-              name="checkOut"
-              value={query.checkOut}
-              onChange={handleOnChange}
-              className="w-full text-sm text-gray-900 border-0 p-0 focus:ring-0 focus:outline-none bg-transparent"
-            />
+            <Popover>
+              <PopoverTrigger asChild>
+                <p className="w-full text-sm cursor-pointer text-gray-900 border-0 p-0 focus:ring-0 focus:outline-none bg-transparent">
+                  {dateRange[0].endDate.toDateString()}
+                </p>
+              </PopoverTrigger>
+
+              <PopoverContent className="p-4 w-auto mt-6">
+                <DateRange
+                  editableDateInputs={true}
+                  onChange={(item) => setDateRange([item.selection])}
+                  moveRangeOnFirstSelection={false}
+                  ranges={dateRange}
+                  months={2} // show 2 months side by side like Airbnb
+                  direction="horizontal"
+                  minDate={new Date()} // block past dates
+                />
+              </PopoverContent>
+            </Popover>
           </div>
         </div>
 
         {/* Guests */}
         <div className="flex items-center space-x-2 px-2 py-1 rounded-full hover:bg-secondary transition-colors">
           <div className="flex-1 p-1 w-40">
-            <label className="block text-xs font-medium text-gray-700 mb-1">
-              Guest
+            <label className="block text-xs font-bold text-gray-700 mb-1">
+              Who
             </label>
+
+            <Popover>
+              <PopoverTrigger asChild>
+                <p className="w-full text-sm cursor-pointer text-gray-900 border-0 p-0 focus:ring-0 focus:outline-none bg-transparent">
+                  {(() => {
+                    const guests: string[] = [];
+
+                    if (query.guest.adults + query.guest.children > 0) {
+                      guests.push(
+                        `Adults: ${query.guest.adults + query.guest.children}`
+                      );
+                    }
+                    if (query.guest.infants > 0) {
+                      guests.push(`Infants: ${query.guest.infants}`);
+                    }
+                    if (query.guest.pets > 0) {
+                      guests.push(`Pets: ${query.guest.pets}`);
+                    }
+
+                    return guests.length > 0 ? guests.join(", ") : "Add Guest";
+                  })()}
+                </p>
+              </PopoverTrigger>
+
+              <PopoverContent className="w-100 min-h-80 mt-6">
+                <div className="w-full">
+                  <div className="w-full flex justify-between items-center h-18">
+                    <div>
+                      <h3 className="font-bold">Adults</h3>
+                      <p className="text-gray-400 text-xs">Ages 13 or above</p>
+                    </div>
+                    <div className="flex gap-3 justify-center items-center">
+                      <Button
+                        className={`bg-transparent text-black hover:text-white border-2 border-black px-3 w-2 h-7 ${
+                          query.guest.adults === 0
+                            ? "border-gray-400 text-gray-400"
+                            : null
+                        }`}
+                        disabled={query.guest.adults === 0}
+                        onClick={() =>
+                          setQuery((prev) => ({
+                            ...prev,
+                            guest: {
+                              ...prev.guest,
+                              adults: query.guest.adults - 1,
+                            },
+                          }))
+                        }
+                      >
+                        -
+                      </Button>
+                      <p className="text-sm">{query.guest.adults}</p>
+                      <Button
+                        className={`bg-transparent text-black hover:text-white border-2 border-black px-3 w-2 h-7 `}
+                        onClick={() =>
+                          setQuery((prev) => ({
+                            ...prev,
+                            guest: {
+                              ...prev.guest,
+                              adults: query.guest.adults + 1,
+                            },
+                          }))
+                        }
+                      >
+                        +
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="w-full flex justify-between items-center h-18">
+                    <div>
+                      <h3 className="font-bold">children</h3>
+                      <p className="text-gray-400 text-xs">Ages 2–12</p>
+                    </div>
+                    <div className="flex gap-3 justify-center items-center">
+                      <Button
+                        className={`bg-transparent text-black hover:text-white border-2 border-black px-3 w-2 h-7 ${
+                          query.guest.children === 0
+                            ? "border-gray-400 text-gray-400"
+                            : null
+                        }`}
+                        disabled={query.guest.children === 0}
+                        onClick={() =>
+                          setQuery((prev) => ({
+                            ...prev,
+                            guest: {
+                              ...prev.guest,
+                              children: query.guest.children - 1,
+                            },
+                          }))
+                        }
+                      >
+                        -
+                      </Button>
+                      <p className="text-sm">{query.guest.children}</p>
+                      <Button
+                        className={`bg-transparent text-black hover:text-white border-2 border-black px-3 w-2 h-7 `}
+                        onClick={() =>
+                          setQuery((prev) => ({
+                            ...prev,
+                            guest: {
+                              ...prev.guest,
+                              children: query.guest.children + 1,
+                            },
+                          }))
+                        }
+                      >
+                        +
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="w-full flex justify-between items-center h-18">
+                    <div>
+                      <h3 className="font-bold">Infants</h3>
+                      <p className="text-gray-400 text-xs">Under 2</p>
+                    </div>
+                    <div className="flex gap-3 justify-center items-center">
+                      <Button
+                        className={`bg-transparent text-black hover:text-white border-2 border-black px-3 w-2 h-7 ${
+                          query.guest.infants === 0
+                            ? "border-gray-400 text-gray-400"
+                            : null
+                        }`}
+                        disabled={query.guest.infants === 0}
+                        onClick={() =>
+                          setQuery((prev) => ({
+                            ...prev,
+                            guest: {
+                              ...prev.guest,
+                              infants: query.guest.infants - 1,
+                            },
+                          }))
+                        }
+                      >
+                        -
+                      </Button>
+                      <p className="text-sm">{query.guest.infants}</p>
+                      <Button
+                        className={`bg-transparent text-black hover:text-white border-2 border-black px-3 w-2 h-7 `}
+                        onClick={() =>
+                          setQuery((prev) => ({
+                            ...prev,
+                            guest: {
+                              ...prev.guest,
+                              infants: query.guest.infants + 1,
+                            },
+                          }))
+                        }
+                      >
+                        +
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="w-full flex justify-between items-center h-18">
+                    <div>
+                      <h3 className="font-bold">Pets</h3>
+                      <p className="text-gray-400 text-xs">
+                        Bringing a service animal
+                      </p>
+                    </div>
+                    <div className="flex gap-3 justify-center items-center">
+                      <Button
+                        className={`bg-transparent text-black hover:text-white border-2 border-black px-3 w-2 h-7 ${
+                          query.guest.pets === 0
+                            ? "border-gray-400 text-gray-400"
+                            : null
+                        }`}
+                        disabled={query.guest.pets === 0}
+                        onClick={() =>
+                          setQuery((prev) => ({
+                            ...prev,
+                            guest: {
+                              ...prev.guest,
+                              pets: query.guest.pets - 1,
+                            },
+                          }))
+                        }
+                      >
+                        -
+                      </Button>
+                      <p className="text-sm">{query.guest.pets}</p>
+                      <Button
+                        className={`bg-transparent text-black hover:text-white border-2 border-black px-3 w-2 h-7 `}
+                        onClick={() =>
+                          setQuery((prev) => ({
+                            ...prev,
+                            guest: {
+                              ...prev.guest,
+                              pets: query.guest.pets + 1,
+                            },
+                          }))
+                        }
+                      >
+                        +
+                      </Button>
+                    </div>
+                  </div>
+                  <Button
+                    onClick={() =>
+                      setQuery((prev) => ({
+                        ...prev,
+                        guest: {
+                          adults: 0,
+                          children: 0,
+                          infants: 0,
+                          pets: 0,
+                        },
+                      }))
+                    }
+                  >
+                    Reset
+                  </Button>
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
         </div>
 
