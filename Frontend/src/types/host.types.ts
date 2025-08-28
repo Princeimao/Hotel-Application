@@ -18,3 +18,15 @@ export interface RoomHost {
   pincode: string;
   createdAt: string;
 }
+
+export interface Recommendation {
+  location: {
+    city: string;
+  };
+  _id: string;
+  basePrice: string;
+  title: string;
+  childrenOccupancy: number;
+  adultOccupancy: number;
+  photo: [string];
+}

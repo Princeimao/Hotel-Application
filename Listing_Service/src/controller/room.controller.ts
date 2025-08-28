@@ -568,3 +568,52 @@ export const getAccommodationByHostId = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const getAccommodationSuggestions = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const { lat, lng } = req.query;
+
+    if (!lat || !lng) {
+      res.status(400).json({ error: "Latitude and Longitude are required" });
+      return;
+    }
+
+    const latitude = parseFloat(lat as string);
+    const longitude = parseFloat(lng as string);
+
+    const accommodations = await roomModel
+      .find({
+        "location.geo": {
+          $near: {
+            $geometry: {
+              type: "Poing",
+              coordinates: [longitude, latitude],
+            },
+          },
+        },
+      })
+      .limit(30)
+      .select(
+        "location.city _id basePrice title childrenOccupancy adultOccupancy photo"
+      );
+
+    res.status(200).json({
+      success: true,
+      message: "get accommodations successfully",
+      accommodations,
+    });
+  } catch (error) {
+    console.log(
+      "something went wrong while getting accommodation recomendation",
+      error
+    );
+    res.status(500).json({
+      success: false,
+      message: "something went wrong while getting accommodation recomendation",
+      error,
+    });
+  }
+};

@@ -1,5 +1,5 @@
 import type { Location } from "@/pages/steps/listing/Address";
-import type { RoomHost } from "@/types/host.types";
+import type { Recommendation, RoomHost } from "@/types/host.types";
 import type { RoomDetials } from "@/types/hotel.types";
 import type {
   listingAddressValidation,
@@ -7,6 +7,7 @@ import type {
 } from "@/validation";
 import { z } from "zod";
 import { instance } from "./axios";
+import { getUserLocation } from "./mapsApi";
 
 export const fetchRoomDetailsFromSearch = async () => {
   try {
@@ -322,6 +323,42 @@ export const reservationType = async (
     return {
       success: false,
       message: "something went wrong while updating basic details",
+    };
+  }
+};
+
+export const getAccommodationSuggestions = async (): Promise<{
+  success: boolean;
+  message: string;
+  accommodations: Recommendation[];
+}> => {
+  try {
+    const userLocation = await getUserLocation();
+
+    if (
+      userLocation?.latitude === undefined ||
+      userLocation?.longitude === undefined
+    ) {
+      throw new Error("user Location now found");
+    }
+
+    const response = await instance.get(
+      `/listing/get-accommodation-suggestion/?${new URLSearchParams({
+        lat: userLocation.latitude.toString(),
+        lng: userLocation.longitude.toString(),
+      })}`
+    );
+
+    console.log(response.data);
+    return response.data;
+  } catch (error) {
+    console.log(
+      "something went wrong while getting accommodation suggestion",
+      error
+    );
+    return {
+      success: false,
+      message: "something went wrong while getting accommodation suggestion",
     };
   }
 };
