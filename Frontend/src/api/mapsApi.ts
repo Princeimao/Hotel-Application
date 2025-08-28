@@ -1,24 +1,23 @@
-import type { PhotonResponse, UserLocation } from "@/types/maps.types";
+import type { UserLocation } from "@/types/maps.types";
 import axios from "axios";
 
-const endPoint = import.meta.env.VITE_PHOTON_ENDPOINT;
+const endPoint = import.meta.env.VITE_OLAMAPS_ENDPOINT;
 
-// change it my own maps or better service
 export const searchSuggestion = async (
-  location: string
-): Promise<PhotonResponse | undefined | null> => {
+  location: string,
+  lat: number,
+  long: number
+) => {
   try {
-    const response = await axios.get(`${endPoint}/api`, {
-      params: {
-        q: location,
-        limit: 5,
-      },
-      headers: {
-        Accept: "application/json",
-      },
-    });
+    const response = await axios.get(
+      `${endPoint}?input=${new URLSearchParams({
+        input: location,
+        location: `${lat},${long}`,
+      })}&api_key=${import.meta.env.VITE_OLAMAPS_API_KEY}`
+    );
 
-    console.log(response.data.features);
+    console.log(response.data);
+
     return response.data;
   } catch (error) {
     console.log("something went wrong while getting search suggestion", error);
@@ -32,6 +31,7 @@ export const getUserLocation = async (): Promise<
   const cachedLoaction = sessionStorage.getItem("userLocation");
 
   if (cachedLoaction) {
+    console.log("here 1");
     return JSON.parse(cachedLoaction);
   }
 

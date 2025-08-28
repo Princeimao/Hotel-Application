@@ -1,7 +1,7 @@
-import { searchSuggestion } from "@/api/mapsApi";
-import type { PhotonFeature } from "@/types/maps.types";
+import { getUserLocation, searchSuggestion } from "@/api/mapsApi";
+import type { OlaApiResponse } from "@/types/maps.types";
 import { Search } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DateRange } from "react-date-range";
 import "react-date-range/dist/styles.css"; // main css file
 import "react-date-range/dist/theme/default.css"; // theme css file
@@ -16,8 +16,6 @@ export interface Query {
     lat: number;
     lng: number;
   };
-  checkIn: string;
-  checkOut: string;
   guest: {
     adults: number;
     children: number;
@@ -33,8 +31,6 @@ const SearchBar = () => {
       lat: 0,
       lng: 0,
     },
-    checkIn: "",
-    checkOut: "",
     guest: {
       adults: 0,
       children: 0,
@@ -42,8 +38,8 @@ const SearchBar = () => {
       pets: 0,
     },
   });
-  const [suggestions, setSuggestions] = useState<PhotonFeature[]>([]);
-  const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | null>(null);
+  const [inputValue, setInputValue] = useState<string>("");
+  const [suggestions, setSuggestions] = useState<OlaApiResponse | null>(null);
   const [showSuggestions, setShowSuggestions] = useState<boolean>(false);
   const [dateRange, setDateRange] = useState([
     {
@@ -53,34 +49,53 @@ const SearchBar = () => {
     },
   ]);
 
-  const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
+  function useDebounce<T>(value: T, delay: number): T {
+    const [debouncedValue, setDebouncedValue] = useState(value);
 
-    if (name === "location") {
-      setShowSuggestions(true);
-      setQuery((prev) => ({
-        ...prev,
-        location: {
-          ...prev.location,
-          name: value,
-        },
-      }));
+    useEffect(() => {
+      const handler = setTimeout(() => {
+        setDebouncedValue(value);
+      }, delay);
 
-      if (timeoutId) {
-        clearTimeout(timeoutId);
+      return () => {
+        clearTimeout(handler);
+      };
+    }, [value, delay]);
+
+    return debouncedValue;
+  }
+
+  const debouncedSearch = useDebounce(inputValue, 1000);
+
+  useEffect(() => {
+    if (debouncedSearch) {
+      async function call() {
+        const userLocation = await getUserLocation();
+        if (!userLocation) {
+          throw new Error("something went wrong");
+        }
+        const response = await searchSuggestion(
+          debouncedSearch,
+          userLocation.latitude,
+          userLocation.longitude
+        );
+        setSuggestions(response);
+        setShowSuggestions(true);
       }
 
-      const newTimeoutId = setTimeout(async () => {
-        const suggestion = await searchSuggestion(value);
-
-        setSuggestions(suggestion?.features || []);
-      }, 2000);
-
-      setTimeoutId(newTimeoutId);
+      if (inputValue !== query.location.name) {
+        call();
+      }
+    } else {
+      setSuggestions(null);
     }
-  };
+  }, [debouncedSearch, inputValue, query.location.name]);
 
-  const handleSubmit = () => {};
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    console.log(query);
+  };
 
   return (
     <form
@@ -98,21 +113,22 @@ const SearchBar = () => {
             <input
               type="text"
               name="location"
-              value={query.location.name}
-              onChange={handleOnChange}
+              value={inputValue}
+              onChange={(e) => {
+                setInputValue(e.target.value);
+                setShowSuggestions(true);
+              }}
               placeholder="Search destinations"
               className="w-full text-sm text-gray-900 placeholder-gray-500 border-0 p-0 focus:ring-0 focus:outline-none bg-transparent"
             />
           </div>
 
-          {/* AutoCompete */}
           {showSuggestions === true ? (
             <AutoComplete
               searchSuggestions={suggestions}
-              query={query}
               setQuery={setQuery}
-              showSuggestions={showSuggestions}
               setShowSuggestions={setShowSuggestions}
+              setInputValue={setInputValue}
             />
           ) : null}
         </div>
@@ -137,9 +153,9 @@ const SearchBar = () => {
                   onChange={(item) => setDateRange([item.selection])}
                   moveRangeOnFirstSelection={false}
                   ranges={dateRange}
-                  months={2} // show 2 months side by side like Airbnb
+                  months={2}
                   direction="horizontal"
-                  minDate={new Date()} // block past dates
+                  minDate={new Date()}
                 />
               </PopoverContent>
             </Popover>
@@ -165,9 +181,9 @@ const SearchBar = () => {
                   onChange={(item) => setDateRange([item.selection])}
                   moveRangeOnFirstSelection={false}
                   ranges={dateRange}
-                  months={2} // show 2 months side by side like Airbnb
+                  months={2}
                   direction="horizontal"
-                  minDate={new Date()} // block past dates
+                  minDate={new Date()}
                 />
               </PopoverContent>
             </Popover>
