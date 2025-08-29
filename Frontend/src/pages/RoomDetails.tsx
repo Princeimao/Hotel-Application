@@ -1,19 +1,53 @@
 import { fetchRoomDetails } from "@/api/hotelApi";
+import { Button } from "@/components/ui/button";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { amenitiesMap } from "@/constants/amenitiesMap";
 import type { Room } from "@/types/hotel.types";
-import { addDays, differenceInDays, format, isValid, parse } from "date-fns";
-import { Heart, Loader, MapPin } from "lucide-react";
+import { differenceInDays, format, parse } from "date-fns";
+import { Calendar, ChevronDown, Heart, Loader, MapPin } from "lucide-react";
 import { useEffect, useState } from "react";
+import { DateRange } from "react-date-range";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
-import { useParams } from "react-router-dom";
+import ReactMarkDown from "react-markdown";
+import { Link, useParams, useSearchParams } from "react-router-dom";
+import remarkGfm from "remark-gfm";
 
 const RoomDetails = () => {
+  const [searchParams] = useSearchParams();
   const { id } = useParams();
-  const [checkIn, setCheckIn] = useState<Date | undefined>();
-  const [checkOut, setCheckOut] = useState<Date | undefined>();
-  const [guests, setGuests] = useState(1);
   const [room, setRoom] = useState<Room>();
+
+  const checkIn = searchParams.get("checkIn");
+  const checkOut = searchParams.get("checkOut");
+  const adults = searchParams.get("adults");
+
+  if (!checkIn || !checkOut || !adults) {
+    throw new Error("Date missing");
+  }
+  const [query, setQuery] = useState<{
+    adults: number;
+    children: number;
+    infants: number;
+    pets: number;
+  }>({
+    adults: Number(adults),
+    children: 0,
+    infants: 0,
+    pets: 0,
+  });
+  const [dateRange, setDateRange] = useState([
+    {
+      startDate: parse(checkIn, "dd-MM-yyyy", new Date()),
+      endDate: parse(checkOut, "dd-MM-yyyy", new Date()),
+      key: "selection",
+    },
+  ]);
+  console.log(dateRange, checkIn);
 
   useEffect(() => {
     async function hotelDetails() {
@@ -39,28 +73,6 @@ const RoomDetails = () => {
 
     hotelDetails();
   }, [id]);
-
-  // const calculateTotal = useCallback(() => {
-  //   if (!checkIn || !checkOut) return 0;
-  //   const days = differenceInDays(checkOut, checkIn);
-  //   return days * Number(room?.);
-  // }, [checkIn, checkOut, room?.basePrice]);
-
-  // useEffect(() => {
-  //   const checkInString = searchParams.get("checkIn");
-  //   const checkOutString = searchParams.get("checkOut");
-
-  //   if (checkInString && checkOutString) {
-  //     const parseCheckIn = parse(checkInString, "dd-MM-yyyy", new Date());
-  //     const parseCheckOut = parse(checkOutString, "dd-MM-yyyy", new Date());
-
-  //     if (isValid(parseCheckIn) && isValid(parseCheckOut)) {
-  //       //setCheckIn(parseCheckIn);
-  //       // setCheckOut(parseCheckOut);
-  //     }
-  //   }
-  //   calculateTotal();
-  // }, [searchParams, calculateTotal]);
 
   if (room === undefined) {
     return (
@@ -101,7 +113,7 @@ const RoomDetails = () => {
                 key={index}
                 src={image}
                 alt={`${room?.listing.title} ${index + 2}`}
-                className="w-full h-48 object-cover"
+                className="w-full h-49 object-cover"
               />
             ))}
           </div>
@@ -123,26 +135,27 @@ const RoomDetails = () => {
                     <span>{room?.listing.beds} beds</span>
                   </div>
                 </div>
-                {/* <img
-                  src={room.}
-                  alt={room.}
-                  className="w-16 h-16 rounded-full object-cover"
-                /> */}
+                <Link to={`/host-profile/${room.host.id}`}>
+                  <img
+                    src={
+                      room.host.profileImage === null
+                        ? "https://github.com/shadcn.png"
+                        : room.host.profileImage
+                    }
+                    alt={room.host.id}
+                    className="w-16 h-16 rounded-full object-cover"
+                  />
+                </Link>
               </div>
             </div>
 
             {/* Description */}
             <div className="border-b border-gray-200 pb-6 mb-6">
-              <p className="text-gray-700 leading-relaxed">
-                {room?.listing.description && (
-                  <div
-                    className="prose lg:prose-xl prose-neutral max-w-none"
-                    dangerouslySetInnerHTML={{
-                      __html: room.listing.description,
-                    }}
-                  />
-                )}
-              </p>
+              {room?.listing.description && (
+                <ReactMarkDown remarkPlugins={[remarkGfm]}>
+                  {room.listing.description}
+                </ReactMarkDown>
+              )}
             </div>
 
             {/* Amenities */}
@@ -177,73 +190,323 @@ const RoomDetails = () => {
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Check-in
                     </label>
-                    <input
-                      type="date"
-                      value={checkIn ? format(checkIn, "yyyy-MM-dd") : ""}
-                      onChange={(e) => {
-                        const parsed = parse(
-                          e.target.value,
-                          "yyyy-MM-dd",
-                          new Date()
-                        );
-                        if (isValid(parsed)) setCheckIn(parsed);
-                      }}
-                      min={new Date().toISOString().split("T")[0]}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                    />
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <div className="flex items-center justify-between w-full text-sm cursor-pointer text-gray-900 rounded-xl border-1 border-gray-500 p-3 focus:ring-0 focus:outline-none bg-transparent">
+                          <p className="">
+                            {format(dateRange[0].startDate, "dd/MM/yyyy")}
+                          </p>
+                          <Calendar size={19} />
+                        </div>
+                      </PopoverTrigger>
+
+                      <PopoverContent className="p-4 w-auto mt-6">
+                        <DateRange
+                          editableDateInputs={true}
+                          onChange={(item) => setDateRange([item.selection])}
+                          moveRangeOnFirstSelection={false}
+                          ranges={dateRange}
+                          months={2}
+                          direction="horizontal"
+                          minDate={new Date()}
+                        />
+                      </PopoverContent>
+                    </Popover>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Check-out
                     </label>
-                    <input
-                      type="date"
-                      value={checkOut ? format(checkOut, "yyyy-MM-dd") : ""}
-                      min={format(addDays(new Date(), 1), "yyyy-MM-dd")}
-                      onChange={(e) => {
-                        const parsed = parse(
-                          e.target.value,
-                          "yyyy-MM-dd",
-                          new Date()
-                        );
-                        if (isValid(parsed)) setCheckOut(parsed);
-                      }}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                    />
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <div className="flex items-center justify-between w-full text-sm cursor-pointer text-gray-900 rounded-xl border-1 border-gray-500 p-3 focus:ring-0 focus:outline-none bg-transparent">
+                          <p className="">
+                            {format(dateRange[0].endDate, "dd/MM/yyyy")}
+                          </p>
+                          <Calendar size={19} />
+                        </div>
+                      </PopoverTrigger>
+
+                      <PopoverContent className="p-4 w-auto mt-6">
+                        <DateRange
+                          editableDateInputs={true}
+                          onChange={(item) => setDateRange([item.selection])}
+                          moveRangeOnFirstSelection={false}
+                          ranges={dateRange}
+                          months={2}
+                          direction="horizontal"
+                          minDate={new Date()}
+                        />
+                      </PopoverContent>
+                    </Popover>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Guests
-                  </label>
-                  <select
-                    value={guests}
-                    onChange={(e) => setGuests(parseInt(e.target.value))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                  >
-                    {[...Array(room?.listing.maxGuests)].map((_, i) => (
-                      <option key={i + 1} value={i + 1}>
-                        {i + 1} guest{i > 0 ? "s" : ""}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="flex-1 p-1 w-full">
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <div className="flex w-full p-3 text-sm font-medium text-gray-700 mb-1 border-2 border-gray-500 rounded-xl items-center justify-between">
+                          <div className="">
+                            Guests
+                            <p className="w-full text-sm cursor-pointer text-gray-900 border-0 p-0 focus:ring-0 focus:outline-none bg-transparent">
+                              {(() => {
+                                const guests: string[] = [];
+
+                                if (query.adults + query.children > 0) {
+                                  guests.push(
+                                    `Adults: ${query.adults + query.children}`
+                                  );
+                                }
+                                if (query.infants > 0) {
+                                  guests.push(`Infants: ${query.infants}`);
+                                }
+                                if (query.pets > 0) {
+                                  guests.push(`Pets: ${query.pets}`);
+                                }
+
+                                return guests.length > 0
+                                  ? guests.join(", ")
+                                  : "Add Guest";
+                              })()}
+                            </p>
+                          </div>
+                          <ChevronDown />
+                        </div>
+                      </PopoverTrigger>
+
+                      <PopoverContent className="w-80 min-h-80">
+                        <div className="w-full">
+                          <div className="w-full flex justify-between items-center h-18">
+                            <div>
+                              <h3 className="font-bold">Adults</h3>
+                              <p className="text-gray-400 text-xs">
+                                Ages 13 or above
+                              </p>
+                            </div>
+                            <div className="flex gap-3 justify-center items-center">
+                              <Button
+                                className={`bg-transparent text-black hover:text-white border-2 border-black px-3 w-2 h-7 ${
+                                  query.adults === 0
+                                    ? "border-gray-400 text-gray-400"
+                                    : null
+                                }`}
+                                disabled={query.adults === 0}
+                                onClick={() =>
+                                  setQuery((prev) => ({
+                                    ...prev,
+                                    adults: query.adults - 1,
+                                  }))
+                                }
+                              >
+                                -
+                              </Button>
+                              <p className="text-sm">{query.adults}</p>
+                              <Button
+                                className={`bg-transparent text-black hover:text-white border-2 border-black px-3 w-2 h-7 ${
+                                  query.adults === room.listing.adultOccupancy
+                                    ? "border-gray-400 text-gray-400"
+                                    : null
+                                }`}
+                                disabled={
+                                  query.adults === room.listing.adultOccupancy
+                                }
+                                onClick={() =>
+                                  setQuery((prev) => ({
+                                    ...prev,
+
+                                    adults: query.adults + 1,
+                                  }))
+                                }
+                              >
+                                +
+                              </Button>
+                            </div>
+                          </div>
+
+                          <div className="w-full flex justify-between items-center h-18">
+                            <div>
+                              <h3 className="font-bold">children</h3>
+                              <p className="text-gray-400 text-xs">Ages 2–12</p>
+                            </div>
+                            <div className="flex gap-3 justify-center items-center">
+                              <Button
+                                className={`bg-transparent text-black hover:text-white border-2 border-black px-3 w-2 h-7 ${
+                                  query.children === 0
+                                    ? "border-gray-400 text-gray-400"
+                                    : null
+                                }`}
+                                disabled={query.children === 0}
+                                onClick={() =>
+                                  setQuery((prev) => ({
+                                    ...prev,
+
+                                    children: query.children - 1,
+                                  }))
+                                }
+                              >
+                                -
+                              </Button>
+                              <p className="text-sm">{query.children}</p>
+                              <Button
+                                className={`bg-transparent text-black hover:text-white border-2 border-black px-3 w-2 h-7 
+                                  ${
+                                    query.children ===
+                                    room.listing.childrenOccupancy
+                                      ? "border-gray-400 text-gray-400"
+                                      : null
+                                  }`}
+                                disabled={
+                                  query.children ===
+                                  room.listing.childrenOccupancy
+                                }
+                                onClick={() =>
+                                  setQuery((prev) => ({
+                                    ...prev,
+                                    children: query.children + 1,
+                                  }))
+                                }
+                              >
+                                +
+                              </Button>
+                            </div>
+                          </div>
+
+                          <div className="w-full flex justify-between items-center h-18">
+                            <div>
+                              <h3 className="font-bold">Infants</h3>
+                              <p className="text-gray-400 text-xs">Under 2</p>
+                            </div>
+                            <div className="flex gap-3 justify-center items-center">
+                              <Button
+                                className={`bg-transparent text-black hover:text-white border-2 border-black px-3 w-2 h-7 ${
+                                  query.infants === 0
+                                    ? "border-gray-400 text-gray-400"
+                                    : null
+                                }`}
+                                disabled={query.infants === 0}
+                                onClick={() =>
+                                  setQuery((prev) => ({
+                                    ...prev,
+                                    infants: query.infants - 1,
+                                  }))
+                                }
+                              >
+                                -
+                              </Button>
+                              <p className="text-sm">{query.infants}</p>
+                              <Button
+                                className={`bg-transparent text-black hover:text-white border-2 border-black px-3 w-2 h-7 `}
+                                onClick={() =>
+                                  setQuery((prev) => ({
+                                    ...prev,
+                                    infants: query.infants + 1,
+                                  }))
+                                }
+                              >
+                                +
+                              </Button>
+                            </div>
+                          </div>
+
+                          <div className="w-full flex justify-between items-center h-18">
+                            <div>
+                              <h3 className="font-bold">Pets</h3>
+                              <p className="text-gray-400 text-xs">
+                                Bringing a service animal
+                              </p>
+                            </div>
+                            <div className="flex gap-3 justify-center items-center">
+                              <Button
+                                className={`bg-transparent text-black hover:text-white border-2 border-black px-3 w-2 h-7 ${
+                                  query.pets === 0
+                                    ? "border-gray-400 text-gray-400"
+                                    : null
+                                }`}
+                                disabled={query.pets === 0}
+                                onClick={() =>
+                                  setQuery((prev) => ({
+                                    ...prev,
+
+                                    pets: query.pets - 1,
+                                  }))
+                                }
+                              >
+                                -
+                              </Button>
+                              <p className="text-sm">{query.pets}</p>
+                              <Button
+                                className={`bg-transparent text-black hover:text-white border-2 border-black px-3 w-2 h-7 
+                                   ${
+                                     query.pets ===
+                                     (room.listing.petsAllowed === false
+                                       ? 0
+                                       : 1)
+                                       ? "border-gray-400 text-gray-400"
+                                       : null
+                                   }
+
+                                  `}
+                                disabled={
+                                  query.pets ===
+                                  (room.listing.petsAllowed === false ? 0 : 1)
+                                }
+                                onClick={() =>
+                                  setQuery((prev) => ({
+                                    ...prev,
+                                    guest: {
+                                      ...prev,
+                                      pets: query.pets + 1,
+                                    },
+                                  }))
+                                }
+                              >
+                                +
+                              </Button>
+                            </div>
+                          </div>
+                          <Button
+                            onClick={() =>
+                              setQuery({
+                                adults: 0,
+                                children: 0,
+                                infants: 0,
+                                pets: 0,
+                              })
+                            }
+                          >
+                            Reset
+                          </Button>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                  </div>
                 </div>
               </div>
 
-              {checkIn && checkOut && (
-                <div className="border-t border-gray-200 pt-4 mb-6">
+              {dateRange[0].startDate && dateRange[0].endDate && (
+                <div className="border-gray-200 mb-6">
                   <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
                     <span>
-                      ${room?.listing.basePrice} x{" "}
-                      {differenceInDays(checkOut, checkIn)} nights
+                      &#8377;{room?.listing.basePrice} x{" "}
+                      {differenceInDays(
+                        dateRange[0].endDate,
+                        dateRange[0].startDate
+                      )}{" "}
+                      nights
                     </span>
-                    {/* <span>${calculateTotal()}</span> */}
                   </div>
 
-                  <div className="flex items-center justify-between font-semibold text-gray-900 pt-2 border-t">
+                  <div className="flex items-center justify-between font-semibold text-gray-900 pt-2">
                     <span>Total</span>
                     <span>
+                      &#8377;
+                      {Number(
+                        differenceInDays(
+                          dateRange[0].endDate,
+                          dateRange[0].startDate
+                        )
+                      ) * room.listing.basePrice}
                       {/* ${calculateTotal() + Math.round(calculateTotal() * 0.1)} */}
                     </span>
                   </div>
@@ -259,6 +522,18 @@ const RoomDetails = () => {
               </p>
             </div>
           </div>
+        </div>
+        <div>
+          <DateRange
+            editableDateInputs={true}
+            onChange={(item) => setDateRange([item.selection])}
+            moveRangeOnFirstSelection={false}
+            ranges={dateRange}
+            months={2}
+            direction="horizontal"
+            color="black"
+            minDate={new Date()}
+          />
         </div>
       </div>
     </div>

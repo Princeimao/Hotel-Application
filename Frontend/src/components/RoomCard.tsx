@@ -21,8 +21,8 @@ const RoomCard = ({
   return (
     <Link
       to={`/room/${id}/?${new URLSearchParams({
-        checkIn: `${format(addDays(new Date(), 1), "dd-mm-yyyy")}`,
-        checkOut: `${format(addDays(new Date(), 3), "dd-mm-yyyy")}`,
+        checkIn: `${format(addDays(new Date(), 1), "dd-MM-yyyy")}`,
+        checkOut: `${format(addDays(new Date(), 3), "dd-MM-yyyy")}`,
         adults: adults.toString(),
         childs: childs.toString(),
       })}`}
