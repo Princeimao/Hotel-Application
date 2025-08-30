@@ -4,8 +4,6 @@ import { instance } from "../utils/httpClient.utils";
 export const getAccommodationDetails = async (req: Request, res: Response) => {
   try {
     const { accommodationId } = req.params;
-    const d = new Date();
-    const date = new Date(d);
 
     const [hostRes, listingRes, bookingRes] = await Promise.all([
       instance.get(
@@ -15,11 +13,7 @@ export const getAccommodationDetails = async (req: Request, res: Response) => {
         `${process.env.LISTING_SERVICE_URL}/get-accommodation/${accommodationId}`
       ),
       instance.get(
-        `${
-          process.env.BOOKING_SERVICE_URL
-        }/calendar-availability/${accommodationId}?checkIn=${date.setDate(
-          date.getDate() + 1
-        )}&checkOut=${date.setDate(date.getDate() + 3)}`
+        `${process.env.BOOKING_SERVICE_URL}/calendar-availability/${accommodationId}`
       ),
     ]);
 
@@ -48,20 +42,32 @@ export const getAccommodationDetails = async (req: Request, res: Response) => {
 export const getHostDetails = async (req: Request, res: Response) => {
   try {
     const { hostId } = req.params;
+    const token = req.headers.authorization;
 
-    const result = Promise.all([
+    const [hostRes, listingRes] = await Promise.all([
+      instance.get(`${process.env.HOST_SERVICE_URL}/get-host-Id/${hostId}`),
+
       instance.get(
-        `${process.env.HOST_SERVICE_URL}/api/v1/host/get-host-Id/${hostId}`
-      ),
-      instance.get(
-        `${process.env.LISTING_SERVICE_URL}/api/v1/listing/get-accommodation-hostId/${hostId}`
+        `${process.env.LISTING_SERVICE_URL}/get-accommodation-hostId/${hostId}`,
+        {
+          headers: { Authorization: token },
+        }
       ),
     ]);
+
+    res.status(200).json({
+      success: true,
+      message: "get host details successfully",
+      hostDetails: {
+        host: hostRes.data,
+        listing: listingRes.data,
+      },
+    });
   } catch (error) {
-    console.log("something went wrong while getting user detaisl", error);
+    console.log("something went wrong while getting host Details", error);
     res.status(400).json({
       success: false,
-      message: "something went wrong while getting the accommodation details",
+      message: "something went wrong while getting host Details",
       error,
     });
   }

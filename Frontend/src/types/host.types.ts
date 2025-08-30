@@ -19,6 +19,23 @@ export interface RoomHost {
   createdAt: string;
 }
 
+export interface Host {
+  city: string;
+  country: string;
+  createdAt: string;
+  email: string;
+  gender: string;
+  houseAddress: string;
+  id: string;
+  isEmailVerified: boolean;
+  isPhoneVerified: boolean;
+  name: string;
+  phone: string;
+  pincode: string;
+  profileImage: null | string;
+  state: string;
+}
+
 export interface Recommendation {
   location: {
     city: string;

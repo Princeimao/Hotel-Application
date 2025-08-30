@@ -558,7 +558,14 @@ export const getAccommodationByHostId = async (req: Request, res: Response) => {
 
     const accommodations = await roomModel
       .find({ hostId })
-      .select("photo title location");
+
+    console.log(accommodations);
+
+    res.status(200).json({
+      success: true,
+      message: "get accommodations successfully",
+      accommodations,
+    });
   } catch (error) {
     console.log("something went wrong while getting accommodation", error);
     res.status(500).json({

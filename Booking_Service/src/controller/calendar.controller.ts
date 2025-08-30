@@ -6,16 +6,15 @@ export const getCalendarAvailability = async (req: Request, res: Response) => {
   try {
     const { roomId } = req.params;
 
-    const { checkIn, checkOut } = req.params;
-
     const availability = await calendarModel.find({
       roomId: roomId,
-      $and: [
-        {
-          checkIn: { $lt: checkOut },
-          checkOut: { $gt: checkIn },
-        },
-      ],
+      // $and: [
+      //   {
+      //     checkIn: { $lt: checkInDate },
+      //     checkOut: { $gt: checkOutDate },
+      //   },
+      // ],
+      checkIn: { $gte: new Date() },
     });
 
     res.status(200).json({
@@ -36,6 +35,7 @@ export const getCalendarAvailability = async (req: Request, res: Response) => {
     res.status(400).json({
       success: false,
       message: "something went wrong while getting the availability",
+      error: error,
     });
   }
 };

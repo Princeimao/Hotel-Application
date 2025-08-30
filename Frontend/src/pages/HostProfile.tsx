@@ -1,16 +1,41 @@
-import {
-  CheckCircle,
-  Mail,
-  MapPin,
-  Phone,
-  Plus,
-  Settings,
-  XCircle,
-} from "lucide-react";
-import React from "react";
-import { Link } from "react-router-dom";
+import { getHost } from "@/api/hostApi";
+import type { Host } from "@/types/host.types";
+import type { RoomDetials } from "@/types/hotel.types";
+import { CheckCircle, Mail, MapPin, Phone, Plus, Settings } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Link, useParams } from "react-router-dom";
 
-const HostProfile: React.FC = () => {
+interface HostDetails {
+  host: Host;
+  listing: RoomDetials[];
+}
+
+const HostProfile = () => {
+  const { hostId } = useParams();
+  const [host, setHost] = useState<HostDetails>();
+
+  useEffect(() => {
+    async function fetchHostDetails() {
+      if (!hostId) {
+        throw new Error("host id is not defined");
+      }
+      const response = await getHost(hostId);
+
+      if (!response.hostDetails) {
+        throw new Error("something went wrong");
+      }
+
+      setHost({
+        host: response.hostDetails.host.host,
+        listing: response.hostDetails.listing.accommodations,
+      });
+    }
+
+    fetchHostDetails();
+  }, [hostId]);
+
+  console.log(host?.listing);
+
   const profile = {
     profile_photo: "kasldfj",
     full_name: "slkjfd",
@@ -22,12 +47,10 @@ const HostProfile: React.FC = () => {
     bio: "alskdjf ",
   };
 
-  const listings = [];
-
   if (!profile) {
     return (
       <div className="flex items-center justify-center min-h-96">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
       </div>
     );
   }
@@ -37,58 +60,51 @@ const HostProfile: React.FC = () => {
       {/* Profile Header */}
       <div className="bg-white rounded-lg shadow-sm border p-6">
         <div className="flex flex-col md:flex-row items-start md:items-center space-y-4 md:space-y-0 md:space-x-6">
-          <div className="w-24 h-24 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
-            {profile.profile_photo ? (
-              <img
-                src={profile.profile_photo}
-                alt={profile.full_name || "Profile"}
-                className="w-24 h-24 rounded-full object-cover"
-              />
-            ) : (
-              <span className="text-white text-3xl font-bold">
-                {profile.full_name?.charAt(0)?.toUpperCase() || "U"}
-              </span>
-            )}
+          <div className="w-24 h-24 rounded-full flex items-center justify-center">
+            <img
+              src={
+                host?.host.profileImage === null
+                  ? "https://github.com/shadcn.png"
+                  : host?.host.profileImage
+              }
+              alt={host?.host.id}
+              className="w-24 h-24 rounded-full object-cover"
+            />
           </div>
 
           <div className="flex-1">
             <div className="flex items-center space-x-3 mb-2">
               <h1 className="text-3xl font-bold text-gray-900">
-                {profile.full_name || "Your Name"}
+                {host?.host.name}
               </h1>
-              {profile.verification_status === "verified" ? (
-                <CheckCircle className="w-6 h-6 text-green-500" />
-              ) : (
-                <XCircle className="w-6 h-6 text-red-500" />
-              )}
             </div>
 
             <div className="space-y-2 text-gray-600">
-              {profile.email && (
+              {host?.host.email && (
                 <div className="flex items-center space-x-2">
                   <Mail className="w-4 h-4" />
-                  <span>{profile.email}</span>
-                  {profile.email_verified && (
+                  <span>{host?.host.email}</span>
+                  {host?.host.isEmailVerified && (
                     <CheckCircle className="w-4 h-4 text-green-500" />
                   )}
                 </div>
               )}
-              {profile.phone && (
+              {host?.host.phone && (
                 <div className="flex items-center space-x-2">
                   <Phone className="w-4 h-4" />
-                  <span>{profile.phone}</span>
-                  {profile.phone_verified && (
+                  <span>{host?.host.phone}</span>
+                  {host?.host.isPhoneVerified && (
                     <CheckCircle className="w-4 h-4 text-green-500" />
                   )}
                 </div>
               )}
             </div>
 
-            {profile.bio && (
+            {/* {profile.bio && (
               <p className="mt-4 text-gray-700 leading-relaxed">
                 {profile.bio}
               </p>
-            )}
+            )} */}
           </div>
 
           <div className="flex flex-col space-y-2">
@@ -119,13 +135,13 @@ const HostProfile: React.FC = () => {
           <div className="flex items-center space-x-3 p-4 border rounded-lg">
             <div
               className={`w-3 h-3 rounded-full ${
-                profile.email_verified ? "bg-green-500" : "bg-red-500"
+                host?.host.isEmailVerified ? "bg-green-500" : "bg-red-500"
               }`}
             ></div>
             <div>
               <p className="font-medium">Email</p>
               <p className="text-sm text-gray-500">
-                {profile.email_verified ? "Verified" : "Not verified"}
+                {host?.host.isEmailVerified ? "Verified" : "Not verified"}
               </p>
             </div>
           </div>
@@ -133,13 +149,13 @@ const HostProfile: React.FC = () => {
           <div className="flex items-center space-x-3 p-4 border rounded-lg">
             <div
               className={`w-3 h-3 rounded-full ${
-                profile.phone_verified ? "bg-green-500" : "bg-red-500"
+                host?.host.isPhoneVerified ? "bg-green-500" : "bg-red-500"
               }`}
             ></div>
             <div>
               <p className="font-medium">Phone</p>
               <p className="text-sm text-gray-500">
-                {profile.phone_verified ? "Verified" : "Not verified"}
+                {host?.host.isPhoneVerified ? "Verified" : "Not verified"}
               </p>
             </div>
           </div>
@@ -179,37 +195,37 @@ const HostProfile: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
           <div className="text-center p-4 bg-blue-50 rounded-lg">
             <div className="text-3xl font-bold text-blue-600">
-              {listings.length}
+              {host?.listing.length}
             </div>
             <div className="text-sm text-gray-600">Total Listings</div>
           </div>
           <div className="text-center p-4 bg-green-50 rounded-lg">
             <div className="text-3xl font-bold text-green-600">
-              {listings.filter((l) => l.availability).length}
+              {/* {host?.listing.filter((l) => l.availability).length} */}
             </div>
             <div className="text-sm text-gray-600">Available</div>
           </div>
           <div className="text-center p-4 bg-yellow-50 rounded-lg">
-            <div className="text-3xl font-bold text-yellow-600">
+            {/* <div className="text-3xl font-bold text-yellow-600">
               $
               {listings.reduce((sum, l) => sum + l.price, 0) /
                 (listings.length || 1)}
-            </div>
+            </div> */}
             <div className="text-sm text-gray-600">Avg. Price/Night</div>
           </div>
         </div>
 
-        {listings.length > 0 ? (
+        {host?.listing.length > 0 ? (
           <div className="space-y-4">
-            {listings.slice(0, 3).map((listing) => (
+            {host?.listing.map((listing) => (
               <div
-                key={listing.id}
-                className="flex items-center space-x-4 p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+                key={listing._id}
+                className="flex items-center space-x-4 p-4 border rounded-lg  hover:bg-gray-50 transition-colors"
               >
                 <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
-                  {listing.photos.length > 0 ? (
+                  {listing.photo.length > 0 ? (
                     <img
-                      src={listing.photos[0]}
+                      src={listing.photo[0]}
                       alt={listing.title}
                       className="w-16 h-16 rounded-lg object-cover"
                     />
@@ -219,13 +235,17 @@ const HostProfile: React.FC = () => {
                 </div>
                 <div className="flex-1">
                   <h3 className="font-medium text-gray-900">{listing.title}</h3>
-                  <p className="text-sm text-gray-500">{listing.address}</p>
+                  <p className="text-sm text-gray-500">
+                    {listing.location.state}
+                  </p>
                 </div>
                 <div className="text-right">
                   <p className="font-semibold text-gray-900">
-                    ${listing.price}/night
+                    ${listing.basePrice}/night
                   </p>
-                  <p className="text-sm text-gray-500">{listing.room_type}</p>
+                  <p className="text-sm text-gray-500">
+                    {listing.accommodationType}
+                  </p>
                 </div>
               </div>
             ))}

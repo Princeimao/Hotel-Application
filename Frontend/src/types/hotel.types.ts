@@ -1,3 +1,4 @@
+import type { BookingAvailability } from "./booking.type";
 import type { RoomHost } from "./host.types";
 
 export interface RoomDetials {
@@ -37,5 +38,5 @@ export interface RoomDetials {
 export interface Room {
   listing: RoomDetials;
   host: RoomHost;
-  bookings: [];
+  bookings: BookingAvailability[];
 }

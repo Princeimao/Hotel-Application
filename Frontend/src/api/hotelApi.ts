@@ -1,4 +1,5 @@
 import type { Location } from "@/pages/steps/listing/Address";
+import type { BookingAvailability } from "@/types/booking.type";
 import type { Recommendation, RoomHost } from "@/types/host.types";
 import type { RoomDetials } from "@/types/hotel.types";
 import type {
@@ -25,7 +26,7 @@ export const fetchRoomDetails = async (
   success: boolean;
   message: string;
   roomDetails?: {
-    bookings: [];
+    bookings: { availability: BookingAvailability[] };
     host: { host: RoomHost };
     listing: { room: RoomDetials };
   };

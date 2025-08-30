@@ -1,4 +1,5 @@
-import type { Host } from "@/types/host.types";
+import type { Host, HostDetails } from "@/types/host.types";
+import type { RoomDetials } from "@/types/hotel.types";
 import type { ApiResponse } from "@/types/types";
 import { instance } from "./axios";
 
@@ -183,6 +184,29 @@ export const getUser = async (): Promise<{
 }> => {
   try {
     const response = await instance.get("/host/getHost");
+
+    return response.data;
+  } catch (error) {
+    console.log("something went wrong while signin verify host", error);
+    return {
+      success: false,
+      message: "Something went wrong. Try again.",
+    };
+  }
+};
+
+export const getHost = async (
+  hostId: string
+): Promise<{
+  success: boolean;
+  message: string;
+  hostDetails?: {
+    host: { host: Host };
+    listing: { accommodations: RoomDetials[] };
+  };
+}> => {
+  try {
+    const response = await instance.get(`/overview/host-details/${hostId}`);
 
     return response.data;
   } catch (error) {

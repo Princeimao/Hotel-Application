@@ -37,7 +37,7 @@ function App() {
 
             {/* SIDE ROUTES */}
             <Route path="/settings" element={<Setting />} />
-            <Route path="/host-profile/:id" element={<HostProfile />} />
+            <Route path="/host-profile/:hostId" element={<HostProfile />} />
             <Route path="/create-listing" element={<CreateListing />} />
           </Route>
 

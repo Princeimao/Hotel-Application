@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/popover";
 import { amenitiesMap } from "@/constants/amenitiesMap";
 import type { Room } from "@/types/hotel.types";
-import { differenceInDays, format, parse } from "date-fns";
+import { differenceInDays, eachDayOfInterval, format, parse } from "date-fns";
 import { Calendar, ChevronDown, Heart, Loader, MapPin } from "lucide-react";
 import { useEffect, useState } from "react";
 import { DateRange } from "react-date-range";
@@ -40,6 +40,7 @@ const RoomDetails = () => {
     infants: 0,
     pets: 0,
   });
+
   const [dateRange, setDateRange] = useState([
     {
       startDate: parse(checkIn, "dd-MM-yyyy", new Date()),
@@ -47,7 +48,9 @@ const RoomDetails = () => {
       key: "selection",
     },
   ]);
-  console.log(dateRange, checkIn);
+  const [disibleDates, setDisibleDates] = useState<Date[] | undefined>(
+    undefined
+  );
 
   useEffect(() => {
     async function hotelDetails() {
@@ -67,12 +70,25 @@ const RoomDetails = () => {
       setRoom({
         listing: response.roomDetails.listing.room,
         host: response.roomDetails.host.host,
-        bookings: response.roomDetails.bookings,
+        bookings: response.roomDetails.bookings.availability,
       });
     }
 
     hotelDetails();
   }, [id]);
+
+  useEffect(() => {
+    if (room) {
+      const bookedDates = room.bookings.flatMap((booking) =>
+        eachDayOfInterval({
+          start: new Date(booking.checkIn),
+          end: new Date(booking.checkOut),
+        })
+      );
+
+      setDisibleDates(bookedDates);
+    }
+  }, [room]);
 
   if (room === undefined) {
     return (
@@ -205,6 +221,7 @@ const RoomDetails = () => {
                           editableDateInputs={true}
                           onChange={(item) => setDateRange([item.selection])}
                           moveRangeOnFirstSelection={false}
+                          disabledDates={disibleDates}
                           ranges={dateRange}
                           months={2}
                           direction="horizontal"
@@ -227,14 +244,16 @@ const RoomDetails = () => {
                         </div>
                       </PopoverTrigger>
 
-                      <PopoverContent className="p-4 w-auto mt-6">
+                      <PopoverContent className="w-auto mt-6 bg-white rounded-2xl shadow-md">
                         <DateRange
                           editableDateInputs={true}
                           onChange={(item) => setDateRange([item.selection])}
                           moveRangeOnFirstSelection={false}
+                          disabledDates={disibleDates}
                           ranges={dateRange}
                           months={2}
                           direction="horizontal"
+                          color="black"
                           minDate={new Date()}
                         />
                       </PopoverContent>
@@ -507,7 +526,6 @@ const RoomDetails = () => {
                           dateRange[0].startDate
                         )
                       ) * room.listing.basePrice}
-                      {/* ${calculateTotal() + Math.round(calculateTotal() * 0.1)} */}
                     </span>
                   </div>
                 </div>
@@ -528,6 +546,7 @@ const RoomDetails = () => {
             editableDateInputs={true}
             onChange={(item) => setDateRange([item.selection])}
             moveRangeOnFirstSelection={false}
+            disabledDates={disibleDates}
             ranges={dateRange}
             months={2}
             direction="horizontal"

@@ -92,7 +92,9 @@ const Navbar = ({ authLayout }: Props) => {
                   Welcome, {host.host?.name}
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => navigate("/profile")}>
+                <DropdownMenuItem
+                  onClick={() => navigate(`/host-profile/${host.host?.id}`)}
+                >
                   Profile
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate("/bookings")}>

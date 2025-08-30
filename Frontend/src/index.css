@@ -28,6 +28,37 @@ input[type="number"] {
   @apply w-16 justify-start px-2;
 }
 
+.rdrDayNumber span {
+  @apply text-gray-700;
+}
+
+.rdrSelected,
+.rdrInRange,
+.rdrStartEdge,
+.rdrEndEdge {
+  background: #ef4444 !important;
+  color: white !important;
+  border-color: none;
+}
+
+.rdrDay:hover {
+  @apply bg-red-100 border-none outline-0;
+}
+
+.rdrDateDisplayWrapper {
+  display: none !important;
+}
+
+.rdrDay:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.rdrDay.rdrDayHovered {
+  box-shadow: none;
+  border: none;
+}
+
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);

@@ -16,6 +16,7 @@ const CalendarAvailabilitySchema = new mongoose.Schema({
   bookingId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Booking",
+    required: true,
   },
 });
 
