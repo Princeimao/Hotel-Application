@@ -12,6 +12,6 @@ router
   .route("/accommodation-details/:accommodationId")
   .get(getAccommodationDetails);
 
-router.route("/host-details/:hostId").get(authMiddleware, getHostDetails);
+router.route("/host-details/:hostId").get(getHostDetails);
 
 export default router;

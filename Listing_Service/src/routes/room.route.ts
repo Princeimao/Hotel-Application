@@ -51,9 +51,7 @@ router.route("/get-accommodation/:roomId").get(getAccommodation);
 router
   .route("/get-accommodations")
   .get(authMiddleware, getAccommodationsByArea);
-router
-  .route("/get-accommodation-hostId/:hostId")
-  .get(authMiddleware, getAccommodationByHostId);
+router.route("/get-accommodation-hostId/:hostId").get(getAccommodationByHostId);
 router.route("/get-accommodation-suggestion").get(getAccommodationSuggestions);
 
 export default router;

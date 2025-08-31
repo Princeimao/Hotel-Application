@@ -48,10 +48,7 @@ export const getHostDetails = async (req: Request, res: Response) => {
       instance.get(`${process.env.HOST_SERVICE_URL}/get-host-Id/${hostId}`),
 
       instance.get(
-        `${process.env.LISTING_SERVICE_URL}/get-accommodation-hostId/${hostId}`,
-        {
-          headers: { Authorization: token },
-        }
+        `${process.env.LISTING_SERVICE_URL}/get-accommodation-hostId/${hostId}`
       ),
     ]);
 
