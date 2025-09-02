@@ -6,6 +6,7 @@ import UserSignUp from "./pages/auth/UserSignUp";
 import Home from "./pages/Home";
 import HostProfile from "./pages/HostProfile";
 import AuthLayout from "./pages/layout/AuthLayout";
+import BookingLayout from "./pages/layout/BookingLayout";
 import Layout from "./pages/layout/Layout";
 import ListingLayout from "./pages/layout/ListingLayout";
 import RoomDetails from "./pages/RoomDetails";
@@ -25,6 +26,7 @@ import Structure from "./pages/steps/listing/Structure";
 import UploadListingImages from "./pages/steps/listing/UploadListingImages";
 import UserDetailForm from "./pages/steps/user/UserDetailForm";
 import UserOtpVerification from "./pages/steps/user/UserOtpVerification";
+import BookingPage from "./pages/BookingPage";
 
 function App() {
   return (
@@ -89,6 +91,11 @@ function App() {
               path="/reservation-type/:roomId"
               element={<ReservationType />}
             />
+          </Route>
+
+          {/* BOOKING ROUTES */}
+          <Route element={<BookingLayout />}>
+            <Route path="/book" element={<BookingPage />} />
           </Route>
         </Routes>
       </Router>

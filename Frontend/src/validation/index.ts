@@ -38,3 +38,15 @@ export const listingAddressValidation = z.object({
   city: z.string(),
   pincode: z.string().min(5).max(10),
 });
+
+export const bookingFormValidation = z.object({
+  firstName: z
+    .string()
+    .min(3, { message: "First name atleast 3 character long" }),
+  lastName: z
+    .string()
+    .min(3, { message: "First name atleast 3 character long" }),
+  email: z.email(),
+  country: z.string(),
+  phone: z.string(),
+});
