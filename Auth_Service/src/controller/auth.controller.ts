@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from "uuid";
 import { ZodError } from "zod";
 import { prisma } from "../db/prisma.client";
 import { redis } from "../db/redis.client";
+import { JwtPayload } from "../middleware/auth.middleware";
 import {
   phoneSchema,
   signup_verifySchema,
@@ -46,8 +47,12 @@ export const signUp = async (req: Request, res: Response) => {
     }
 
     const otp = generateOTP();
+    const sessionId = uuidv4();
     await redis.set(`phone:${phone}`, otp, {
       EX: 300,
+    });
+    await redis.set(`SessionId:${sessionId}`, phone, {
+      EX: 600,
     });
 
     if (process.env.NODE_ENV === "production") {
@@ -57,6 +62,7 @@ export const signUp = async (req: Request, res: Response) => {
     res.status(200).json({
       success: true,
       message: `Your otp is ${otp}`,
+      sessionId,
     });
   } catch (error) {
     if (error instanceof ZodError) {
@@ -93,7 +99,7 @@ export const signup_verify = async (req: Request, res: Response) => {
       return;
     }
 
-    res.status(400).json({
+    res.status(200).json({
       success: true,
       message: "Successfull",
     });
@@ -219,7 +225,9 @@ export const signIn = async (req: Request, res: Response) => {
 
     await redis.json.set(`phone:${phone}`, "$", {
       id: user.id,
+      name: user.name,
       email: user.email,
+      phone: user.phone,
       otp: otp,
     });
     await redis.expire(`phone:${phone}`, 300);
@@ -304,6 +312,12 @@ export const signin_verify = async (req: Request, res: Response) => {
     res.status(400).json({
       success: true,
       message: "Successfull",
+      user: {
+        id: data.id,
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+      },
     });
   } catch (error) {
     if (error instanceof ZodError) {
@@ -321,7 +335,11 @@ export const signin_verify = async (req: Request, res: Response) => {
   }
 };
 
-export const logout = async (req: Request, res: Response) => {
+interface AuthenticatedRequest extends Request {
+  user?: JwtPayload;
+}
+
+export const logout = async (req: AuthenticatedRequest, res: Response) => {
   try {
     if (!req.user) {
       res.status(401).json({
@@ -350,6 +368,44 @@ export const logout = async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       message: "something went wrong while verifying otp",
+    });
+  }
+};
+
+export const sessionIDVerification = async (req: Request, res: Response) => {
+  try {
+    const { sessionId } = req.body;
+
+    if (!sessionId) {
+      res.status(400).json({
+        success: false,
+        message: "Session Id is not undefined",
+      });
+      return;
+    }
+
+    const sessionData = await redis.get(`SessionId:${sessionId}`);
+
+    if (!sessionData) {
+      res.status(400).json({
+        success: false,
+        message: "Session expired",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "session Id verified successfully",
+      phone: sessionData,
+    });
+  } catch (error) {
+    console.log(
+      "something went wrong while getting the host - Session Id",
+      error
+    );
+    res.status(500).json({
+      success: false,
+      message: "something went wrong while getting the host - Session Id",
     });
   }
 };

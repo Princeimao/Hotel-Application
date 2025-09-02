@@ -1,8 +1,32 @@
 import { instance } from "@/api/axios";
-import type { ApiResponse } from "@/types/types";
-import type { User } from "../types/user.types";
 
-export const userSignUp = async (phone: string): Promise<ApiResponse<void>> => {
+export const sessionIdVerify = async (
+  sessionId: string
+): Promise<{ success: boolean; message: string; phone?: string }> => {
+  try {
+    const resposne = await instance.post("/user/session-verify", {
+      sessionId,
+    });
+
+    console.log(resposne.data);
+
+    return resposne.data;
+  } catch (error) {
+    console.log("something went wrong while verifying session id", error);
+    return {
+      success: false,
+      message: "something went wrong while verifying session id",
+    };
+  }
+};
+
+export const userSignUp = async (
+  phone: string
+): Promise<{
+  success: boolean;
+  message: string;
+  sessionId?: string;
+}> => {
   try {
     const response = await instance.post(`/user/signup`, {
       phone,
@@ -21,7 +45,10 @@ export const userSignUp = async (phone: string): Promise<ApiResponse<void>> => {
 export const userSignupVerify = async (
   otp: number,
   phone: string
-): Promise<ApiResponse<void>> => {
+): Promise<{
+  success: boolean;
+  message: string;
+}> => {
   try {
     const response = await instance.post("/user/signup-verify", {
       otp,
@@ -43,7 +70,16 @@ export const registerUser = async (
   email: string,
   phone: string,
   gender: string
-): Promise<ApiResponse<User>> => {
+): Promise<{
+  success: boolean;
+  message: string;
+  user?: {
+    phone: string;
+    email: string;
+    id: string;
+    name: string;
+  };
+}> => {
   try {
     const response = await instance.post("/user/create-user", {
       name,
@@ -62,7 +98,13 @@ export const registerUser = async (
   }
 };
 
-export const userSignIn = async (phone: string): Promise<ApiResponse<void>> => {
+export const userSignIn = async (
+  phone: string
+): Promise<{
+  success: boolean;
+  message: string;
+  sessionId?: string;
+}> => {
   try {
     const response = await instance.post("/user/signin", {
       phone,
@@ -78,7 +120,19 @@ export const userSignIn = async (phone: string): Promise<ApiResponse<void>> => {
   }
 };
 
-export const userSigninVerify = async (otp: number, phone: string) => {
+export const userSigninVerify = async (
+  otp: number,
+  phone: string
+): Promise<{
+  success: boolean;
+  message: string;
+  user?: {
+    id: string;
+    name: string;
+    email: string;
+    phone: string;
+  };
+}> => {
   try {
     const response = await instance.post("/user/signin", {
       otp,

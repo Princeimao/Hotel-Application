@@ -1,12 +1,43 @@
 import { useState } from "react";
-import { PhoneInput, type PhoneInputRefType } from "react-international-phone";
+import { PhoneInput } from "react-international-phone";
 import "react-international-phone/style.css";
 
+import { userSignIn, userSignUp } from "@/api/userApi";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const UserForm = ({ type }: { type: string }) => {
   const [phone, setPhone] = useState<string>("");
+  const navigate = useNavigate();
+
+  const handelSubmit = async (e: React.FormEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    try {
+      if (type === "signup") {
+        const response = await userSignUp(phone);
+
+        if (response.success !== true && response.sessionId === null) {
+          throw new Error("something went wrong while signing up");
+        }
+
+        navigate(`/userSignup-verification/?sessionId=${response.sessionId}`);
+      } else {
+        const response = await userSignIn(phone);
+
+        if (response.success !== true) {
+          throw new Error("something went wrong while signing In");
+        }
+
+        navigate(`/hostSignin-verification/?sessionId=${response.sessionId}}`);
+      }
+    } catch (error) {
+      if (type === "signup") {
+        console.log("something went wrong while creating user", error);
+      } else {
+        console.log("something went wrong while signing in user", error);
+      }
+    }
+  };
 
   return (
     <div>
@@ -43,14 +74,14 @@ const UserForm = ({ type }: { type: string }) => {
             {type === "signin" ? (
               <div className="text-center text-sm">
                 Don&apos;t have an account?{" "}
-                <Link to="/hostSignup" className="underline underline-offset-4">
+                <Link to="/userSignup" className="underline underline-offset-4">
                   Sign up
                 </Link>
               </div>
             ) : (
               <div className="text-center text-sm">
                 Already have an account?{" "}
-                <Link to="/hostSignin" className="underline underline-offset-4">
+                <Link to="/userSignin" className="underline underline-offset-4">
                   Sign in
                 </Link>
               </div>
@@ -63,12 +94,13 @@ const UserForm = ({ type }: { type: string }) => {
                 inputClassName="text-base px-2 py-1 focus:outline-none w-full"
                 defaultCountry="in"
                 value={phone}
-                onChange={(phone: PhoneInputRefType) => setPhone(phone)}
+                onChange={(phone) => setPhone(phone)}
               />
             </div>
             <Button
               type="submit"
               className="w-full bg-red-600 hover:bg-red-700"
+              onClick={handelSubmit}
             >
               Send OTP
             </Button>

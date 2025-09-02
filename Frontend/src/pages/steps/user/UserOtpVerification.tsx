@@ -2,6 +2,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
+import {
+  sessionIdVerify,
+  userSigninVerify,
+  userSignupVerify,
+} from "@/api/userApi";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -16,22 +21,96 @@ import {
   InputOTPGroup,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
+import { login } from "@/context/features/UserContext";
 import { OptValidation } from "@/validation";
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 
 const UserOtpVerification = ({ type }: { type: string }) => {
+  const [phone, setPhone] = useState<string | undefined>(undefined);
+  const navigate = useNavigate();
+  const dispactch = useDispatch();
+  const [searchParams] = useSearchParams();
+  const sessionId = searchParams.get("sessionId");
+
   const form = useForm<z.infer<typeof OptValidation>>({
     resolver: zodResolver(OptValidation),
     defaultValues: {
-      pin: "",
+      otp: "",
     },
   });
 
-  const onSubmit = (data: z.infer<typeof OptValidation>) => {
-    if (type === "signin") {
-      console.log(data);
-    } else {
-      console.log(data);
+  useEffect(() => {
+    async function session() {
+      console.log(sessionId);
+      if (!sessionId) {
+        console.log("session id not found");
+        // navigate("/404");
+        return;
+      }
+      const response = await sessionIdVerify(sessionId);
+
+      if (response.success !== true) {
+        throw new Error("something went wrong while verifying sessionId");
+      }
+      setPhone(response.phone);
+    }
+
+    session();
+  }, [navigate, sessionId]);
+
+  const onSubmit = async (data: z.infer<typeof OptValidation>) => {
+    try {
+      if (type === "signup") {
+        if (!phone) {
+          console.log("Phone number not found - host otp verification");
+          return;
+        }
+        const response = await userSignupVerify(Number(data.otp), phone);
+
+        if (response.success !== true) {
+          throw new Error("something went wrong while signing up user");
+        }
+
+        if (!sessionId) {
+          throw new Error("session id is not defined");
+        }
+
+        navigate(`/userDetails/?sessionId=${sessionId}`);
+      } else {
+        if (!phone) {
+          console.log("Phone number not found - host otp verification");
+          return;
+        }
+        const response = await userSigninVerify(Number(data.otp), phone);
+
+        if (response.success !== true) {
+          console.log("something went wrong");
+          throw new Error("something went wrong while verifying user");
+        } // add toast
+
+        if (response.user === undefined) {
+          return;
+        }
+
+        const user = {
+          id: response.user.id,
+          email: response.user.email,
+          name: response.user.name,
+          phone: response.user.phone,
+        };
+
+        dispactch(login({ user, isAuthenticated: true, status: "succeeded" }));
+
+        navigate("/");
+      }
+    } catch (error) {
+      if (type === "signup") {
+        console.log("something went wrong while veriying signup otp", error);
+      } else {
+        console.log("something went wrong while veriying signup otp", error);
+      }
     }
   };
 
@@ -65,7 +144,7 @@ const UserOtpVerification = ({ type }: { type: string }) => {
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <FormField
             control={form.control}
-            name="pin"
+            name="otp"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>One-Time Password</FormLabel>

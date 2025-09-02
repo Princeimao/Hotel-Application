@@ -23,6 +23,7 @@ interface Props {
 
 const Navbar = ({ authLayout }: Props) => {
   const host = useSelector((state: RootState) => state.host);
+  const user = useSelector((state: RootState) => state.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -109,6 +110,40 @@ const Navbar = ({ authLayout }: Props) => {
               </DropdownMenuContent>
             </DropdownMenu>
           </>
+        ) : user.isAuthenticated ? (
+          <>
+            <DropdownMenu>
+              <DropdownMenuTrigger>
+                <div className="w-12 h-12 rounded-full flex justify-center items-center hover:bg-gray-300 transition-all ease-in">
+                  <Avatar className="w-10 h-10">
+                    <AvatarImage src="https://github.com/shadcn.png" />
+                    <AvatarFallback>GU</AvatarFallback>
+                  </Avatar>
+                </div>
+              </DropdownMenuTrigger>
+
+              <DropdownMenuContent className="w-40">
+                <DropdownMenuLabel>
+                  Welcome, {user.user?.name}
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={() => navigate(`/user-profile/${user.user?.id}`)}
+                >
+                  Profile
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/bookings")}>
+                  Booking History
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/settings")}>
+                  Settings
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleLogout}>
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </>
         ) : (
           <>
             <Button
@@ -134,10 +169,10 @@ const Navbar = ({ authLayout }: Props) => {
               <DropdownMenuContent className="w-40">
                 <DropdownMenuLabel>Welcome</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => navigate("/login")}>
+                <DropdownMenuItem onClick={() => navigate("/userSignin")}>
                   Login
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/register")}>
+                <DropdownMenuItem onClick={() => navigate("/userSignup")}>
                   Register
                 </DropdownMenuItem>
               </DropdownMenuContent>

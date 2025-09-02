@@ -1,4 +1,4 @@
-import type { Host, HostDetails } from "@/types/host.types";
+import type { Host } from "@/types/host.types";
 import type { RoomDetials } from "@/types/hotel.types";
 import type { ApiResponse } from "@/types/types";
 import { instance } from "./axios";

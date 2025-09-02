@@ -1,3 +1,4 @@
+import { registerUser, sessionIdVerify } from "@/api/userApi";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -14,12 +15,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { login } from "@/context/features/UserContext";
 import { DetailsValidation } from "@/validation";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { useDispatch } from "react-redux";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import type z from "zod";
 
 const UserDetailForm = () => {
+  const [searchParams] = useSearchParams();
+  const [phone, setPhone] = useState<string | undefined>(undefined);
+  const sessionId = searchParams.get("sessionId");
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
   const form = useForm<z.infer<typeof DetailsValidation>>({
     resolver: zodResolver(DetailsValidation),
     defaultValues: {
@@ -29,8 +40,61 @@ const UserDetailForm = () => {
     },
   });
 
+  useEffect(() => {
+    async function session() {
+      console.log(sessionId);
+      if (!sessionId) {
+        console.log("session id not found");
+        // navigate("/404");
+        return;
+      }
+      const response = await sessionIdVerify(sessionId);
+
+      if (response.success !== true) {
+        throw new Error("something went wrong while verifying sessionId");
+      }
+      setPhone(response.phone);
+    }
+
+    session();
+  }, [navigate, sessionId]);
+
   const onSubmit = async (data: z.infer<typeof DetailsValidation>) => {
     console.log(data);
+    try {
+      if (!phone) {
+        throw new Error("Phone number not found");
+      }
+
+      const response = await registerUser(
+        data.name,
+        data.email,
+        phone,
+        data.gender
+      );
+
+      if (response.success !== true) {
+        console.log("something went wrong");
+        return;
+      }
+
+      if (!response.user) {
+        throw new Error("something went wrong while getting user");
+      }
+
+      const user = {
+        id: response.user.id,
+        email: response.user.email,
+        name: response.user.name,
+        phone: response.user.phone,
+      };
+
+      dispatch(login({ user, isAuthenticated: true, status: "succeeded" }));
+
+      navigate(`/`);
+    } catch (error) {
+      console.log("something went wrong while creating user", error);
+    }
   };
 
   return (
@@ -107,9 +171,9 @@ const UserDetailForm = () => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="Male">Male</SelectItem>
-                        <SelectItem value="Female">Female</SelectItem>
-                        <SelectItem value="Prefer not to say">
+                        <SelectItem value="MALE">Male</SelectItem>
+                        <SelectItem value="FEMALE">Female</SelectItem>
+                        <SelectItem value="PREFER_NOT_TO_SAY">
                           Prefer not to say
                         </SelectItem>
                       </SelectContent>

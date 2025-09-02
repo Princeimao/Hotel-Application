@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 
-interface JwtPayload {
+export interface JwtPayload {
   sub: string;
   email: string;
   phone: string;
@@ -10,8 +10,12 @@ interface JwtPayload {
   exp: number;
 }
 
+interface AuthenticatedRequest extends Request {
+  user?: JwtPayload;
+}
+
 export const authMiddleware = (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response,
   next: NextFunction
 ) => {
@@ -41,6 +45,7 @@ export const authMiddleware = (
     ) as JwtPayload;
 
     req.user = decoded;
+
     next();
   } catch (error) {
     console.log("something went wrong: Auth middleware", error);

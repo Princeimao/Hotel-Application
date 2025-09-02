@@ -1,6 +1,7 @@
 import { getUserLocation, searchSuggestion } from "@/api/mapsApi";
 import type { OlaApiResponse } from "@/types/maps.types";
-import { Search } from "lucide-react";
+import { format } from "date-fns";
+import { Calendar, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import { DateRange } from "react-date-range";
 import "react-date-range/dist/styles.css"; // main css file
@@ -142,9 +143,12 @@ const SearchBar = () => {
             </label>
             <Popover>
               <PopoverTrigger asChild>
-                <p className="w-full text-sm cursor-pointer text-gray-900 border-0 p-0 focus:ring-0 focus:outline-none bg-transparent">
-                  {dateRange[0].startDate.toDateString()}
-                </p>
+                <div className="flex justify-between">
+                  <p className="w-full text-sm cursor-pointer text-gray-900 border-0 p-0 focus:ring-0 focus:outline-none bg-transparent">
+                    {format(dateRange[0].startDate, "dd/MM/yyyy")}
+                  </p>
+                  <Calendar size={19} />
+                </div>
               </PopoverTrigger>
 
               <PopoverContent className="p-4 w-auto mt-6">
@@ -170,9 +174,12 @@ const SearchBar = () => {
             </label>
             <Popover>
               <PopoverTrigger asChild>
-                <p className="w-full text-sm cursor-pointer text-gray-900 border-0 p-0 focus:ring-0 focus:outline-none bg-transparent">
-                  {dateRange[0].endDate.toDateString()}
-                </p>
+                <div className="flex justify-between">
+                  <p className="w-full text-sm cursor-pointer text-gray-900 border-0 p-0 focus:ring-0 focus:outline-none bg-transparent">
+                    {format(dateRange[0].endDate, "dd/MM/yyyy")}
+                  </p>
+                  <Calendar size={19} />
+                </div>
               </PopoverTrigger>
 
               <PopoverContent className="p-4 w-auto mt-6">
