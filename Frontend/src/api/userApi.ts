@@ -1,4 +1,5 @@
 import { instance } from "@/api/axios";
+import type { User } from "@/types/user.types";
 
 export const sessionIdVerify = async (
   sessionId: string
@@ -107,7 +108,7 @@ export const userSignIn = async (
 }> => {
   try {
     const response = await instance.post("/user/signin", {
-      phone,
+      phone: phone,
     });
 
     return response.data;
@@ -134,7 +135,7 @@ export const userSigninVerify = async (
   };
 }> => {
   try {
-    const response = await instance.post("/user/signin", {
+    const response = await instance.post("/user/signin-verify", {
       otp,
       phone,
     });
@@ -159,6 +160,24 @@ export const userLogout = async () => {
     return {
       success: false,
       message: "Something went wrong. Try again.",
+    };
+  }
+};
+
+export const getUser = async (): Promise<{
+  success: boolean;
+  message: string;
+  user?: User;
+}> => {
+  try {
+    const response = await instance.post(`/user/get-user`);
+
+    return response.data;
+  } catch (error) {
+    console.log("something went wrong while getting user", error);
+    return {
+      success: false,
+      message: "something went wrong while getting user",
     };
   }
 };

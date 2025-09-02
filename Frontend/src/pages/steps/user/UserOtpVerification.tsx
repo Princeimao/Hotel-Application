@@ -80,15 +80,16 @@ const UserOtpVerification = ({ type }: { type: string }) => {
         navigate(`/userDetails/?sessionId=${sessionId}`);
       } else {
         if (!phone) {
-          console.log("Phone number not found - host otp verification");
+          console.log("Phone number not found - user otp verification");
           return;
         }
         const response = await userSigninVerify(Number(data.otp), phone);
+        console.log(response);
 
         if (response.success !== true) {
           console.log("something went wrong");
           throw new Error("something went wrong while verifying user");
-        } // add toast
+        }
 
         if (response.user === undefined) {
           return;
@@ -109,7 +110,7 @@ const UserOtpVerification = ({ type }: { type: string }) => {
       if (type === "signup") {
         console.log("something went wrong while veriying signup otp", error);
       } else {
-        console.log("something went wrong while veriying signup otp", error);
+        console.log("something went wrong while veriying signin otp", error);
       }
     }
   };

@@ -1,11 +1,6 @@
+import type { User } from "@/types/user.types";
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  profileImg?: string;
-}
+import { fetchUser } from "../thunk/UserThunk";
 
 interface UserState {
   user: User | null;
@@ -36,6 +31,25 @@ const userSlice = createSlice({
       state.status = "idle";
       state.error = null;
     },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchUser.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchUser.fulfilled, (state, action) => {
+        if (!action.payload) {
+          logout();
+          return;
+        }
+
+        state.user = action.payload;
+        state.isAuthenticated = true;
+        state.status = "succeeded";
+      })
+      .addCase(fetchUser.rejected, (state) => {
+        state.status = "failed";
+      });
   },
 });
 

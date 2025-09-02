@@ -191,6 +191,7 @@ export const registerUser = async (req: Request, res: Response) => {
 export const signIn = async (req: Request, res: Response) => {
   try {
     const { phone } = phoneSchema.parse(req.body);
+
     if (!phone) {
       res.status(400).json({
         success: false,
@@ -212,7 +213,8 @@ export const signIn = async (req: Request, res: Response) => {
       return;
     }
 
-    const existingOtp = await redis.get(`phone:${phone}`);
+    const existingOtp = await redis.json.get(`phone:${phone}`);
+
     if (existingOtp) {
       res.status(400).json({
         success: false,
@@ -222,6 +224,10 @@ export const signIn = async (req: Request, res: Response) => {
     }
 
     const otp = generateOTP();
+    const sessionId = uuidv4();
+    await redis.set(`SessionId:${sessionId}`, phone, {
+      EX: 600,
+    });
 
     await redis.json.set(`phone:${phone}`, "$", {
       id: user.id,
@@ -239,6 +245,7 @@ export const signIn = async (req: Request, res: Response) => {
     res.status(200).json({
       success: true,
       message: `Your otp is ${otp}`,
+      sessionId,
     });
   } catch (error) {
     if (error instanceof ZodError) {
@@ -252,18 +259,20 @@ export const signIn = async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       message: "something went wrong while sign-in user",
+      error,
     });
   }
 };
 
 export const signin_verify = async (req: Request, res: Response) => {
   try {
-    const { otp: userOtp, phone } = signup_verifySchema.parse(req.body);
+    const { phone, otp: userOtp } = signup_verifySchema.parse(req.body);
 
     //@ts-ignore
     const [data] = await redis.json.get(`phone:${phone}`, {
       path: "$",
     });
+    ``;
 
     if (!data) {
       res.status(400).json({
@@ -309,7 +318,7 @@ export const signin_verify = async (req: Request, res: Response) => {
       maxAge: 60 * 60 * 60,
     });
 
-    res.status(400).json({
+    res.status(200).json({
       success: true,
       message: "Successfull",
       user: {
@@ -400,12 +409,50 @@ export const sessionIDVerification = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.log(
-      "something went wrong while getting the host - Session Id",
+      "something went wrong while getting the user - Session Id",
       error
     );
     res.status(500).json({
       success: false,
-      message: "something went wrong while getting the host - Session Id",
+      message: "something went wrong while getting the user - Session Id",
+    });
+  }
+};
+
+export const getUser = async (req: Request, res: Response) => {
+  try {
+    const data = req.user;
+
+    if (!data?.phone) {
+      res.status(400).json({
+        success: false,
+        message: "Unauthorized Request",
+      });
+      return;
+    }
+
+    const user = await prisma.user.findFirst({
+      where: {
+        phone: data.phone,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        profileImage: true,
+      },
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "get user successfully",
+      user,
+    });
+  } catch (error) {
+    console.log("something went wrong while getting the user", error);
+    res.status(500).json({
+      success: false,
+      message: "something went wrong while getting the user",
     });
   }
 };

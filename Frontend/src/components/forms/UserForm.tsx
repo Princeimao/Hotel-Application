@@ -22,13 +22,14 @@ const UserForm = ({ type }: { type: string }) => {
 
         navigate(`/userSignup-verification/?sessionId=${response.sessionId}`);
       } else {
+        console.log(phone);
         const response = await userSignIn(phone);
 
         if (response.success !== true) {
           throw new Error("something went wrong while signing In");
         }
 
-        navigate(`/hostSignin-verification/?sessionId=${response.sessionId}}`);
+        navigate(`/userSignin-verification/?sessionId=${response.sessionId}`);
       }
     } catch (error) {
       if (type === "signup") {

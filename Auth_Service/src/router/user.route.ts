@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  getUser,
   logout,
   registerUser,
   sessionIDVerification,
@@ -19,5 +20,6 @@ router.route("/signin").post(signIn);
 router.route("/signin-verify").post(signin_verify);
 router.route("/logout").post(authMiddleware, logout);
 router.route("/session-verify").post(sessionIDVerification);
+router.route("/get-user").post(authMiddleware, getUser);
 
 export default router;
