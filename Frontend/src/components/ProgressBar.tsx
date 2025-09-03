@@ -28,7 +28,7 @@ const ProgressBar = ({
   const onSubmit = async () => {
     try {
       const nextUrl = await handleSubmit();
-      console.log(nextUrl)
+      console.log(nextUrl);
       if (nextUrl) {
         navigate(nextUrl);
       }

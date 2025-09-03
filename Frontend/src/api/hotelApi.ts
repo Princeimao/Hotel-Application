@@ -363,3 +363,23 @@ export const getAccommodationSuggestions = async (): Promise<{
     };
   }
 };
+
+export const getAccommodationById = async (
+  roomId: string
+): Promise<{
+  success: boolean;
+  message: string;
+  room?: RoomDetials;
+}> => {
+  try {
+    const response = await instance.get(`/listing/get-accommodation/${roomId}`);
+
+    return response.data;
+  } catch (error) {
+    console.log("something went wrong while getting accommodation", error);
+    return {
+      success: false,
+      message: "something went wrong while getting accommodation",
+    };
+  }
+};

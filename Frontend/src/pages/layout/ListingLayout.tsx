@@ -1,8 +1,19 @@
 import { Button } from "@/components/ui/button";
+import type { AppDispatch } from "@/context/store";
+import { fetchHost } from "@/context/thunk/HostThunk";
+import { fetchUser } from "@/context/thunk/UserThunk";
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
 import { Outlet, useLocation } from "react-router-dom";
 import { Toaster } from "sonner";
 
 const ListingLayout = () => {
+  const dispatch = useDispatch<AppDispatch>();
+
+  useEffect(() => {
+    Promise.all([dispatch(fetchUser()), dispatch(fetchHost())]);
+  }, [dispatch]);
+
   const location = useLocation();
 
   return (

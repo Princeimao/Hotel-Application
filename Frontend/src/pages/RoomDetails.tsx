@@ -22,7 +22,12 @@ import { DateRange } from "react-date-range";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
 import ReactMarkDown from "react-markdown";
-import { Link, useParams, useSearchParams } from "react-router-dom";
+import {
+  Link,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from "react-router-dom";
 import remarkGfm from "remark-gfm";
 
 const RoomDetails = () => {
@@ -33,6 +38,7 @@ const RoomDetails = () => {
   const checkIn = searchParams.get("checkIn");
   const checkOut = searchParams.get("checkOut");
   const adults = searchParams.get("adults");
+  const navigate = useNavigate();
 
   if (!checkIn || !checkOut || !adults) {
     throw new Error("Date missing");
@@ -651,7 +657,21 @@ const RoomDetails = () => {
                 </div>
               )}
 
-              <button className="w-full bg-red-500 text-white py-3 px-4 rounded-lg hover:bg-red-600 transition-colors font-medium">
+              <button
+                onClick={() =>
+                  navigate(
+                    `/book/?${new URLSearchParams({
+                      roomId: room.listing._id,
+                      checkIn: dateRange[0].startDate.toString(),
+                      checkOut: dateRange[0].endDate.toString(),
+                      guests: (query.adults + query.children).toString(),
+                      infants: query.infants.toString(),
+                      pets: query.pets.toString(),
+                    })}`
+                  )
+                }
+                className="w-full bg-red-500 text-white py-3 px-4 rounded-lg hover:bg-red-600 transition-colors font-medium"
+              >
                 Reserve Now
               </button>
 
