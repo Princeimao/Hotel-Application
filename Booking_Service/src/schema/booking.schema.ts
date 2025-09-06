@@ -7,7 +7,7 @@ export const createBookingSchema = z.object({
   checkIn: z.date(),
   checkOut: z.date(),
   totalPrice: z.number(),
-  people: z.object({
+  guests: z.object({
     adults: z.number().optional(),
     children: z.number().optional().default(0),
     infants: z.number().optional().default(0),

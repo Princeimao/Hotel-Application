@@ -97,7 +97,9 @@ const BookingPage = () => {
           </div>
           <div className="p-5 border-2 border-gray-200 rounded-b-xl flex flex-col gap-2">
             <div className="flex space-x-3">
-              <h4 className="text-sm">{room?.accommodationType}</h4>
+              <h4 className="text-sm">
+                {room?.accommodationType.toLocaleUpperCase()}
+              </h4>
               <div className="flex items-center space-x-2">
                 <Star className="w-3 h-3 text-yellow-400 fill-current" />
                 <h3 className="text-sm text-gray-900">4 • 152 reviews</h3>
@@ -182,17 +184,17 @@ const BookingPage = () => {
             </h4>
             <div className="flex items-center space-x-2">
               <RadioGroupItem
-                value="for-me"
+                value="FOR_ME"
                 id="for-me"
-                onChange={() => setBookingFor("for-me")}
+                onChange={() => setBookingFor("FOR_ME")}
               />
               <Label htmlFor="for-me">I'm the main guest</Label>
             </div>
             <div className="flex items-center space-x-2">
               <RadioGroupItem
-                value="not-for-me"
+                value="NOT_FOR_ME"
                 id="not-for-me"
-                onChange={() => setBookingFor("not-for-me")}
+                onChange={() => setBookingFor("NOT_FOR_ME")}
               />
               <Label htmlFor="not-for-me">I'm booking for someone else</Label>
             </div>

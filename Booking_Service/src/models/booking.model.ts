@@ -2,6 +2,30 @@ import mongoose from "mongoose";
 
 const BookingSchema = new mongoose.Schema(
   {
+    firstName: {
+      type: String,
+      required: true,
+    },
+    lastName: {
+      type: String,
+      reuqired: true,
+    },
+    email: {
+      type: String,
+      required: true,
+    },
+    country: {
+      type: String,
+      required: true,
+    },
+    phone: {
+      type: String,
+      required: true,
+    },
+    bookingFor: {
+      type: String,
+      enum: ["FOR_ME", "NOT_FOR_ME"],
+    },
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
@@ -22,7 +46,7 @@ const BookingSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
-    people: {
+    guests: {
       adults: {
         type: Number,
         required: true,
@@ -65,7 +89,6 @@ const BookingSchema = new mongoose.Schema(
     },
     isPaid: {
       type: Boolean,
-      required: true,
     },
     paymentId: {
       type: mongoose.Schema.Types.ObjectId,

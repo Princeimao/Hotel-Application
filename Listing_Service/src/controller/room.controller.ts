@@ -556,8 +556,7 @@ export const getAccommodationByHostId = async (req: Request, res: Response) => {
   try {
     const { hostId } = req.params;
 
-    const accommodations = await roomModel
-      .find({ hostId })
+    const accommodations = await roomModel.find({ hostId });
 
     console.log(accommodations);
 
@@ -611,6 +610,39 @@ export const getAccommodationSuggestions = async (
       success: true,
       message: "get accommodations successfully",
       accommodations,
+    });
+  } catch (error) {
+    console.log(
+      "something went wrong while getting accommodation recomendation",
+      error
+    );
+    res.status(500).json({
+      success: false,
+      message: "something went wrong while getting accommodation recomendation",
+      error,
+    });
+  }
+};
+
+export const getAccommodationForBooking = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const { roomId } = req.params;
+
+    const accommodation = await roomModel.findOne({
+      _id: roomId,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "get accommodations successfully",
+      accommodation: {
+        amenities: accommodation?.amenities.slice(0, 4),
+        type: accommodation?.accommodationType,
+        title: accommodation?.title,
+      },
     });
   } catch (error) {
     console.log(

@@ -9,6 +9,7 @@ import {
   accommodationType,
   getAccommodation,
   getAccommodationByHostId,
+  getAccommodationForBooking,
   getAccommodationsByArea,
   getAccommodationSuggestions,
   listAccommodation,
@@ -53,5 +54,8 @@ router
   .get(authMiddleware, getAccommodationsByArea);
 router.route("/get-accommodation-hostId/:hostId").get(getAccommodationByHostId);
 router.route("/get-accommodation-suggestion").get(getAccommodationSuggestions);
+router
+  .route("/get-accommodation-booking/:roomId")
+  .get(getAccommodationForBooking);
 
 export default router;
