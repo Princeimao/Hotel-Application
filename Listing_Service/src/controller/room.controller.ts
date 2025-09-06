@@ -642,6 +642,9 @@ export const getAccommodationForBooking = async (
         amenities: accommodation?.amenities.slice(0, 4),
         type: accommodation?.accommodationType,
         title: accommodation?.title,
+        basePrice: accommodation?.basePrice,
+        photo: accommodation?.photo[0],
+        id: accommodation?._id,
       },
     });
   } catch (error) {

@@ -32,10 +32,6 @@ const bookingIntentSchema = new mongoose.Schema(
         default: 0,
       },
     },
-    expiresAt: {
-      type: Date,
-      required: true,
-    },
   },
   {
     timestamps: true,

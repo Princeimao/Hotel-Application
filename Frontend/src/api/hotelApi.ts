@@ -1,7 +1,7 @@
 import type { Location } from "@/pages/steps/listing/Address";
-import type { BookingAvailability } from "@/types/booking.type";
+import type { BookingAvailability, BookingIntent } from "@/types/booking.type";
 import type { Recommendation, RoomHost } from "@/types/host.types";
-import type { RoomDetials } from "@/types/hotel.types";
+import type { BookingRoomDetials, RoomDetials } from "@/types/hotel.types";
 import type {
   listingAddressValidation,
   listingDetailsValidation,
@@ -380,6 +380,65 @@ export const getAccommodationById = async (
     return {
       success: false,
       message: "something went wrong while getting accommodation",
+    };
+  }
+};
+
+export const createBookingIntent = async (
+  roomId: string,
+  guests: { adults: number; children: number; infants: number; pets: number },
+  checkIn: Date,
+  checkOut: Date
+): Promise<{
+  success: boolean;
+  message: string;
+  sessionId: string | null;
+}> => {
+  try {
+    const response = await instance.post(
+      `/booking/create-bookingIntent/${roomId}`,
+      {
+        guests,
+        checkIn,
+        checkOut,
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.log("something went wrong while create booking intent", error);
+    return {
+      success: false,
+      message: "something went wrong while create booking intent",
+      sessionId: null,
+    };
+  }
+};
+
+export const bookingPageVerification = async (
+  roomId: string,
+  sessionId: string
+): Promise<{
+  success: boolean;
+  message: string;
+  booking?: {
+    accommodation: BookingRoomDetials;
+    bookingIntent: BookingIntent;
+  };
+}> => {
+  try {
+    const response = await instance.get(
+      `/overview/get-bookingIntent-details/${roomId}/${sessionId}`
+    );
+
+    console.log(response.data);
+
+    return response.data;
+  } catch (error) {
+    console.log("something went wrong while getting details", error);
+    return {
+      success: false,
+      message: "something went wrong while getting details",
     };
   }
 };

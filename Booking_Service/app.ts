@@ -5,10 +5,17 @@ export const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
 app.use(cookieParser());
 
 // routes
+import bookingIntentRoute from "./src/router/bookingIntent.route";
 import calendarRoute from "./src/router/calendar.route";
 
 app.use("/", calendarRoute);
+app.use("/", bookingIntentRoute);

@@ -1,4 +1,4 @@
-import { getAccommodationById } from "@/api/hotelApi";
+import { bookingPageVerification } from "@/api/hotelApi";
 import BookingForm from "@/components/forms/BookingForm";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,11 +11,12 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import type { RootState } from "@/context/store";
-import type { RoomDetials } from "@/types/hotel.types";
+import type { BookingIntent } from "@/types/booking.type";
+import type { BookingRoomDetials } from "@/types/hotel.types";
 import { bookingFormValidation } from "@/validation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { differenceInDays, format } from "date-fns";
-import { ChevronRight, Star } from "lucide-react";
+import { ChevronRight, Loader, Star } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
@@ -23,16 +24,17 @@ import { useSearchParams } from "react-router-dom";
 import type { z } from "zod";
 import { Amenitie } from "./RoomDetails";
 
+interface Booking {
+  accommodation: BookingRoomDetials;
+  bookingIntent: BookingIntent;
+}
+
 const BookingPage = () => {
   const [searchParams] = useSearchParams();
-  const [room, setRoom] = useState<RoomDetials | null>(null);
+  const [room, setRoom] = useState<Booking | null>(null);
 
   const roomId = searchParams.get("roomId");
-  const checkIn = searchParams.get("checkIn");
-  const checkOut = searchParams.get("checkOut");
-  const guests = searchParams.get("guests");
-  const infants = searchParams.get("infants");
-  const pets = searchParams.get("pets");
+  const sessionId = searchParams.get("sessionId");
 
   const user = useSelector((state: RootState) => state.user.user);
 
@@ -41,21 +43,25 @@ const BookingPage = () => {
       if (!roomId) {
         throw new Error("room id is not defined1`");
       }
-      const response = await getAccommodationById(roomId);
+
+      if (!sessionId) {
+        throw new Error("session id is not defined1`");
+      }
+      const response = await bookingPageVerification(roomId, sessionId);
 
       if (!response.success) {
         throw new Error("something went wrong while getting accommodation");
       }
 
-      if (!response.room) {
+      if (!response.booking) {
         throw new Error("something went wrong while getting accommodation");
       }
 
-      setRoom(response.room);
+      setRoom(response.booking);
     }
 
     getRoom();
-  }, [roomId]);
+  }, [roomId, sessionId]);
 
   const form = useForm<z.infer<typeof bookingFormValidation>>({
     resolver: zodResolver(bookingFormValidation),
@@ -80,8 +86,12 @@ const BookingPage = () => {
     });
   };
 
-  if (!roomId || !checkIn || !checkOut || !guests || !infants || !pets) {
-    throw new Error("something went wrong while getting query");
+  if (!room) {
+    return (
+      <div className="w-full h-screen flex justify-center items-center">
+        <Loader className="animate-spin" />
+      </div>
+    );
   }
 
   return (
@@ -91,21 +101,23 @@ const BookingPage = () => {
           <div className="w-[100%] h-70">
             <img
               className="w-[100%] h-70 object-cover"
-              src={room?.photo[0]}
-              alt={room?._id}
+              src={room?.accommodation.photo}
+              alt={room?.accommodation._id}
             />
           </div>
           <div className="p-5 border-2 border-gray-200 rounded-b-xl flex flex-col gap-2">
             <div className="flex space-x-3">
               <h4 className="text-sm">
-                {room?.accommodationType.toLocaleUpperCase()}
+                {room?.accommodation.accommodationType.toLocaleUpperCase()}
               </h4>
               <div className="flex items-center space-x-2">
                 <Star className="w-3 h-3 text-yellow-400 fill-current" />
                 <h3 className="text-sm text-gray-900">4 • 152 reviews</h3>
               </div>
             </div>
-            <h1 className="font-extrabold text-xl">{room?.title}</h1>
+            <h1 className="font-extrabold text-xl">
+              {room?.accommodation.title}
+            </h1>
             <div className="flex gap-4">
               {/* {room?.amenities.map((amenity, key) => {
                 return (
@@ -118,7 +130,7 @@ const BookingPage = () => {
                 );
               })} */}
 
-              <Amenitie amenities={room?.amenities} />
+              <Amenitie amenities={room?.accommodation.amenities} />
             </div>
           </div>
         </div>
@@ -128,7 +140,9 @@ const BookingPage = () => {
           <div className="w-full min-h-22 flex justify-between">
             <div className="w-[40%] h-4 flex flex-col gap-1">
               <p className="font-semibold">Check-in</p>
-              <p className="text-sm">{format(new Date(checkIn), "PPPP")}</p>
+              <p className="text-sm">
+                {format(new Date(room?.bookingIntent.checkIn), "PPPP")}
+              </p>
               <p className="font-light text-sm">From 3:00 PM</p>
             </div>
 
@@ -136,14 +150,20 @@ const BookingPage = () => {
 
             <div className="w-[40%] h-4 flex flex-col gap-1">
               <p className="font-semibold">Check-out</p>
-              <p className="text-sm">{format(new Date(checkOut), "PPPP")}</p>
+              <p className="text-sm">
+                {format(new Date(room?.bookingIntent.checkOut), "PPPP")}
+              </p>
               <p className="font-light text-sm">Until 12:00 PM</p>
             </div>
           </div>
           <div>
             <h3 className="font-semibold">Total length of stay:</h3>
             <p className="text-sm font-bold">
-              {differenceInDays(new Date(checkOut), new Date(checkIn))} nights
+              {differenceInDays(
+                new Date(room?.bookingIntent.checkOut),
+                new Date(room?.bookingIntent.checkIn)
+              )}{" "}
+              nights
             </p>
           </div>
 
@@ -152,8 +172,11 @@ const BookingPage = () => {
           <div>
             <p className="font-semibold text-sm">You Selected</p>
             <h4 className="font-bold text-lg">
-              {room?.title} for {guests} adults{" "}
-              {Number(infants) !== 0 ? `and ${infants} infants` : null}
+              {room?.accommodation.title} for{" "}
+              {room?.bookingIntent.guests?.adults} adults{" "}
+              {Number(room?.bookingIntent.guests?.infants) !== 0
+                ? `and ${room?.bookingIntent.guests?.infants} infants`
+                : null}
             </h4>
           </div>
 

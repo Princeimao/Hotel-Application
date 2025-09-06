@@ -40,3 +40,12 @@ export interface Room {
   host: RoomHost;
   bookings: BookingAvailability[];
 }
+
+export interface BookingRoomDetials {
+  _id: string;
+  accommodationType: string;
+  amenities: [string];
+  basePrice: string;
+  photo: string;
+  title: string;
+}

@@ -1,9 +1,8 @@
 import { z } from "zod";
 
 export const createBookingIntentSchema = z.object({
-  checkIn: z.date(),
-  checkOut: z.date(),
-  totalPrice: z.number(),
+  checkIn: z.string(),
+  checkOut: z.string(),
   guests: z.object({
     adults: z.number().optional(),
     children: z.number().optional().default(0),

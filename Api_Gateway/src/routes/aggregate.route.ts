@@ -11,6 +11,8 @@ router
   .route("/accommodation-details/:accommodationId")
   .get(getAccommodationDetails);
 router.route("/host-details/:hostId").get(getHostDetails);
-router.route("/create-bookingIntent").post(createBookingIntent);
+router
+  .route("/get-bookingIntent-details/:roomId/:sessionId")
+  .get(createBookingIntent);
 
 export default router;

@@ -1,4 +1,4 @@
-import { fetchRoomDetails } from "@/api/hotelApi";
+import { createBookingIntent, fetchRoomDetails } from "@/api/hotelApi";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -103,6 +103,42 @@ const RoomDetails = () => {
       setDisibleDates(bookedDates);
     }
   }, [room]);
+
+  const onSubmit = async () => {
+    try {
+      if (!room?.listing._id) {
+        throw new Error("Room id not found");
+      }
+      const response = await createBookingIntent(
+        room?.listing._id,
+        query,
+        dateRange[0].startDate,
+        dateRange[0].endDate
+      );
+
+      if (!response.success) {
+        throw new Error("something went wrong while creating booking intent");
+      }
+
+      if (response.sessionId === null) {
+        throw new Error("something went wrong while creating booking intent");
+      }
+
+      navigate(
+        `/book/?${new URLSearchParams({
+          roomId: room.listing._id,
+          checkIn: dateRange[0].startDate.toString(),
+          checkOut: dateRange[0].endDate.toString(),
+          guests: (query.adults + query.children).toString(),
+          infants: query.infants.toString(),
+          pets: query.pets.toString(),
+          sessionId: response.sessionId,
+        })}`
+      );
+    } catch (error) {
+      console.log("soemthing went wrong while creating booking intent", error);
+    }
+  };
 
   if (room === undefined) {
     return (
@@ -651,25 +687,14 @@ const RoomDetails = () => {
                           dateRange[0].endDate,
                           dateRange[0].startDate
                         )
-                      ) * room.listing.basePrice}
+                      ) * Number(room.listing.basePrice)}
                     </span>
                   </div>
                 </div>
               )}
 
               <button
-                onClick={() =>
-                  navigate(
-                    `/book/?${new URLSearchParams({
-                      roomId: room.listing._id,
-                      checkIn: dateRange[0].startDate.toString(),
-                      checkOut: dateRange[0].endDate.toString(),
-                      guests: (query.adults + query.children).toString(),
-                      infants: query.infants.toString(),
-                      pets: query.pets.toString(),
-                    })}`
-                  )
-                }
+                onClick={onSubmit}
                 className="w-full bg-red-500 text-white py-3 px-4 rounded-lg hover:bg-red-600 transition-colors font-medium"
               >
                 Reserve Now

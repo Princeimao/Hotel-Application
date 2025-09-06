@@ -72,20 +72,14 @@ export const getHostDetails = async (req: Request, res: Response) => {
 
 export const createBookingIntent = async (req: Request, res: Response) => {
   try {
-    const { roomId } = req.params;
-    const { guests, checkIn, checkOut } = req.body;
+    const { roomId, sessionId } = req.params;
 
     const [bookingRes, listingRes] = await Promise.all([
-      instance.post(
-        `${process.env.BOOKING_SERVICE_URL}/create-bookingIntent/${roomId}`,
-        {
-          guests,
-          checkIn,
-          checkOut,
-        }
+      instance.get(
+        `${process.env.BOOKING_SERVICE_URL}/bookingIntent-verification/${roomId}`
       ),
       instance.get(
-        `${process.env.LISTING_SERVICE_URL}/get-accommodation-booking/${roomId}`
+        `${process.env.LISTING_SERVICE_URL}/get-accommodation-booking/${sessionId}`
       ),
     ]);
 
