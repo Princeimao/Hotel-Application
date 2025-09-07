@@ -639,7 +639,7 @@ export const getAccommodationForBooking = async (
       success: true,
       message: "get accommodations successfully",
       accommodation: {
-        amenities: accommodation?.amenities.slice(0, 4),
+        amenities: accommodation?.amenities.slice(0, 3),
         type: accommodation?.accommodationType,
         title: accommodation?.title,
         basePrice: accommodation?.basePrice,

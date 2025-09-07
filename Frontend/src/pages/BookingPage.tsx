@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import type { RootState } from "@/context/store";
 import type { BookingIntent } from "@/types/booking.type";
 import type { BookingRoomDetials } from "@/types/hotel.types";
+import { CalculateTax } from "@/utils/taxCalculation";
 import { bookingFormValidation } from "@/validation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { differenceInDays, format } from "date-fns";
@@ -49,15 +50,19 @@ const BookingPage = () => {
       }
       const response = await bookingPageVerification(roomId, sessionId);
 
-      if (!response.success) {
+      if (response.success === false) {
         throw new Error("something went wrong while getting accommodation");
       }
 
-      if (!response.booking) {
+      if (!response.bookingDetails) {
         throw new Error("something went wrong while getting accommodation");
       }
 
-      setRoom(response.booking);
+      console.log(response.bookingDetails);
+      setRoom({
+        accommodation: response.bookingDetails.accommodation,
+        bookingIntent: response.bookingDetails.bookingIntent,
+      });
     }
 
     getRoom();
@@ -108,7 +113,7 @@ const BookingPage = () => {
           <div className="p-5 border-2 border-gray-200 rounded-b-xl flex flex-col gap-2">
             <div className="flex space-x-3">
               <h4 className="text-sm">
-                {room?.accommodation.accommodationType.toLocaleUpperCase()}
+                {room?.accommodation.type.toUpperCase()}
               </h4>
               <div className="flex items-center space-x-2">
                 <Star className="w-3 h-3 text-yellow-400 fill-current" />
@@ -135,7 +140,7 @@ const BookingPage = () => {
           </div>
         </div>
 
-        <div className="h-140 rounded-xl overflow-hidden border-2 border-gray-200 p-5 flex flex-col gap-4">
+        <div className="min-h-100 rounded-xl overflow-hidden border-2 border-gray-200 p-5 flex flex-col gap-4">
           <h2 className="font-bold text-xl">Your booking details</h2>
           <div className="w-full min-h-22 flex justify-between">
             <div className="w-[40%] h-4 flex flex-col gap-1">
@@ -184,7 +189,53 @@ const BookingPage = () => {
 
           <div>
             <p className="font-semibold text-sm">Your Price Summary</p>
-            {/* Task to do  */}
+            <div className="w-full px-2 text-sm flex flex-col gap-1.5 mt-2.5">
+              <span className="flex justify-between">
+                <p>
+                  Price for{" "}
+                  {differenceInDays(
+                    new Date(room?.bookingIntent.checkOut),
+                    new Date(room?.bookingIntent.checkIn)
+                  )}{" "}
+                  Nights
+                </p>
+                <p>
+                  &#8377;
+                  {differenceInDays(
+                    new Date(room?.bookingIntent.checkOut),
+                    new Date(room?.bookingIntent.checkIn)
+                  ) * Number(room.accommodation.basePrice)}
+                  .00
+                </p>
+              </span>
+
+              <span className="flex justify-between">
+                <p>Tax</p>
+                <p>
+                  &#8377;{CalculateTax(Number(room.accommodation.basePrice))}
+                </p>
+              </span>
+
+              <span className="flex justify-between">
+                <p>Coupon Discount</p>
+                <p>&#8377;0.00</p>
+              </span>
+
+              <Separator className="mt-1.5" />
+
+              <span className="flex justify-between">
+                <p className="font-black">Total</p>
+                <p>
+                  &#8377;
+                  {differenceInDays(
+                    new Date(room?.bookingIntent.checkOut),
+                    new Date(room?.bookingIntent.checkIn)
+                  ) *
+                    Number(room.accommodation.basePrice) +
+                    CalculateTax(Number(room.accommodation.basePrice))}
+                </p>
+              </span>
+            </div>
           </div>
         </div>
       </div>

@@ -43,7 +43,7 @@ export interface Room {
 
 export interface BookingRoomDetials {
   _id: string;
-  accommodationType: string;
+  type: string;
   amenities: [string];
   basePrice: string;
   photo: string;

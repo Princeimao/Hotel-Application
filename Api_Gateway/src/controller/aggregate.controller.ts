@@ -76,10 +76,10 @@ export const createBookingIntent = async (req: Request, res: Response) => {
 
     const [bookingRes, listingRes] = await Promise.all([
       instance.get(
-        `${process.env.BOOKING_SERVICE_URL}/bookingIntent-verification/${roomId}`
+        `${process.env.BOOKING_SERVICE_URL}/bookingIntent-verification/${sessionId}`
       ),
       instance.get(
-        `${process.env.LISTING_SERVICE_URL}/get-accommodation-booking/${sessionId}`
+        `${process.env.LISTING_SERVICE_URL}/get-accommodation-booking/${roomId}`
       ),
     ]);
 
@@ -87,7 +87,7 @@ export const createBookingIntent = async (req: Request, res: Response) => {
       success: true,
       message: "successfully get",
       bookingDetails: {
-        booking: bookingRes.data,
+        bookingRes: bookingRes.data,
         listingRes: listingRes.data,
       },
     });

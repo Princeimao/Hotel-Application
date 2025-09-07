@@ -62,7 +62,7 @@ export const sessionVerification = async (req: Request, res: Response) => {
   try {
     const { sessionId } = req.params;
 
-    const booking = await bookingIntentModel.findById(sessionId);
+    const booking = await bookingIntentModel.findOne({ _id: sessionId });
 
     res.status(200).json({
       success: true,

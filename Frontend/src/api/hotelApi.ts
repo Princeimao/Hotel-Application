@@ -421,7 +421,7 @@ export const bookingPageVerification = async (
 ): Promise<{
   success: boolean;
   message: string;
-  booking?: {
+  bookingDetails?: {
     accommodation: BookingRoomDetials;
     bookingIntent: BookingIntent;
   };
@@ -431,9 +431,14 @@ export const bookingPageVerification = async (
       `/overview/get-bookingIntent-details/${roomId}/${sessionId}`
     );
 
-    console.log(response.data);
-
-    return response.data;
+    return {
+      success: true,
+      message: response.data.message,
+      bookingDetails: {
+        accommodation: response.data.bookingDetails.listingRes.accommodation,
+        bookingIntent: response.data.bookingDetails.bookingRes.bookingIntent,
+      },
+    };
   } catch (error) {
     console.log("something went wrong while getting details", error);
     return {
