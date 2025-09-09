@@ -9,6 +9,36 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
+  mongo:
+    image: mongo:7
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    volumes:
+      - mongo-data:/data/db
+
+  postgres-user:
+    image: postgres:16
+    container_name: postgres-user
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: HOTEL_USER
+    ports:
+      - "5433:5432"
+
+  postgres-host:
+    image: postgres:16
+    container_name: postgres-host
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: HOTEL_HOST
+    ports:
+      - "5434:5432"
+
   api-gateway:
     build:
       context: ./Api_Gateway
@@ -75,3 +105,6 @@ services:
     depends_on:
       - redis
       - rabbitMq
+
+volumes:
+  mongo-data:

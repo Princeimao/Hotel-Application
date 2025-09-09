@@ -6,6 +6,7 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
@@ -37,7 +38,7 @@ const BookingPage = () => {
   const roomId = searchParams.get("roomId");
   const sessionId = searchParams.get("sessionId");
 
-  const user = useSelector((state: RootState) => state.user.user);
+  const user = useSelector((state: RootState) => state.user);
 
   useEffect(() => {
     async function getRoom() {
@@ -72,11 +73,15 @@ const BookingPage = () => {
     resolver: zodResolver(bookingFormValidation),
     defaultValues: {
       firstName:
-        user?.name.split(" ")[0].trim() !== "" ? user?.name.split(" ")[0] : "",
+        user?.user?.name.split(" ")[0].trim() !== ""
+          ? user?.user?.name.split(" ")[0]
+          : "",
       lastName:
-        user?.name.split(" ")[1].trim() !== "" ? user?.name.split(" ")[1] : "",
+        user?.user?.name.split(" ")[1].trim() !== ""
+          ? user?.user?.name.split(" ")[1]
+          : "",
       country: "",
-      email: user?.email !== "" ? user?.email : "",
+      email: user?.user?.email !== "" ? user?.user?.email : "",
       phone: "",
     },
   });
@@ -137,6 +142,19 @@ const BookingPage = () => {
 
               <Amenitie amenities={room?.accommodation.amenities} />
             </div>
+          </div>
+        </div>
+
+        <div className="min-h-10 rounded-xl overflow-hidden border-2 border-gray-200 p-5 flex flex-col">
+          <h4 className="font-bold">Coupon code</h4>
+          <div className="flex gap-2.5">
+            <Input
+              placeholder="Enter Coupon Code"
+              className="border-none focus-visible:ring-[0px] shadow-none"
+            />
+            <Button className="bg-transparent hover:bg-transparent text-blue-600 font-bold shadow-none cursor-pointer">
+              Apply
+            </Button>
           </div>
         </div>
 
@@ -292,6 +310,7 @@ const BookingPage = () => {
               </p>
             </label>
             <Textarea
+              className="min-h-21"
               value={specialRequest}
               onChange={(e) => setSpecialRequest(e.target.value)}
             />

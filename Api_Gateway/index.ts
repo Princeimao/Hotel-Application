@@ -1,15 +1,20 @@
 import "dotenv/config";
+import localtunnel from "localtunnel";
 import { app } from "./app";
 
-const server = () => {
+const PORT = process.env.PORT || 3000;
+
+const server = async () => {
   try {
-    app.listen(process.env.PORT, () => {
-      console.log(`Gateway Service Listening on Port:${process.env.PORT}`);
+    app.listen(PORT, () => {
+      console.log(`Gateway Service Listening on Port: ${PORT}`);
     });
   } catch (error) {
-    console.log("Something went wrong while connecting to Gateway Service");
-    process.exit(0);
+    console.error(
+      "Something went wrong while connecting to Gateway Service",
+      error
+    );
+    process.exit(1);
   }
 };
-
 server();

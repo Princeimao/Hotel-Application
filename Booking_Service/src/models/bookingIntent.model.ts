@@ -32,6 +32,25 @@ const bookingIntentSchema = new mongoose.Schema(
         default: 0,
       },
     },
+    firstName: {
+      type: String,
+    },
+    lastName: {
+      type: String,
+    },
+    email: {
+      type: String,
+    },
+    country: {
+      type: String,
+    },
+    phone: {
+      type: String,
+    },
+    bookingFor: {
+      type: String,
+      enum: ["FOR_ME", "NOT_FOR_ME"],
+    },
   },
   {
     timestamps: true,

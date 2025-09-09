@@ -2,7 +2,10 @@ import { Request, Response } from "express";
 import { ZodError } from "zod/v4";
 import bookingIntentModel from "../models/bookingIntent.model";
 import calendarModel from "../models/calendar.model";
-import { createBookingIntentSchema } from "../schema/bookingIntent.schema";
+import {
+  createBookingIntentSchema,
+  userDetailsSchema,
+} from "../schema/bookingIntent.schema";
 
 export const createBookingIntent = async (req: Request, res: Response) => {
   try {
@@ -53,6 +56,59 @@ export const createBookingIntent = async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       message: "something went wrong while creating booking",
+      error,
+    });
+  }
+};
+
+export const userDetails = async (req: Request, res: Response) => {
+  try {
+    const { sessionId } = req.params;
+
+    const {
+      firstName,
+      LastName,
+      Email,
+      country,
+      phone,
+      bookingFor,
+      specialRequest,
+    } = userDetailsSchema.parse(req.body);
+
+    const bookingIntent = await bookingIntentModel.findByIdAndUpdate(
+      sessionId,
+      {
+        $set: {
+          firstName,
+          LastName,
+          Email,
+          country,
+          phone,
+          bookingFor,
+          specialRequest,
+        },
+      },
+      { upsert: true }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "successfully updated",
+      bookingIntent,
+    });
+  } catch (error) {
+    if (error instanceof ZodError) {
+      res.status(400).json({
+        success: false,
+        message: "Zod Error",
+        error,
+      });
+    }
+
+    console.log("something went wrong while updating user details", error);
+    res.status(500).json({
+      success: false,
+      message: "something went wrong while updating user details",
       error,
     });
   }
