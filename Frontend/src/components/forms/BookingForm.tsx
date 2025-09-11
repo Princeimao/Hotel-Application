@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from "../ui/select";
 
-const BookingForm = ({ form }) => {
+const BookingForm = ({ form }: any) => {
   return (
     <div className="w-full py-5 space-y-5">
       <Form {...form}>

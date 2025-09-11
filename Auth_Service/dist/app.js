@@ -12,7 +12,10 @@ exports.app.use(express_1.default.json());
 exports.app.use(express_1.default.urlencoded({ extended: true }));
 exports.app.use((0, cors_1.default)());
 exports.app.use((0, cors_1.default)({
-    origin: "http://localhost:5173",
+    origin: [
+        "http://localhost:5173",
+        "https://authorization-sticks-champions-circle.trycloudflare.com",
+    ],
     credentials: true,
 }));
 exports.app.use((0, cookie_parser_1.default)());

@@ -1,3 +1,4 @@
+import { instance } from "@/api/axios";
 import { bookingPageVerification } from "@/api/hotelApi";
 import BookingForm from "@/components/forms/BookingForm";
 import { Button } from "@/components/ui/button";
@@ -88,13 +89,13 @@ const BookingPage = () => {
   const [bookingFor, setBookingFor] = useState<string>("");
   const [specialRequest, setSpecialRequest] = useState<string>("");
 
-  const onSubmit = async (data: z.infer<typeof bookingFormValidation>) => {
-    console.log({
-      ...data,
-      bookFor: bookingFor,
-      specialRequest: specialRequest,
-    });
-  };
+  // const onSubmit = async (data: z.infer<typeof bookingFormValidation>) => {
+  //   console.log({
+  //     ...data,
+  //     bookFor: bookingFor,
+  //     specialRequest: specialRequest,
+  //   });
+  // };
 
   if (!room) {
     return (
@@ -103,6 +104,26 @@ const BookingPage = () => {
       </div>
     );
   }
+
+  //prototype - testing
+  const onSubmit = async () => {
+    const response = instance.post(`booking/payment/create-payment`, {
+      amount:
+        differenceInDays(
+          new Date(room?.bookingIntent.checkOut),
+          new Date(room?.bookingIntent.checkIn)
+        ) *
+          Number(room.accommodation.basePrice) +
+        CalculateTax(Number(room.accommodation.basePrice)),
+
+      metaData: {
+        title: room.accommodation.title,
+        type: room.accommodation.type,
+      },
+    });
+
+    console.log(response);
+  };
 
   return (
     <div className="w-full px-25 py-10 flex justify-between">
@@ -341,7 +362,8 @@ const BookingPage = () => {
           <HoverCard>
             <HoverCardTrigger asChild>
               <Button
-                onClick={() => form.handleSubmit(onSubmit)()}
+                // onClick={() => form.handleSubmit(onSubmit)()}
+                onClick={onSubmit}
                 className="w-50 h-12 bg-red-500 hover:bg-red-600 active:bg-red-700"
               >
                 Find Details

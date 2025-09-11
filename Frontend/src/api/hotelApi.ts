@@ -331,7 +331,7 @@ export const reservationType = async (
 export const getAccommodationSuggestions = async (): Promise<{
   success: boolean;
   message: string;
-  accommodations: Recommendation[];
+  accommodations?: Recommendation[];
 }> => {
   try {
     const userLocation = await getUserLocation();
