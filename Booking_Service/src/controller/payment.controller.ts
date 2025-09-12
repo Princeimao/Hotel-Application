@@ -40,6 +40,37 @@ const getAccessToken = async (): Promise<TokenResponse | null> => {
   }
 };
 
+export const generateToken = async (req: Request, res: Response) => {
+  const requestHeaders = {
+    "Content-Type": "application/x-www-form-urlencoded",
+  };
+
+  const requestBodyJson = {
+    client_version: process.env.PHONEPE_CLIENT_VERSION!,
+    grant_type: process.env.PHONEPE_GRANT_TYPE!,
+    client_id: process.env.PHONEPE_CLIENT_ID!,
+    client_secret: process.env.PHONEPE_CLIENT_SECRET!,
+  };
+
+  const requestBody = new URLSearchParams(requestBodyJson).toString();
+
+  const options = {
+    method: "POST",
+    url: "https://api-preprod.phonepe.com/apis/pg-sandbox/v1/oauth/token",
+    headers: requestHeaders,
+    data: requestBody,
+  };
+
+  try {
+    const tokenRequest = await axios.request(options);
+
+    return tokenRequest.data;
+  } catch (error) {
+    console.log("error while fetching access token", error);
+    return null;
+  }
+};
+
 export const madePayment = async (req: Request, res: Response) => {
   try {
     const { amount, metaData } = req.body;

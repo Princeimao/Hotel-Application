@@ -1,5 +1,3 @@
-import { useNavigate } from "react-router-dom";
-
 import { hostLogout } from "@/api/hostApi";
 import {
   DropdownMenu,
@@ -12,7 +10,9 @@ import {
 import { logout } from "@/context/features/HostContext";
 import type { RootState } from "@/context/store";
 import { Menu } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import SearchBar from "./forms/SearchBar";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
@@ -42,9 +42,18 @@ const Navbar = ({ authLayout }: Props) => {
     }
   };
 
+  const [isMobileView, setIsMobileView] = useState<boolean>(false);
+
+  useEffect(() => {
+    const checkWidth = () => setIsMobileView(window.innerWidth < 1200);
+    checkWidth();
+    window.addEventListener("resize", checkWidth);
+    return () => window.removeEventListener("resize", checkWidth);
+  }, []);
+
   return (
-    <div className="w-full h-24 bg-secondary flex items-center justify-between px-6">
-      <div className="flex justify-center items-center">
+    <div className="w-full h-20 bg-secondary flex items-center justify-between px-4 sm:px-6">
+      <div className="flex items-center gap-2">
         <svg
           width="35"
           height="35"
@@ -54,7 +63,7 @@ const Navbar = ({ authLayout }: Props) => {
         >
           <path
             d="M64 8C37 8 16 29 16 56.5C16 84 64 120 64 120C64 120 112 84 112 56.5C112 29 91 8 64 8Z
-       M64 30C55 30 48 37 48 46V74H80V46C80 37 73 30 64 30Z"
+           M64 30C55 30 48 37 48 46V74H80V46C80 37 73 30 64 30Z"
             stroke="#fb2c36"
             strokeWidth="8"
             strokeLinecap="round"
@@ -62,26 +71,27 @@ const Navbar = ({ authLayout }: Props) => {
             fill="none"
           />
         </svg>
-
-        <h1 className="font-bold text-xl leading-0 text-red-500">roamInn</h1>
+        <h1 className="font-bold text-xl text-red-500">roamInn</h1>
       </div>
 
-      {authLayout ? null : <SearchBar />}
+      {!authLayout && !isMobileView && <SearchBar />}
 
-      <div className="h-24 flex items-center justify-between px-6 gap-3">
+      <div className="flex items-center gap-3">
         {host.isAuthenticated ? (
           <>
-            <Button
-              onClick={() => navigate(`/become-a-host/${host.host?.id}`)}
-              className="bg-secondary text-black px-4 py-5 rounded-full hover:bg-[#EBEBEB] shadow-none"
-            >
-              List Accommodation
-            </Button>
+            {!isMobileView && (
+              <Button
+                onClick={() => navigate(`/become-a-host/${host.host?.id}`)}
+                className="bg-secondary text-black px-4 py-2 rounded-full hover:bg-[#EBEBEB] shadow-none"
+              >
+                List Accommodation
+              </Button>
+            )}
 
             <DropdownMenu>
               <DropdownMenuTrigger>
-                <div className="w-12 h-12 rounded-full flex justify-center items-center hover:bg-gray-300 transition-all ease-in">
-                  <Avatar className="w-10 h-10">
+                <div className="w-10 h-10 rounded-full flex justify-center items-center hover:bg-gray-300 transition-all ease-in">
+                  <Avatar className="w-9 h-9">
                     <AvatarImage src="https://github.com/shadcn.png" />
                     <AvatarFallback>GU</AvatarFallback>
                   </Avatar>
@@ -114,8 +124,8 @@ const Navbar = ({ authLayout }: Props) => {
           <>
             <DropdownMenu>
               <DropdownMenuTrigger>
-                <div className="w-12 h-12 rounded-full flex justify-center items-center hover:bg-gray-300 transition-all ease-in">
-                  <Avatar className="w-10 h-10">
+                <div className="w-10 h-10 rounded-full flex justify-center items-center hover:bg-gray-300 transition-all ease-in">
+                  <Avatar className="w-9 h-9">
                     <AvatarImage src="https://github.com/shadcn.png" />
                     <AvatarFallback>GU</AvatarFallback>
                   </Avatar>
@@ -146,22 +156,24 @@ const Navbar = ({ authLayout }: Props) => {
           </>
         ) : (
           <>
-            <Button
-              onClick={() =>
-                navigate(
-                  `/hostSignup/?${new URLSearchParams({
-                    redirect: "become a host",
-                  })}`
-                )
-              }
-              className="bg-secondary text-black px-4 py-5 rounded-full hover:bg-[#EBEBEB] shadow-none"
-            >
-              Become a host
-            </Button>
+            {!isMobileView && (
+              <Button
+                onClick={() =>
+                  navigate(
+                    `/hostSignup/?${new URLSearchParams({
+                      redirect: "become a host",
+                    })}`
+                  )
+                }
+                className="bg-secondary text-black px-4 py-2 rounded-full hover:bg-[#EBEBEB] shadow-none"
+              >
+                Become a host
+              </Button>
+            )}
 
             <DropdownMenu>
               <DropdownMenuTrigger>
-                <div className="w-12 h-12 rounded-full flex justify-center items-center bg-[#EBEBEB] hover:bg-gray-300 transition-all ease-in">
+                <div className="w-10 h-10 rounded-full flex justify-center items-center bg-[#EBEBEB] hover:bg-gray-300 transition-all ease-in">
                   <Menu />
                 </div>
               </DropdownMenuTrigger>

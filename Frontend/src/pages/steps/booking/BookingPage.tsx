@@ -1,4 +1,3 @@
-import { instance } from "@/api/axios";
 import { bookingPageVerification } from "@/api/hotelApi";
 import BookingForm from "@/components/forms/BookingForm";
 import { Button } from "@/components/ui/button";
@@ -25,7 +24,7 @@ import { useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
 import { useSearchParams } from "react-router-dom";
 import type { z } from "zod";
-import { Amenitie } from "./RoomDetails";
+import { Amenitie } from "../../RoomDetails";
 
 interface Booking {
   accommodation: BookingRoomDetials;
@@ -89,13 +88,13 @@ const BookingPage = () => {
   const [bookingFor, setBookingFor] = useState<string>("");
   const [specialRequest, setSpecialRequest] = useState<string>("");
 
-  // const onSubmit = async (data: z.infer<typeof bookingFormValidation>) => {
-  //   console.log({
-  //     ...data,
-  //     bookFor: bookingFor,
-  //     specialRequest: specialRequest,
-  //   });
-  // };
+  const onSubmit = async (data: z.infer<typeof bookingFormValidation>) => {
+    console.log({
+      ...data,
+      bookFor: bookingFor,
+      specialRequest: specialRequest,
+    });
+  };
 
   if (!room) {
     return (
@@ -104,26 +103,6 @@ const BookingPage = () => {
       </div>
     );
   }
-
-  //prototype - testing
-  const onSubmit = async () => {
-    const response = instance.post(`booking/payment/create-payment`, {
-      amount:
-        differenceInDays(
-          new Date(room?.bookingIntent.checkOut),
-          new Date(room?.bookingIntent.checkIn)
-        ) *
-          Number(room.accommodation.basePrice) +
-        CalculateTax(Number(room.accommodation.basePrice)),
-
-      metaData: {
-        title: room.accommodation.title,
-        type: room.accommodation.type,
-      },
-    });
-
-    console.log(response);
-  };
 
   return (
     <div className="w-full px-25 py-10 flex justify-between">

@@ -1,10 +1,12 @@
 import { lazy, Suspense } from "react";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
+import BookingPayment from "./pages/steps/booking/BookingPayment";
+import Checkout from "./pages/steps/booking/Checkout";
 const HostSignIn = lazy(() => import("./pages/auth/HostSignIn"));
 const HostSignUp = lazy(() => import("./pages/auth/HostSignUp"));
 const UserSignIn = lazy(() => import("./pages/auth/UserSignIn"));
 const UserSignUp = lazy(() => import("./pages/auth/UserSignUp"));
-const BookingPage = lazy(() => import("./pages/BookingPage"));
+const BookingPage = lazy(() => import("./pages/steps/booking/BookingPage"));
 const Home = lazy(() => import("./pages/Home"));
 const HostProfile = lazy(() => import("./pages/HostProfile"));
 const AuthLayout = lazy(() => import("./pages/layout/AuthLayout"));
@@ -110,6 +112,8 @@ function App() {
             {/* BOOKING ROUTES */}
             <Route element={<BookingLayout />}>
               <Route path="/book" element={<BookingPage />} />
+              <Route path="/book-review" element={<Checkout />} />
+              <Route path="/booking-payment" element={<BookingPayment />} />
             </Route>
           </Routes>
         </Router>

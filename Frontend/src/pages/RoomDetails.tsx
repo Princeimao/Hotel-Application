@@ -65,6 +65,7 @@ const RoomDetails = () => {
   const [disibleDates, setDisibleDates] = useState<Date[] | undefined>(
     undefined
   );
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
     async function hotelDetails() {
@@ -91,6 +92,15 @@ const RoomDetails = () => {
     hotelDetails();
   }, [id]);
 
+  const [isMobileView, setIsMobileView] = useState<boolean>(false);
+
+  useEffect(() => {
+    const checkWidth = () => setIsMobileView(window.innerWidth < 680);
+    checkWidth();
+    window.addEventListener("resize", checkWidth);
+    return () => window.removeEventListener("resize", checkWidth);
+  }, []);
+
   useEffect(() => {
     if (room) {
       const bookedDates = room.bookings.flatMap((booking) =>
@@ -105,6 +115,7 @@ const RoomDetails = () => {
   }, [room]);
 
   const onSubmit = async () => {
+    setIsLoading(true);
     try {
       if (!room?.listing._id) {
         throw new Error("Room id not found");
@@ -137,6 +148,8 @@ const RoomDetails = () => {
       );
     } catch (error) {
       console.log("soemthing went wrong while creating booking intent", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -173,7 +186,7 @@ const RoomDetails = () => {
             <img
               src={room?.listing.photo[0]}
               alt={room?.listing.title}
-              className="w-full h-100 object-cover "
+              className="w-full h-100 object-cover sm:h-60"
             />
           </div>
           <div className="grid grid-cols-2 gap-2">
@@ -245,13 +258,13 @@ const RoomDetails = () => {
                   </span>
                 </div> */}
               </div>
-              <p className="text-gray-700 leading-relaxed">
+              <div className="text-gray-700 leading-relaxed">
                 {room?.listing.description && (
                   <ReactMarkDown remarkPlugins={[remarkGfm]}>
                     {room.listing.description}
                   </ReactMarkDown>
                 )}
-              </p>
+              </div>
             </div>
 
             {/* Amenities */}
@@ -285,7 +298,7 @@ const RoomDetails = () => {
                 moveRangeOnFirstSelection={false}
                 disabledDates={disibleDates}
                 ranges={dateRange}
-                months={2}
+                months={isMobileView ? 1 : 2}
                 direction="horizontal"
                 color="black"
                 minDate={new Date()}
@@ -467,13 +480,13 @@ const RoomDetails = () => {
                               </p>
                             </div>
                             <div className="flex gap-3 justify-center items-center">
-                              <button
+                              <Button
                                 className={`bg-transparent text-black hover:text-white border-2 border-black px-3 w-2 h-7 ${
-                                  query.adults === 0
+                                  query.adults === 1
                                     ? "border-gray-400 text-gray-400"
                                     : null
                                 }`}
-                                disabled={query.adults === 0}
+                                disabled={query.adults === 1}
                                 onClick={() =>
                                   setQuery((prev) => ({
                                     ...prev,
@@ -482,7 +495,7 @@ const RoomDetails = () => {
                                 }
                               >
                                 -
-                              </button>
+                              </Button>
                               <p className="text-sm">{query.adults}</p>
                               <Button
                                 className={`bg-transparent text-black hover:text-white border-2 border-black px-3 w-2 h-7 ${
@@ -695,9 +708,13 @@ const RoomDetails = () => {
 
               <button
                 onClick={onSubmit}
-                className="w-full bg-red-500 text-white py-3 px-4 rounded-lg hover:bg-red-600 transition-colors font-medium"
+                className="w-full bg-red-500 text-white py-3 px-4 rounded-lg hover:bg-red-600 transition-colors font-medium flex justify-center items-center"
               >
-                Reserve Now
+                {isLoading ? (
+                  <Loader className="animate-spin" />
+                ) : (
+                  "Reserve Now"
+                )}
               </button>
 
               <p className="text-sm text-gray-600 text-center mt-3">

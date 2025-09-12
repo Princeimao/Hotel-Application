@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { PhoneInput } from "react-international-phone";
+import "react-international-phone/style.css";
 import countries from "../../constants/countries.json";
 import {
   Select,

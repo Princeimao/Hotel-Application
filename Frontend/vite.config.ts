@@ -20,6 +20,6 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/api\/photon/, ""),
       },
     },
-    allowedHosts: ["authorization-sticks-champions-circle.trycloudflare.com"],
+    allowedHosts: [],
   },
 });
