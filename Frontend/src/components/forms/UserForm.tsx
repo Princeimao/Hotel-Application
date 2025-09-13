@@ -4,11 +4,17 @@ import "react-international-phone/style.css";
 
 import { userSignIn, userSignUp } from "@/api/userApi";
 import { Button } from "@/components/ui/button";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 
 const UserForm = ({ type }: { type: string }) => {
   const [phone, setPhone] = useState<string>("");
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const redirect_url = searchParams.get("redirect_url");
+  const roomId = searchParams.get("roomId");
+  const checkIn = searchParams.get("checkIn");
+  const checkOut = searchParams.get("checkOut");
+  const bookingSession = searchParams.get("bookingSession");
 
   const handelSubmit = async (e: React.FormEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -22,14 +28,33 @@ const UserForm = ({ type }: { type: string }) => {
 
         navigate(`/userSignup-verification/?sessionId=${response.sessionId}`);
       } else {
-        console.log(phone);
         const response = await userSignIn(phone);
 
         if (response.success !== true) {
           throw new Error("something went wrong while signing In");
         }
 
-        navigate(`/userSignin-verification/?sessionId=${response.sessionId}`);
+        if (
+          !redirect_url ||
+          !roomId ||
+          !checkIn ||
+          !checkOut ||
+          !bookingSession ||
+          !response.sessionId
+        ) {
+          throw new Error("search params not found");
+        }
+
+        navigate(
+          `/userSignin-verification/?${new URLSearchParams({
+            sessionId: response.sessionId,
+            redirect_url,
+            roomId: roomId,
+            checkIn: checkIn,
+            checkOut: checkOut,
+            bookingSession: bookingSession,
+          })}`
+        );
       }
     } catch (error) {
       if (type === "signup") {

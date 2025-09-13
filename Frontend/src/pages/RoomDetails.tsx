@@ -143,7 +143,7 @@ const RoomDetails = () => {
           guests: (query.adults + query.children).toString(),
           infants: query.infants.toString(),
           pets: query.pets.toString(),
-          sessionId: response.sessionId,
+          bookingSession: response.sessionId,
         })}`
       );
     } catch (error) {
@@ -186,7 +186,7 @@ const RoomDetails = () => {
             <img
               src={room?.listing.photo[0]}
               alt={room?.listing.title}
-              className="w-full h-100 object-cover sm:h-60"
+              className="w-full h-100 object-cover lg:h-100 sm:h-60"
             />
           </div>
           <div className="grid grid-cols-2 gap-2">

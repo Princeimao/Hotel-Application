@@ -3,6 +3,7 @@ import type { BookingAvailability, BookingIntent } from "@/types/booking.type";
 import type { Recommendation, RoomHost } from "@/types/host.types";
 import type { BookingRoomDetials, RoomDetials } from "@/types/hotel.types";
 import type {
+  bookingFormValidation,
   listingAddressValidation,
   listingDetailsValidation,
 } from "@/validation";
@@ -410,6 +411,40 @@ export const createBookingIntent = async (
       success: false,
       message: "something went wrong while create booking intent",
       sessionId: null,
+    };
+  }
+};
+
+export const updateBookingIntent = async (
+  sessionId: string,
+  data: z.infer<typeof bookingFormValidation>,
+  bookingFor: string,
+  specialRequest: string
+): Promise<{
+  success: boolean;
+  message: string;
+}> => {
+  try {
+    const response = await instance.post(
+      `/booking/update-bookingIntent/${sessionId}`,
+      {
+        firstName: data.firstName,
+        LastName: data.lastName,
+        Email: data.email,
+        country: data.country,
+        phone: data.phone,
+        bookingFor,
+        specialRequest,
+      }
+    );
+
+    console.log(response.data);
+    return response.data;
+  } catch (error) {
+    console.log("something went wrong while updating booking intent", error);
+    return {
+      success: false,
+      message: "something went wrong while updating booking intent",
     };
   }
 };

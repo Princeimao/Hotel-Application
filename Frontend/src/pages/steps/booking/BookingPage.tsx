@@ -1,6 +1,15 @@
-import { bookingPageVerification } from "@/api/hotelApi";
+import { bookingPageVerification, updateBookingIntent } from "@/api/hotelApi";
 import BookingForm from "@/components/forms/BookingForm";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import {
   HoverCard,
   HoverCardContent,
@@ -22,11 +31,11 @@ import { ChevronRight, Loader, Star } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import type { z } from "zod";
 import { Amenitie } from "../../RoomDetails";
 
-interface Booking {
+export interface Booking {
   accommodation: BookingRoomDetials;
   bookingIntent: BookingIntent;
 }
@@ -36,9 +45,10 @@ const BookingPage = () => {
   const [room, setRoom] = useState<Booking | null>(null);
 
   const roomId = searchParams.get("roomId");
-  const sessionId = searchParams.get("sessionId");
+  const bookingSession = searchParams.get("bookingSession");
 
   const user = useSelector((state: RootState) => state.user);
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function getRoom() {
@@ -46,10 +56,10 @@ const BookingPage = () => {
         throw new Error("room id is not defined1`");
       }
 
-      if (!sessionId) {
+      if (!bookingSession) {
         throw new Error("session id is not defined1`");
       }
-      const response = await bookingPageVerification(roomId, sessionId);
+      const response = await bookingPageVerification(roomId, bookingSession);
 
       if (response.success === false) {
         throw new Error("something went wrong while getting accommodation");
@@ -67,7 +77,7 @@ const BookingPage = () => {
     }
 
     getRoom();
-  }, [roomId, sessionId]);
+  }, [roomId, bookingSession]);
 
   const form = useForm<z.infer<typeof bookingFormValidation>>({
     resolver: zodResolver(bookingFormValidation),
@@ -88,15 +98,7 @@ const BookingPage = () => {
   const [bookingFor, setBookingFor] = useState<string>("");
   const [specialRequest, setSpecialRequest] = useState<string>("");
 
-  const onSubmit = async (data: z.infer<typeof bookingFormValidation>) => {
-    console.log({
-      ...data,
-      bookFor: bookingFor,
-      specialRequest: specialRequest,
-    });
-  };
-
-  if (!room) {
+  if (!room || !bookingSession || !roomId) {
     return (
       <div className="w-full h-screen flex justify-center items-center">
         <Loader className="animate-spin" />
@@ -104,9 +106,32 @@ const BookingPage = () => {
     );
   }
 
+  const onSubmit = async (data: z.infer<typeof bookingFormValidation>) => {
+    if (!bookingSession) {
+      throw new Error("Booking session not found");
+    }
+    const response = await updateBookingIntent(
+      bookingSession,
+      data,
+      bookingFor,
+      specialRequest
+    );
+
+    if (!response.success) {
+      throw new Error("something went wrong while updating booking intent");
+    }
+
+    navigate(
+      `/book-review/?${new URLSearchParams({
+        roomId: roomId,
+        bookingSession: bookingSession,
+      })}`
+    );
+  };
+
   return (
-    <div className="w-full px-25 py-10 flex justify-between">
-      <div className="w-[36%] min-h-screen flex flex-col gap-4">
+    <div className="w-full px-2 py-6 md:px-25 md:py-10 flex flex-col md:flex-row justify-between gap-6">
+      <div className="w-full md:w-[36%] min-h-screen flex flex-col gap-4">
         <div className="rounded-xl overflow-hidden">
           <div className="w-[100%] h-70">
             <img
@@ -258,7 +283,7 @@ const BookingPage = () => {
         </div>
       </div>
 
-      <div className="w-[60%] min-h-screen flex flex-col gap-5">
+      <div className="w-full md:w-[60%] min-h-screen flex flex-col gap-5">
         <div className="w-full min-h-50 border-2 border-gray-200 rounded-2xl p-5">
           <h1 className="font-bold text-xl">Enter your details</h1>
           <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -267,7 +292,12 @@ const BookingPage = () => {
 
           <Separator />
 
-          <RadioGroup defaultValue="option-one" className="w-full pt-4">
+          <RadioGroup
+            value={bookingFor}
+            onValueChange={setBookingFor}
+            defaultValue="option-one"
+            className="w-full pt-4"
+          >
             <h4 className="text-sm font-black flex">
               Who are you booking for?{" "}
               <p className="text-sm ml-1 font-light text-gray-500">
@@ -338,57 +368,98 @@ const BookingPage = () => {
           </h4>
         </div>
         <div className="flex justify-end">
-          <HoverCard>
-            <HoverCardTrigger asChild>
-              <Button
-                // onClick={() => form.handleSubmit(onSubmit)()}
-                onClick={onSubmit}
-                className="w-50 h-12 bg-red-500 hover:bg-red-600 active:bg-red-700"
-              >
-                Find Details
-                <ChevronRight />
-              </Button>
-            </HoverCardTrigger>
-            <HoverCardContent className="w-auto mr-11">
-              <div className="p-2 flex flex-col gap-4">
-                <div>
-                  <p className="font-semibold text-sm">You Selected</p>
-                  <h4 className="font-bold text-lg">
-                    cozy studio for 2 adults
-                  </h4>
-                </div>
-
-                <Separator />
-
-                <h2 className="font-bold text-xl">Your booking details</h2>
-                <div className="w-full min-h-22 flex justify-between">
-                  <div className="w-[40%] h-4 flex flex-col gap-1">
-                    <p className="font-semibold">Check-in</p>
-                    <p className="text-sm">{format(new Date(), "PPPP")}</p>
-                    <p className="font-light text-sm">From 3:00 PM</p>
+          {user.isAuthenticated ? (
+            <HoverCard>
+              <HoverCardTrigger asChild>
+                <Button
+                  onClick={() => form.handleSubmit(onSubmit)()}
+                  className="w-50 h-12 bg-red-500 hover:bg-red-600 active:bg-red-700"
+                >
+                  Find Details
+                  <ChevronRight />
+                </Button>
+              </HoverCardTrigger>
+              <HoverCardContent className="w-auto mr-11">
+                <div className="p-2 flex flex-col gap-4">
+                  <div>
+                    <p className="font-semibold text-sm">You Selected</p>
+                    <h4 className="font-bold text-lg">
+                      cozy studio for 2 adults
+                    </h4>
                   </div>
 
-                  <div className="w-[2px] h-20 bg-gray-200" />
+                  <Separator />
 
-                  <div className="w-[40%] h-4 flex flex-col gap-1">
-                    <p className="font-semibold">Check-out</p>
-                    <p className="text-sm">{format(new Date(), "PPPP")}</p>
-                    <p className="font-light text-sm">Until 12:00 PM</p>
+                  <h2 className="font-bold text-xl">Your booking details</h2>
+                  <div className="w-full min-h-22 flex justify-between">
+                    <div className="w-[40%] h-4 flex flex-col gap-1">
+                      <p className="font-semibold">Check-in</p>
+                      <p className="text-sm">{format(new Date(), "PPPP")}</p>
+                      <p className="font-light text-sm">From 3:00 PM</p>
+                    </div>
+
+                    <div className="w-[2px] h-20 bg-gray-200" />
+
+                    <div className="w-[40%] h-4 flex flex-col gap-1">
+                      <p className="font-semibold">Check-out</p>
+                      <p className="text-sm">{format(new Date(), "PPPP")}</p>
+                      <p className="font-light text-sm">Until 12:00 PM</p>
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold">Total length of stay:</h3>
+                    <p className="text-sm font-bold">
+                      {differenceInDays(
+                        new Date("09-04-2025"),
+                        new Date("09-02-2025")
+                      )}{" "}
+                      nights
+                    </p>
                   </div>
                 </div>
-                <div>
-                  <h3 className="font-semibold">Total length of stay:</h3>
-                  <p className="text-sm font-bold">
-                    {differenceInDays(
-                      new Date("09-04-2025"),
-                      new Date("09-02-2025")
-                    )}{" "}
-                    nights
-                  </p>
-                </div>
-              </div>
-            </HoverCardContent>
-          </HoverCard>
+              </HoverCardContent>
+            </HoverCard>
+          ) : (
+            <>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button
+                    onClick={() => form.handleSubmit(onSubmit)()}
+                    className="w-50 h-12 bg-red-500 hover:bg-red-600 active:bg-red-700"
+                  >
+                    Find Details
+                    <ChevronRight />
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Login Required</DialogTitle>
+                    <DialogDescription>
+                      You need to log in before making a reservation.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <DialogFooter>
+                    <Button
+                      onClick={() =>
+                        navigate(
+                          `/userSignin/?${new URLSearchParams({
+                            redirect_url: "book",
+                            roomId: roomId,
+                            checkIn: room.bookingIntent.checkIn,
+                            checkOut: room.bookingIntent.checkOut,
+                            bookingSession: bookingSession,
+                          })}
+                          `
+                        )
+                      }
+                    >
+                      Login
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </>
+          )}
         </div>
       </div>
     </div>

@@ -17,7 +17,7 @@ export default function Checkout() {
   const [searchParams] = useSearchParams();
   const [room, setRoom] = useState<Booking | null>(null);
   const roomId = searchParams.get("roomId");
-  const sessionId = searchParams.get("sessionId");
+  const bookingSession = searchParams.get("bookingSession");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -26,10 +26,10 @@ export default function Checkout() {
         throw new Error("room id is not defined1`");
       }
 
-      if (!sessionId) {
+      if (!bookingSession) {
         throw new Error("session id is not defined1`");
       }
-      const response = await bookingPageVerification(roomId, sessionId);
+      const response = await bookingPageVerification(roomId, bookingSession);
 
       if (response.success === false) {
         throw new Error("something went wrong while getting accommodation");
@@ -39,7 +39,6 @@ export default function Checkout() {
         throw new Error("something went wrong while getting accommodation");
       }
 
-      console.log(response.bookingDetails);
       setRoom({
         accommodation: response.bookingDetails.accommodation,
         bookingIntent: response.bookingDetails.bookingIntent,
@@ -47,9 +46,9 @@ export default function Checkout() {
     }
 
     getRoom();
-  }, [roomId, sessionId]);
+  }, [roomId, bookingSession]);
 
-  if (!room || !roomId || !sessionId) {
+  if (!room || !roomId || !bookingSession) {
     return (
       <div className="w-full h-screen flex justify-center items-center">
         <Loader className="animate-spin" />
@@ -183,9 +182,9 @@ export default function Checkout() {
               <Button
                 onClick={() =>
                   navigate(
-                    `/booking-payment/${new URLSearchParams({
+                    `/booking-payment/?${new URLSearchParams({
                       roomId: roomId,
-                      sessionId: sessionId,
+                      bookingSession: bookingSession,
                     })}`
                   )
                 }

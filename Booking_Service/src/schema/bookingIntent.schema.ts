@@ -19,6 +19,6 @@ export const userDetailsSchema = z.object({
   Email: z.string().email(),
   country: z.string(),
   phone: z.string(),
-  bookingFor: z.enum(["FOR_ME", "NOT_FOR_ME"]).optional(),
+  bookingFor: z.enum(["FOR_ME", "NOT_FOR_ME", ""]).optional(),
   specialRequest: z.string().optional(),
 });

@@ -75,7 +75,7 @@ export const userDetails = async (req: Request, res: Response) => {
       specialRequest,
     } = userDetailsSchema.parse(req.body);
 
-    const bookingIntent = await bookingIntentModel.findByIdAndUpdate(
+    await bookingIntentModel.findByIdAndUpdate(
       sessionId,
       {
         $set: {
@@ -94,7 +94,6 @@ export const userDetails = async (req: Request, res: Response) => {
     res.status(200).json({
       success: true,
       message: "successfully updated",
-      bookingIntent,
     });
   } catch (error) {
     if (error instanceof ZodError) {

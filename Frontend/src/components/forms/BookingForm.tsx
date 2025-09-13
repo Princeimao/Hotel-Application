@@ -21,18 +21,18 @@ import {
 
 const BookingForm = ({ form }: any) => {
   return (
-    <div className="w-full py-5 space-y-5">
+    <div className="w-full py-5 space-y-6">
       <Form {...form}>
-        <div className="w-full flex gap-2">
+        <div className="w-full lg:flex md:flex-none sm:flex-none lg:gap-2">
           <FormField
             control={form.control}
             name="firstName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>First name</FormLabel>
+                <FormLabel className="mt-4">First name</FormLabel>
                 <FormControl>
                   <Input
-                    className="w-92 rounded-sm border-1 border-gray-500 focus-visible:border-ring focus-visible:ring-transparent"
+                    className="min-w-92 rounded-sm border-1 border-gray-500 focus-visible:border-ring focus-visible:ring-transparent"
                     placeholder="First Name"
                     {...field}
                   />
@@ -47,10 +47,10 @@ const BookingForm = ({ form }: any) => {
             name="lastName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Last name</FormLabel>
+                <FormLabel className="mt-4">Last name</FormLabel>
                 <FormControl>
                   <Input
-                    className="w-92 rounded-sm border-1 border-gray-500 focus-visible:border-ring focus-visible:ring-transparent"
+                    className="min-w-92 rounded-sm border-1 border-gray-500 focus-visible:border-ring focus-visible:ring-transparent"
                     placeholder="Last Name"
                     {...field}
                   />
@@ -68,7 +68,7 @@ const BookingForm = ({ form }: any) => {
               <FormLabel>Email</FormLabel>
               <FormControl>
                 <Input
-                  className="w-92 rounded-sm border-1 border-gray-500 focus-visible:border-ring focus-visible:ring-transparent"
+                  className="min-w-92 rounded-sm border-1 border-gray-500 focus-visible:border-ring focus-visible:ring-transparent"
                   placeholder="Email"
                   {...field}
                 />

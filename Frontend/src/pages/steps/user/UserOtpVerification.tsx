@@ -33,6 +33,12 @@ const UserOtpVerification = ({ type }: { type: string }) => {
   const dispactch = useDispatch();
   const [searchParams] = useSearchParams();
   const sessionId = searchParams.get("sessionId");
+  const redirect_url = searchParams.get("redirect_url");
+  const roomId = searchParams.get("roomId");
+  const checkIn = searchParams.get("checkIn");
+  const checkOut = searchParams.get("checkOut");
+  const bookingSession = searchParams.get("bookingSession");
+  const queryParams: Record<string, string> = {};
 
   const form = useForm<z.infer<typeof OptValidation>>({
     resolver: zodResolver(OptValidation),
@@ -84,7 +90,6 @@ const UserOtpVerification = ({ type }: { type: string }) => {
           return;
         }
         const response = await userSigninVerify(Number(data.otp), phone);
-        console.log(response);
 
         if (response.success !== true) {
           console.log("something went wrong");
@@ -104,7 +109,24 @@ const UserOtpVerification = ({ type }: { type: string }) => {
 
         dispactch(login({ user, isAuthenticated: true, status: "succeeded" }));
 
-        navigate("/");
+        if (roomId) {
+          queryParams.roomId = roomId;
+        }
+        if (checkIn) {
+          queryParams.checkIn = checkIn;
+        }
+        if (checkOut) {
+          queryParams.checkOut = checkOut;
+        }
+        if (bookingSession) {
+          queryParams.bookingSession = bookingSession;
+        }
+
+        if (redirect_url) {
+          navigate(`/${redirect_url}/?${new URLSearchParams(queryParams)}`);
+        } else {
+          navigate("/")
+        }
       }
     } catch (error) {
       if (type === "signup") {

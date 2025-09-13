@@ -6,6 +6,9 @@ const bookingIntentSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    userId: {
+      type: String,
+    },
     checkIn: {
       type: String,
       required: true,
@@ -50,6 +53,9 @@ const bookingIntentSchema = new mongoose.Schema(
     bookingFor: {
       type: String,
       enum: ["FOR_ME", "NOT_FOR_ME"],
+    },
+    specialRequest: {
+      type: String,
     },
   },
   {

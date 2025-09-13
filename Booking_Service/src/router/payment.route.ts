@@ -1,9 +1,8 @@
 import express from "express";
-import { generateToken, madePayment } from "../controller/payment.controller";
+import { madePayment } from "../controller/payment.controller";
 
 const router = express.Router();
 
-router.route("/create-payment").post(madePayment);
-router.route("/phonePe/token").post(generateToken);
+router.route("/create-payment/:sessionId").post(madePayment);
 
 export default router;
