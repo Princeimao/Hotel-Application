@@ -4,18 +4,18 @@ import { useState } from "react";
 const Setting = () => {
   const [activeTab, setActiveTab] = useState("profile");
 
-  const onSubmitProfile = async (data: sting) => {
-    console.log(data);
-  };
+  // const onSubmitProfile = async (data: sting) => {
+  //   console.log(data);
+  // };
 
   const profile = {
     profile_photo: "aljkdfs",
     full_name: "dskjfa ",
   };
 
-  const handlePhoneVerification = () => {};
+  // const handlePhoneVerification = () => {};
 
-  const handleEmailVerification = () => {};
+  // const handleEmailVerification = () => {};
 
   if (!profile) {
     return (

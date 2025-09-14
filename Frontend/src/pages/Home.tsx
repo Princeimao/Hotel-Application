@@ -15,6 +15,11 @@ const Home = () => {
       if (response.success === false) {
         throw new Error("something went wrong while getting accommodations");
       }
+
+      if (!response.accommodations) {
+        throw new Error("something went wrong while getting accommodations");
+      }
+
       setAccommodations(response.accommodations);
     } catch (error) {
       console.log("something went wrong while getting accommodations", error);

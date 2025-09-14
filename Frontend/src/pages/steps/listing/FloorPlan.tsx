@@ -1,3 +1,4 @@
+import { floorPlan } from "@/api/hotelApi";
 import ProgressBar from "@/components/ProgressBar";
 import { Button } from "@/components/ui/button";
 import { urlConstants } from "@/constants/listingUrlConstants";
@@ -6,30 +7,39 @@ import { useParams } from "react-router-dom";
 
 const FloorPlan = () => {
   const { roomId } = useParams();
-  const [guest, setGuest] = useState<number>(1);
+  const [adult, setAdult] = useState<number>(1);
+  const [child, setChild] = useState<number>(0);
   const [bedrooms, setBedrooms] = useState<number>(1);
   const [beds, setBeds] = useState<number>(1);
   const [lock, setLock] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  // const handleSubmit = async () => {
-  //   setIsLoading(true);
-  //   try {
-  //     if (!roomId) throw new Error("Host ID missing");
+  const handleSubmit = async () => {
+    setIsLoading(true);
+    try {
+      if (!roomId) throw new Error("Host ID missing");
 
-  //     const response = await becomaAHost(hostId);
+      const bedRoomLock = lock === "yes" ? true : false;
 
-  //     if (!response?.success || !response?.roomId)
-  //       throw new Error("Invalid response");
+      const response = await floorPlan(
+        roomId,
+        adult,
+        child,
+        bedrooms,
+        beds,
+        bedRoomLock
+      );
 
-  //     return `${urlConstants["structure"].url}/${response.roomId}`;
-  //   } catch (error) {
-  //     console.error("Error in handleSubmit", error);
-  //     return null;
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
+      if (!response?.success) throw new Error("Invalid response");
+
+      return `${urlConstants["structure"].url}/${roomId}`;
+    } catch (error) {
+      console.error("Error in handleSubmit", error);
+      return null;
+    } finally {
+      setIsLoading(false);
+    }
+  };
   return (
     <div className="w-full h-[80%]">
       <div className="w-full h-[100%] flex flex-col items-center justify-center">
@@ -39,23 +49,47 @@ const FloorPlan = () => {
           <h1 className="text-sm font-bold">How many people can stay here?</h1>
           <div>
             <div className="w-120 h-15 border-b-2 flex justify-between items-center">
-              <p className="text-sm font-black text-gray-500">Guest</p>
+              <p className="text-sm font-black text-gray-500">Adults</p>
 
               <div className="w-22 flex gap-3 items-center">
                 <Button
                   className="bg-transparent border-2 border-gray-400 hover:bg-transparent active:border-black text-black rounded-full px-2 py-3 h-0"
                   onClick={() => {
-                    if (guest > 1) {
-                      setGuest((prev) => prev - 1);
+                    if (adult > 1) {
+                      setAdult((prev) => prev - 1);
                     }
                   }}
                 >
                   -
                 </Button>
-                <p className="text-xs font-black text-gray-500 px-1">{guest}</p>
+                <p className="text-xs font-black text-gray-500 w-3">{adult}</p>
                 <Button
                   className="bg-transparent border-2 border-gray-400 hover:bg-transparent active:border-black text-black rounded-full px-2 py-3 h-0"
-                  onClick={() => setGuest((prev) => prev + 1)}
+                  onClick={() => setAdult((prev) => prev + 1)}
+                >
+                  +
+                </Button>
+              </div>
+            </div>
+
+            <div className="w-120 h-15 border-b-2 flex justify-between items-center">
+              <p className="text-sm font-black text-gray-500">Childrens</p>
+
+              <div className="w-22 flex gap-3 items-center">
+                <Button
+                  className="bg-transparent border-2 border-gray-400 hover:bg-transparent active:border-black text-black rounded-full px-2 py-3 h-0"
+                  onClick={() => {
+                    if (child > 1) {
+                      setChild((prev) => prev - 1);
+                    }
+                  }}
+                >
+                  -
+                </Button>
+                <p className="text-xs font-black text-gray-500 w-3">{child}</p>
+                <Button
+                  className="bg-transparent border-2 border-gray-400 hover:bg-transparent active:border-black text-black rounded-full px-2 py-3 h-0"
+                  onClick={() => setChild((prev) => prev + 1)}
                 >
                   +
                 </Button>
@@ -76,7 +110,7 @@ const FloorPlan = () => {
                 >
                   -
                 </Button>
-                <p className="text-xs font-black text-gray-500 px-1">
+                <p className="text-xs font-black text-gray-500 w-3">
                   {bedrooms}
                 </p>
                 <Button
@@ -102,7 +136,7 @@ const FloorPlan = () => {
                 >
                   -
                 </Button>
-                <p className="text-xs font-black text-gray-500 px-1">{beds}</p>
+                <p className="text-xs font-black text-gray-500 w-3">{beds}</p>
                 <Button
                   className="bg-transparent border-2 border-gray-400 hover:bg-transparent active:border-black text-black rounded-full px-2 py-3 h-0"
                   onClick={() => setBeds((prev) => prev + 1)}

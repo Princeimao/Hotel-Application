@@ -202,21 +202,41 @@ export const address = async (
   }
 };
 
-// Need Backend Changes
-// export const floorPlan = async (roomId: string) => {
-//   try {
-//     const response = instance.post(`/listing/accommodation-details/${roomId}`);
-//   } catch (error) {
-//     console.log(
-//       "something went wrong while updating accommodation floor plan",
-//       error
-//     );
-//     return {
-//       success: false,
-//       message: "something went wrong while updating accommodation floor plan",
-//     };
-//   }
-// };
+export const floorPlan = async (
+  roomId: string,
+  adultOccupancy: number,
+  childrenOccupancy: number,
+  bedRooms: number,
+  beds: number,
+  bedroomLock: boolean
+): Promise<{
+  success: boolean;
+  message: string;
+}> => {
+  try {
+    const response = await instance.post(
+      `/listing/accommodation-details/${roomId}`,
+      {
+        maxGuests: adultOccupancy,
+        childrenOccupancy,
+        bedRooms,
+        beds,
+        bedroomLock,
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.log(
+      "something went wrong while updating accommodation floor plan",
+      error
+    );
+    return {
+      success: false,
+      message: "something went wrong while updating accommodation floor plan",
+    };
+  }
+};
 
 export const occupancyApi = async (roomId: string, sharedWith: string[]) => {
   try {

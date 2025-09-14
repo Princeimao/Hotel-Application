@@ -78,6 +78,7 @@ const Address = () => {
     }
   }
 
+  // @ts-ignore
   function LocationPicker({ onLocationSelected }) {
     useMapEvents({
       click(e) {

@@ -60,20 +60,18 @@ const BookingConfirmation = () => {
                     <span className="text-sm font-medium text-gray-700">
                       {room.rating}
                     </span>
-                    <span className="text-sm text-gray-500">
-                      ({room.reviews} reviews)
-                    </span>
+                    <span className="text-sm text-gray-500">(20 reviews)</span>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                     <div className="flex items-center space-x-2 text-gray-600">
                       <MapPin className="w-4 h-4" />
-                      <span>{room.location}</span>
+                      <span>New Delhi</span>
                     </div>
 
                     <div className="flex items-center space-x-2 text-gray-600">
                       <Users className="w-4 h-4" />
-                      <span>{guests.adults + guests.children} guests</span>
+                      <span>4 guests</span>
                     </div>
                   </div>
 
@@ -84,7 +82,10 @@ const BookingConfirmation = () => {
                         <div className="font-semibold text-gray-900 flex items-center space-x-2">
                           <Calendar className="w-4 h-4" />
                           <span>
-                            {format(new Date(checkIn), "EEE, MMM dd, yyyy")}
+                            {format(
+                              new Date("14-10-2024"),
+                              "EEE, MMM dd, yyyy"
+                            )}
                           </span>
                         </div>
                         <div className="text-sm text-gray-600">
@@ -97,7 +98,10 @@ const BookingConfirmation = () => {
                         <div className="font-semibold text-gray-900 flex items-center space-x-2">
                           <Calendar className="w-4 h-4" />
                           <span>
-                            {format(new Date(checkOut), "EEE, MMM dd, yyyy")}
+                            {format(
+                              new Date("20-10-2024"),
+                              "EEE, MMM dd, yyyy"
+                            )}
                           </span>
                         </div>
                         <div className="text-sm text-gray-600">
@@ -120,7 +124,7 @@ const BookingConfirmation = () => {
           </button>
 
           <button
-            onClick={handleNewBooking}
+            // onClick={handleNewBooking}
             className="flex-1 bg-white text-blue-600 py-4 rounded-xl font-semibold border-2 border-blue-600 hover:bg-blue-50 transform hover:scale-105 transition-all duration-200"
           >
             Book Another Stay

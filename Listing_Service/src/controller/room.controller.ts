@@ -143,7 +143,6 @@ export const accommodationDetails = async (req: Request, res: Response) => {
   try {
     const { roomId } = req.params;
     const {
-      maxGuests,
       adultOccupancy,
       childrenOccupancy,
       bedrooms,
@@ -158,13 +157,12 @@ export const accommodationDetails = async (req: Request, res: Response) => {
       },
       {
         $set: {
-          maxGuests,
+          maxGuests: adultOccupancy + childrenOccupancy,
           adultOccupancy,
           childrenOccupancy,
           bedrooms,
           beds,
           bedroomLock,
-          petsAllowed,
         },
       },
       { upsert: true }

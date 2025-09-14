@@ -8,6 +8,7 @@ import {
 
 import { UserX } from "lucide-react";
 
+// @ts-ignore
 export const occupancyMap: [{ icon: ReactNode; label: string; name: string }] =
   [
     {

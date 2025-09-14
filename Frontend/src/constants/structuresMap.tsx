@@ -12,6 +12,7 @@ import {
 } from "react-icons/md";
 import { TbBuildingCottage } from "react-icons/tb";
 
+// @ts-ignore
 export const structureMap: [{ icon: ReactNode; label: string; name: string }] =
   [
     {

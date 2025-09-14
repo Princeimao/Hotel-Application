@@ -56,7 +56,7 @@ export const madePayment = async (req: Request, res: Response) => {
 
     // Finding the Booking Intent
     const bookingIntent = await bookingIntentModel.findById(sessionId);
-    if (!bookingIntent) {
+    if (!bookingIntent || !bookingIntent.guests) {
       res.status(500).json({
         success: false,
         message:
@@ -81,25 +81,12 @@ export const madePayment = async (req: Request, res: Response) => {
       paymentId: merchantOrderId,
       totalPrice: amount,
       guests: {
-        adults:
-          bookingIntent?.guests === null || bookingIntent?.guests === undefined
-            ? 0
-            : bookingIntent?.guests.adults,
-        children:
-          bookingIntent?.guests === null || bookingIntent?.guests === undefined
-            ? 0
-            : bookingIntent?.guests.children,
-        infants:
-          bookingIntent?.guests === null || bookingIntent?.guests === undefined
-            ? 0
-            : bookingIntent?.guests.infants,
-        pets:
-          bookingIntent?.guests === null || bookingIntent?.guests === undefined
-            ? 0
-            : bookingIntent?.guests.pets,
+        adults: bookingIntent?.guests,
+        children: bookingIntent?.guests,
+        infants: bookingIntent?.guests,
+        pets: bookingIntent?.guests,
       },
       roomId: bookingIntent.roomId,
-      userId: bookingIntent.userId,
     });
 
     // MAKING PAYMENT

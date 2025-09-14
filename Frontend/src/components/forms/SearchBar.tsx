@@ -3,7 +3,7 @@ import type { OlaApiResponse } from "@/types/maps.types";
 import { format } from "date-fns";
 import { Calendar, Search } from "lucide-react";
 import { useEffect, useState } from "react";
-import { DateRange } from "react-date-range";
+import { DateRange, type Range, type RangeKeyDict } from "react-date-range";
 import "react-date-range/dist/styles.css"; // main css file
 import "react-date-range/dist/theme/default.css"; // theme css file
 import AutoComplete from "../AutoComplete";
@@ -42,7 +42,7 @@ const SearchBar = () => {
   const [inputValue, setInputValue] = useState<string>("");
   const [suggestions, setSuggestions] = useState<OlaApiResponse | null>(null);
   const [showSuggestions, setShowSuggestions] = useState<boolean>(false);
-  const [dateRange, setDateRange] = useState([
+  const [dateRange, setDateRange] = useState<Range[]>([
     {
       startDate: new Date(),
       endDate: new Date(),
@@ -92,7 +92,7 @@ const SearchBar = () => {
     }
   }, [debouncedSearch, inputValue, query.location.name]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.ChangeEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     console.log(query);
@@ -143,7 +143,9 @@ const SearchBar = () => {
               <PopoverTrigger asChild>
                 <div className="flex justify-between items-center">
                   <p className="w-full text-sm cursor-pointer text-gray-900">
-                    {format(dateRange[0].startDate, "dd/MM/yyyy")}
+                    {dateRange[0].startDate === undefined
+                      ? null
+                      : format(dateRange[0].startDate, "dd/MM/yyyy")}
                   </p>
                   <Calendar size={17} />
                 </div>
@@ -173,7 +175,9 @@ const SearchBar = () => {
               <PopoverTrigger asChild>
                 <div className="flex justify-between items-center">
                   <p className="w-full text-sm cursor-pointer text-gray-900">
-                    {format(dateRange[0].endDate, "dd/MM/yyyy")}
+                    {dateRange[0].endDate === undefined
+                      ? null
+                      : format(dateRange[0].endDate, "dd/MM/yyyy")}
                   </p>
                   <Calendar size={17} />
                 </div>
@@ -181,7 +185,9 @@ const SearchBar = () => {
               <PopoverContent className="p-4 w-auto mt-4">
                 <DateRange
                   editableDateInputs
-                  onChange={(item) => setDateRange([item.selection])}
+                  onChange={(item: RangeKeyDict) =>
+                    setDateRange([item.selection])
+                  }
                   moveRangeOnFirstSelection={false}
                   ranges={dateRange}
                   months={2}

@@ -25,9 +25,6 @@ const HostOtpVerification = lazy(
 const Address = lazy(() => import("./pages/steps/listing/Address"));
 const Amenities = lazy(() => import("./pages/steps/listing/Amenities"));
 const BecomeAHost = lazy(() => import("./pages/steps/listing/BecomeAHost"));
-const CreateListing = lazy(
-  () => import("./pages/steps/listing/CreatingListing")
-);
 const Details = lazy(() => import("./pages/steps/listing/Details"));
 const FloorPlan = lazy(() => import("./pages/steps/listing/FloorPlan"));
 const Occupancy = lazy(() => import("./pages/steps/listing/Occupancy"));
@@ -56,7 +53,6 @@ function App() {
               {/* SIDE ROUTES */}
               <Route path="/settings" element={<Setting />} />
               <Route path="/host-profile/:hostId" element={<HostProfile />} />
-              <Route path="/create-listing" element={<CreateListing />} />
             </Route>
 
             <Route element={<AuthLayout />}>

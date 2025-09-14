@@ -18,7 +18,7 @@ import {
   Users,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { DateRange } from "react-date-range";
+import { DateRange, type Range, type RangeKeyDict } from "react-date-range";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
 import ReactMarkDown from "react-markdown";
@@ -55,13 +55,14 @@ const RoomDetails = () => {
     pets: 0,
   });
 
-  const [dateRange, setDateRange] = useState([
+  const [dateRange, setDateRange] = useState<Range[]>([
     {
       startDate: parse(checkIn, "dd-MM-yyyy", new Date()),
       endDate: parse(checkOut, "dd-MM-yyyy", new Date()),
       key: "selection",
     },
   ]);
+
   const [disibleDates, setDisibleDates] = useState<Date[] | undefined>(
     undefined
   );
@@ -114,11 +115,23 @@ const RoomDetails = () => {
     }
   }, [room]);
 
+  if (room === undefined || dateRange[0] === undefined) {
+    return (
+      <div className="w-full h-[80vh] flex justify-center items-center">
+        <Loader className="animate-spin" />
+      </div>
+    );
+  }
+
   const onSubmit = async () => {
     setIsLoading(true);
     try {
       if (!room?.listing._id) {
         throw new Error("Room id not found");
+      }
+
+      if (!dateRange[0].startDate || !dateRange[0].endDate) {
+        throw new Error("Date range is undefined");
       }
       const response = await createBookingIntent(
         room?.listing._id,
@@ -152,14 +165,6 @@ const RoomDetails = () => {
       setIsLoading(false);
     }
   };
-
-  if (room === undefined) {
-    return (
-      <div className="w-full h-[80vh] flex justify-center items-center">
-        <Loader className="animate-spin" />
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
@@ -294,7 +299,9 @@ const RoomDetails = () => {
             <div className="flex justify-center items-center bg-white rounded-2xl shadow-lg border border-gray-100">
               <DateRange
                 editableDateInputs={true}
-                onChange={(item) => setDateRange([item.selection])}
+                onChange={(item: RangeKeyDict) =>
+                  setDateRange([item.selection])
+                }
                 moveRangeOnFirstSelection={false}
                 disabledDates={disibleDates}
                 ranges={dateRange}
@@ -386,7 +393,9 @@ const RoomDetails = () => {
                       <PopoverTrigger asChild>
                         <div className="flex items-center justify-between w-full text-sm cursor-pointer text-gray-900 rounded-xl border-1 border-gray-500 p-3 focus:ring-0 focus:outline-none bg-transparent">
                           <p className="">
-                            {format(dateRange[0].startDate, "dd/MM/yyyy")}
+                            {dateRange[0].startDate === undefined
+                              ? null
+                              : format(dateRange[0].startDate, "dd/MM/yyyy")}
                           </p>
                           <Calendar size={19} />
                         </div>
@@ -395,7 +404,9 @@ const RoomDetails = () => {
                       <PopoverContent className="p-4 w-auto mt-6">
                         <DateRange
                           editableDateInputs={true}
-                          onChange={(item) => setDateRange([item.selection])}
+                          onChange={(item: RangeKeyDict) =>
+                            setDateRange([item.selection])
+                          }
                           moveRangeOnFirstSelection={false}
                           disabledDates={disibleDates}
                           ranges={dateRange}
@@ -414,7 +425,9 @@ const RoomDetails = () => {
                       <PopoverTrigger asChild>
                         <div className="flex items-center justify-between w-full text-sm cursor-pointer text-gray-900 rounded-xl border-1 border-gray-500 p-3 focus:ring-0 focus:outline-none bg-transparent">
                           <p className="">
-                            {format(dateRange[0].endDate, "dd/MM/yyyy")}
+                            {dateRange[0].endDate === undefined
+                              ? null
+                              : format(dateRange[0].endDate, "dd/MM/yyyy")}
                           </p>
                           <Calendar size={19} />
                         </div>
@@ -423,7 +436,9 @@ const RoomDetails = () => {
                       <PopoverContent className="w-auto mt-6 bg-white rounded-2xl shadow-md">
                         <DateRange
                           editableDateInputs={true}
-                          onChange={(item) => setDateRange([item.selection])}
+                          onChange={(item: RangeKeyDict) =>
+                            setDateRange([item.selection])
+                          }
                           moveRangeOnFirstSelection={false}
                           disabledDates={disibleDates}
                           ranges={dateRange}
