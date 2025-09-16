@@ -1,16 +1,20 @@
 import { instance } from "./axios";
 
 export const createPayment = async (
-  amount: number
+  amount: number,
+  sessionId: string
 ): Promise<{
   success: boolean;
   message: string;
   redirectUrl?: string;
 }> => {
   try {
-    const response = await instance.post(`booking/payment/create-payment`, {
-      amount,
-    });
+    const response = await instance.post(
+      `booking/payment/create-payment/${sessionId}`,
+      {
+        amount,
+      }
+    );
 
     return response.data;
   } catch (error) {

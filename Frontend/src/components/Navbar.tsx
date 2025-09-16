@@ -9,10 +9,21 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { logout } from "@/context/features/HostContext";
 import type { RootState } from "@/context/store";
-import { Menu } from "lucide-react";
+import {
+  BadgeQuestionMark,
+  CalendarSearch,
+  LogOut,
+  MapPinHouse,
+  Menu,
+  Settings,
+  User,
+  UserPen,
+  UserRoundCheck,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import MobileSearchForm from "./forms/MobileSearchForm";
 import SearchBar from "./forms/SearchBar";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
@@ -71,7 +82,9 @@ const Navbar = ({ authLayout }: Props) => {
             fill="none"
           />
         </svg>
-        <h1 className="font-bold text-xl text-red-500">roamInn</h1>
+        {isMobileView ? null : (
+          <h1 className="font-bold text-xl text-red-500">roamInn</h1>
+        )}
       </div>
 
       {!authLayout && !isMobileView && <SearchBar />}
@@ -104,18 +117,25 @@ const Navbar = ({ authLayout }: Props) => {
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
+                  className="py-4"
                   onClick={() => navigate(`/host-profile/${host.host?.id}`)}
                 >
-                  Profile
+                  <UserPen /> Profile
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/bookings")}>
-                  My Listings
+                <DropdownMenuItem
+                  className="py-4"
+                  onClick={() => navigate("/bookings")}
+                >
+                  <MapPinHouse /> My Listings
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/settings")}>
-                  Settings
+                <DropdownMenuItem
+                  className="py-4"
+                  onClick={() => navigate("/settings")}
+                >
+                  <Settings /> Settings
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleLogout}>
-                  Logout
+                <DropdownMenuItem className="py-4" onClick={handleLogout}>
+                  <LogOut /> Logout
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -132,24 +152,31 @@ const Navbar = ({ authLayout }: Props) => {
                 </div>
               </DropdownMenuTrigger>
 
-              <DropdownMenuContent className="w-40">
+              <DropdownMenuContent className="w-55">
                 <DropdownMenuLabel>
                   Welcome, {user.user?.name}
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
+                  className="py-4"
                   onClick={() => navigate(`/user-profile/${user.user?.id}`)}
                 >
-                  Profile
+                  <UserPen /> Profile
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/bookings")}>
-                  Booking History
+                <DropdownMenuItem
+                  className="py-4"
+                  onClick={() => navigate("/bookings")}
+                >
+                  <CalendarSearch /> Booking History
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/settings")}>
-                  Settings
+                <DropdownMenuItem
+                  className="py-4"
+                  onClick={() => navigate("/settings")}
+                >
+                  <Settings /> Settings
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleLogout}>
-                  Logout
+                <DropdownMenuItem className="py-4" onClick={handleLogout}>
+                  <LogOut /> Logout
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -161,7 +188,7 @@ const Navbar = ({ authLayout }: Props) => {
                 onClick={() =>
                   navigate(
                     `/hostSignup/?${new URLSearchParams({
-                      redirect: "become a host",
+                      redirect: "become-a-host",
                     })}`
                   )
                 }
@@ -170,22 +197,50 @@ const Navbar = ({ authLayout }: Props) => {
                 Become a host
               </Button>
             )}
-
+            {isMobileView && <MobileSearchForm />}
             <DropdownMenu>
               <DropdownMenuTrigger>
-                <div className="w-10 h-10 rounded-full flex justify-center items-center bg-[#EBEBEB] hover:bg-gray-300 transition-all ease-in">
+                <div className="w-10 h-10 rounded-full flex justify-center items-center bg-[#EBEBEB] hover:bg-gray-300 transition-all ease-in ">
                   <Menu />
                 </div>
               </DropdownMenuTrigger>
 
-              <DropdownMenuContent className="w-40">
+              <DropdownMenuContent className="w-55 mr-6 mt-2">
                 <DropdownMenuLabel>Welcome</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => navigate("/userSignin")}>
-                  Login
+                <DropdownMenuItem
+                  className="py-4"
+                  onClick={() => navigate("/userSignin")}
+                >
+                  <User />
+                  User Login
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/userSignup")}>
-                  Register
+                <DropdownMenuItem
+                  className="py-4"
+                  onClick={() => navigate("/userSignup")}
+                >
+                  <UserPen /> User Register
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="py-4"
+                  onClick={() => navigate("/userSignup")}
+                >
+                  <MapPinHouse /> Become a host
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="py-4"
+                  onClick={() => navigate("/userSignin")}
+                >
+                  <UserRoundCheck />
+                  Host Login
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="py-4"
+                  onClick={() => navigate("/userSignin")}
+                >
+                  <BadgeQuestionMark /> Help Center
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

@@ -20,6 +20,6 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/api\/photon/, ""),
       },
     },
-    allowedHosts: [],
+    allowedHosts: ["electrical-showers-royalty-surfing.trycloudflare.com"],
   },
 });

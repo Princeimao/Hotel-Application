@@ -37,7 +37,7 @@ const Home = () => {
       </h1> */}
       <div className="w-full flex">
         {accommodations === null ? (
-          <div className="w-full h-screen flex justify-center items-center">
+          <div className="w-full h-[85vh] flex justify-center items-center">
             <Loader className="animate-spin" />
           </div>
         ) : (

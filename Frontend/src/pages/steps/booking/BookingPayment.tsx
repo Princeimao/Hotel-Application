@@ -89,7 +89,8 @@ const BookingPayment = () => {
     setLoading(true);
 
     try {
-      const res = await createPayment(total);
+      const res = await createPayment(total, bookingSession);
+      console.log(res);
 
       // Open PayPage inside your app (IFRAME)
       window.PhonePeCheckout.transact({
