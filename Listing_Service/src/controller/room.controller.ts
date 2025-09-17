@@ -25,6 +25,13 @@ export const listAccommodation = async (req: Request, res: Response) => {
       hostId,
     });
 
+    const data = {
+      hostId: hostId,
+      roomId: room._id,
+    };
+
+    producer("update-host", data);
+
     res.status(200).json({
       success: true,
       message: "Accommodation setup successfully",
@@ -307,7 +314,7 @@ export const accommodationAmenities = async (req: Request, res: Response) => {
 export const accommodationImages = async (req: Request, res: Response) => {
   try {
     const { roomId } = req.params;
-    const result = await producer("room-queue", roomId);
+    const result = await producer("room-queue", { roomId });
 
     if (!result) {
       const imagePath = path.join(process.cwd(), "temp-file-store");

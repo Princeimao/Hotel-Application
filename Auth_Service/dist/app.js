@@ -14,7 +14,7 @@ exports.app.use((0, cors_1.default)());
 exports.app.use((0, cors_1.default)({
     origin: [
         "http://localhost:5173",
-        "https://authorization-sticks-champions-circle.trycloudflare.com",
+        "https://timeline-substances-spaces-pete.trycloudflare.com",
     ],
     credentials: true,
 }));

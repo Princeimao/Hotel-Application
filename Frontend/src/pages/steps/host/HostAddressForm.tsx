@@ -90,7 +90,7 @@ const HostAddressForm = () => {
 
       dispactch(login({ host, isAuthenticated: true, status: "succeeded" }));
 
-      navigate(`/${redirect}`);
+      navigate(`/${redirect}/${host.id}`);
     } catch (error) {
       console.log("something went wrong while creating Host", error);
     }

@@ -15,6 +15,7 @@ import { format } from "date-fns";
 import { MapPin, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import { DateRange, type Range } from "react-date-range";
+import AddGuest from "../AddGuest";
 import {
   Accordion,
   AccordionContent,
@@ -22,20 +23,7 @@ import {
   AccordionTrigger,
 } from "../ui/accordion";
 import { Input } from "../ui/input";
-
-export interface Query {
-  location: {
-    name: string;
-    lat: number;
-    lng: number;
-  };
-  guest: {
-    adults: number;
-    children: number;
-    infants: number;
-    pets: number;
-  };
-}
+import type { Query } from "./SearchBar";
 
 const MobileSearchForm = () => {
   const [activeStep, setActiveStep] = useState<"where" | "date" | "guests">(
@@ -111,8 +99,6 @@ const MobileSearchForm = () => {
     throw new Error("something went wrong");
   }
 
-  console.log(activeStep);
-
   return (
     <div>
       <Drawer>
@@ -124,16 +110,16 @@ const MobileSearchForm = () => {
         <DrawerContent>
           <div className="mx-auto w-full max-w-lg">
             <DrawerHeader>
-              <DrawerTitle>Move Goal</DrawerTitle>
+              <DrawerTitle>RoamInn</DrawerTitle>
               <DrawerDescription>
-                Set your daily activity goal.
+                Search best accommodation for you.
               </DrawerDescription>
             </DrawerHeader>
-            <div className="w-full flex flex-col">
+            <div className="w-full flex flex-col mb-2">
               <Accordion
                 type="single"
                 collapsible
-                className="w-full max-w-lg mx-auto flex flex-col gap-3"
+                className="w-[94%] max-w-lg mx-auto flex flex-col gap-3"
               >
                 {/* Step 1: Where */}
                 <AccordionItem
@@ -237,7 +223,7 @@ const MobileSearchForm = () => {
                 {/* Step 3: Guests */}
                 <AccordionItem
                   value="step-guests"
-                  className={`border ${
+                  className={`border mb-2 ${
                     activeStep === "guests" ? "shadow-md" : ""
                   } px-6 rounded-2xl`}
                 >
@@ -265,204 +251,16 @@ const MobileSearchForm = () => {
                     })()}
                   </AccordionTrigger>
                   <AccordionContent>
-                    <div className="w-full">
-                      <div className="w-full flex justify-between items-center h-18">
-                        <div>
-                          <h3 className="font-bold">Adults</h3>
-                          <p className="text-gray-400 text-xs">
-                            Ages 13 or above
-                          </p>
-                        </div>
-                        <div className="flex gap-3 justify-center items-center">
-                          <Button
-                            className={`bg-transparent text-black hover:text-white border-2 border-black px-3 w-2 h-7 ${
-                              query.guest.adults === 0
-                                ? "border-gray-400 text-gray-400"
-                                : null
-                            }`}
-                            disabled={query.guest.adults === 0}
-                            onClick={() =>
-                              setQuery((prev) => ({
-                                ...prev,
-                                guest: {
-                                  ...prev.guest,
-                                  adults: query.guest.adults - 1,
-                                },
-                              }))
-                            }
-                          >
-                            -
-                          </Button>
-                          <p className="text-sm">{query.guest.adults}</p>
-                          <Button
-                            className={`bg-transparent text-black hover:text-white border-2 border-black px-3 w-2 h-7 `}
-                            onClick={() =>
-                              setQuery((prev) => ({
-                                ...prev,
-                                guest: {
-                                  ...prev.guest,
-                                  adults: query.guest.adults + 1,
-                                },
-                              }))
-                            }
-                          >
-                            +
-                          </Button>
-                        </div>
-                      </div>
-
-                      <div className="w-full flex justify-between items-center h-18">
-                        <div>
-                          <h3 className="font-bold">children</h3>
-                          <p className="text-gray-400 text-xs">Ages 2–12</p>
-                        </div>
-                        <div className="flex gap-3 justify-center items-center">
-                          <Button
-                            className={`bg-transparent text-black hover:text-white border-2 border-black px-3 w-2 h-7 ${
-                              query.guest.children === 0
-                                ? "border-gray-400 text-gray-400"
-                                : null
-                            }`}
-                            disabled={query.guest.children === 0}
-                            onClick={() =>
-                              setQuery((prev) => ({
-                                ...prev,
-                                guest: {
-                                  ...prev.guest,
-                                  children: query.guest.children - 1,
-                                },
-                              }))
-                            }
-                          >
-                            -
-                          </Button>
-                          <p className="text-sm">{query.guest.children}</p>
-                          <Button
-                            className={`bg-transparent text-black hover:text-white border-2 border-black px-3 w-2 h-7 `}
-                            onClick={() =>
-                              setQuery((prev) => ({
-                                ...prev,
-                                guest: {
-                                  ...prev.guest,
-                                  children: query.guest.children + 1,
-                                },
-                              }))
-                            }
-                          >
-                            +
-                          </Button>
-                        </div>
-                      </div>
-
-                      <div className="w-full flex justify-between items-center h-18">
-                        <div>
-                          <h3 className="font-bold">Infants</h3>
-                          <p className="text-gray-400 text-xs">Under 2</p>
-                        </div>
-                        <div className="flex gap-3 justify-center items-center">
-                          <Button
-                            className={`bg-transparent text-black hover:text-white border-2 border-black px-3 w-2 h-7 ${
-                              query.guest.infants === 0
-                                ? "border-gray-400 text-gray-400"
-                                : null
-                            }`}
-                            disabled={query.guest.infants === 0}
-                            onClick={() =>
-                              setQuery((prev) => ({
-                                ...prev,
-                                guest: {
-                                  ...prev.guest,
-                                  infants: query.guest.infants - 1,
-                                },
-                              }))
-                            }
-                          >
-                            -
-                          </Button>
-                          <p className="text-sm">{query.guest.infants}</p>
-                          <Button
-                            className={`bg-transparent text-black hover:text-white border-2 border-black px-3 w-2 h-7 `}
-                            onClick={() =>
-                              setQuery((prev) => ({
-                                ...prev,
-                                guest: {
-                                  ...prev.guest,
-                                  infants: query.guest.infants + 1,
-                                },
-                              }))
-                            }
-                          >
-                            +
-                          </Button>
-                        </div>
-                      </div>
-
-                      <div className="w-full flex justify-between items-center h-18">
-                        <div>
-                          <h3 className="font-bold">Pets</h3>
-                          <p className="text-gray-400 text-xs">
-                            Bringing a service animal
-                          </p>
-                        </div>
-                        <div className="flex gap-3 justify-center items-center">
-                          <Button
-                            className={`bg-transparent text-black hover:text-white border-2 border-black px-3 w-2 h-7 ${
-                              query.guest.pets === 0
-                                ? "border-gray-400 text-gray-400"
-                                : null
-                            }`}
-                            disabled={query.guest.pets === 0}
-                            onClick={() =>
-                              setQuery((prev) => ({
-                                ...prev,
-                                guest: {
-                                  ...prev.guest,
-                                  pets: query.guest.pets - 1,
-                                },
-                              }))
-                            }
-                          >
-                            -
-                          </Button>
-                          <p className="text-sm">{query.guest.pets}</p>
-                          <Button
-                            className={`bg-transparent text-black hover:text-white border-2 border-black px-3 w-2 h-7 `}
-                            onClick={() =>
-                              setQuery((prev) => ({
-                                ...prev,
-                                guest: {
-                                  ...prev.guest,
-                                  pets: query.guest.pets + 1,
-                                },
-                              }))
-                            }
-                          >
-                            +
-                          </Button>
-                        </div>
-                      </div>
-                      <Button
-                        onClick={() =>
-                          setQuery((prev) => ({
-                            ...prev,
-                            guest: {
-                              adults: 0,
-                              children: 0,
-                              infants: 0,
-                              pets: 0,
-                            },
-                          }))
-                        }
-                      >
-                        Reset
-                      </Button>
-                    </div>
+                    <AddGuest query={query} setQuery={setQuery} />
                   </AccordionContent>
                 </AccordionItem>
               </Accordion>
             </div>
             <DrawerFooter>
-              <Button>Submit</Button>
+              <Button className="bg-red-500 hover:bg-red-600">
+                <Search />
+                Seach
+              </Button>
               <DrawerClose asChild>
                 <Button variant="outline">Cancel</Button>
               </DrawerClose>

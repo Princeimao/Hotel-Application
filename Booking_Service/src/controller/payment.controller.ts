@@ -54,40 +54,40 @@ export const madePayment = async (req: Request, res: Response) => {
       return;
     }
 
-    // Finding the Booking Intent
-    const bookingIntent = await bookingIntentModel.findById(sessionId);
-    if (!bookingIntent || !bookingIntent.guests) {
-      res.status(500).json({
-        success: false,
-        message:
-          "Internal Server error, booking faild - Booking Intent not found",
-      });
-      return;
-    }
+    // // Finding the Booking Intent
+    // const bookingIntent = await bookingIntentModel.findById(sessionId);
+    // if (!bookingIntent || !bookingIntent.guests) {
+    //   res.status(500).json({
+    //     success: false,
+    //     message:
+    //       "Internal Server error, booking faild - Booking Intent not found",
+    //   });
+    //   return;
+    // }
 
-    // Creating Booking as Pending
-    const booking = await bookingModel.create({
-      firstName: bookingIntent.firstName,
-      lastName: bookingIntent.lastName,
-      email: bookingIntent.email,
-      country: bookingIntent.country,
-      phone: bookingIntent.phone,
-      bookingFor: bookingIntent.bookingFor,
-      checkOut: bookingIntent.checkOut,
-      coupon: false,
-      bookingStatus: "pending",
-      specialRequest: bookingIntent.specialRequest,
-      isPaid: true,
-      paymentId: merchantOrderId,
-      totalPrice: amount,
-      guests: {
-        adults: bookingIntent?.guests,
-        children: bookingIntent?.guests,
-        infants: bookingIntent?.guests,
-        pets: bookingIntent?.guests,
-      },
-      roomId: bookingIntent.roomId,
-    });
+    // // Creating Booking as Pending
+    // const booking = await bookingModel.create({
+    //   firstName: bookingIntent.firstName,
+    //   lastName: bookingIntent.lastName,
+    //   email: bookingIntent.email,
+    //   country: bookingIntent.country,
+    //   phone: bookingIntent.phone,
+    //   bookingFor: bookingIntent.bookingFor,
+    //   checkOut: bookingIntent.checkOut,
+    //   coupon: false,
+    //   bookingStatus: "pending",
+    //   specialRequest: bookingIntent.specialRequest,
+    //   isPaid: true,
+    //   paymentId: merchantOrderId,
+    //   totalPrice: amount,
+    //   guests: {
+    //     adults: bookingIntent?.guests,
+    //     children: bookingIntent?.guests,
+    //     infants: bookingIntent?.guests,
+    //     pets: bookingIntent?.guests,
+    //   },
+    //   roomId: bookingIntent.roomId,
+    // });
 
     // MAKING PAYMENT
 
@@ -101,7 +101,7 @@ export const madePayment = async (req: Request, res: Response) => {
           type: "PG_CHECKOUT",
           message: "Payment message used for collect requests",
           merchantUrls: {
-            redirectUrl: `http://localhost/3000/api/v1/booking/payment/callback/${merchantOrderId}`,
+            redirectUrl: `${process.env.GATEWAY_URL}/api/v1/booking/payment/callback/${merchantOrderId}`,
           },
         },
       },

@@ -1,16 +1,15 @@
-import fs from "fs";
-import path from "path";
-import { dbConnection } from "../../db/mongo.connection";
+import { PrismaClient } from "@prisma/client";
+import "dotenv/config";
 import { getRabbitMqChannel } from "../../db/rabbitMq.connection";
-import roomModel from "../../models/room.model";
-import { imageKitUpload } from "../../utils/imageKit";
 
-const uploadRoomImage = async () => {
+const prisma = new PrismaClient({
+  log: ["error", "warn"],
+});
+
+const addListing = async () => {
   console.log("Image uploading worker is running");
   try {
     const channel = await getRabbitMqChannel();
-    await dbConnection();
-    const imagePath = path.join(process.cwd(), "temp-file-store");
 
     channel.assertQueue("room-queue", {
       durable: true,
@@ -25,25 +24,20 @@ const uploadRoomImage = async () => {
           throw new Error("something went wrong - send sms worker");
         }
 
-        const msg: { roomId: string } = JSON.parse(message.content.toString());
-        const imagesFolder = path.join(imagePath, msg.roomId);
-
-        const images = fs.readdirSync(imagesFolder);
-        const imagesUrl = await imageKitUpload(images, msg.roomId);
-
-        await roomModel.updateOne(
-          {
-            _id: msg.roomId,
-          },
-          {
-            $set: {
-              photo: imagesUrl,
-            },
-          },
-          { upsert: true }
+        const msg: { hostId: string; roomId: string } = JSON.parse(
+          message.content.toString()
         );
 
-        fs.rmSync(imagesFolder, { recursive: true, force: true });
+        await prisma.host.update({
+          where: {
+            id: msg.hostId,
+          },
+          data: {
+            accommodationId: {
+              push: msg.roomId,
+            },
+          },
+        });
 
         channel.ack(message);
       } catch (error) {
@@ -63,4 +57,4 @@ const uploadRoomImage = async () => {
   }
 };
 
-uploadRoomImage();
+addListing();

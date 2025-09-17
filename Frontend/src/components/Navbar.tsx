@@ -22,7 +22,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import MobileSearchForm from "./forms/MobileSearchForm";
 import SearchBar from "./forms/SearchBar";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
@@ -64,28 +64,30 @@ const Navbar = ({ authLayout }: Props) => {
 
   return (
     <div className="w-full h-20 bg-secondary flex items-center justify-between px-4 sm:px-6">
-      <div className="flex items-center gap-2">
-        <svg
-          width="35"
-          height="35"
-          viewBox="0 0 128 128"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M64 8C37 8 16 29 16 56.5C16 84 64 120 64 120C64 120 112 84 112 56.5C112 29 91 8 64 8Z
-           M64 30C55 30 48 37 48 46V74H80V46C80 37 73 30 64 30Z"
-            stroke="#fb2c36"
-            strokeWidth="8"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+      <Link to={"/"}>
+        <div className="flex items-center gap-2">
+          <svg
+            width="35"
+            height="35"
+            viewBox="0 0 128 128"
             fill="none"
-          />
-        </svg>
-        {isMobileView ? null : (
-          <h1 className="font-bold text-xl text-red-500">roamInn</h1>
-        )}
-      </div>
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M64 8C37 8 16 29 16 56.5C16 84 64 120 64 120C64 120 112 84 112 56.5C112 29 91 8 64 8Z
+           M64 30C55 30 48 37 48 46V74H80V46C80 37 73 30 64 30Z"
+              stroke="#fb2c36"
+              strokeWidth="8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              fill="none"
+            />
+          </svg>
+          {isMobileView ? null : (
+            <h1 className="font-bold text-xl text-red-500">roamInn</h1>
+          )}
+        </div>
+      </Link>
 
       {!authLayout && !isMobileView && <SearchBar />}
 
@@ -224,13 +226,19 @@ const Navbar = ({ authLayout }: Props) => {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   className="py-4"
-                  onClick={() => navigate("/userSignup")}
+                  onClick={() =>
+                    navigate(
+                      `/hostSignup/?${new URLSearchParams({
+                        redirect: "become-a-host",
+                      })}`
+                    )
+                  }
                 >
                   <MapPinHouse /> Become a host
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   className="py-4"
-                  onClick={() => navigate("/userSignin")}
+                  onClick={() => navigate("/hostSignin")}
                 >
                   <UserRoundCheck />
                   Host Login
@@ -238,7 +246,7 @@ const Navbar = ({ authLayout }: Props) => {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   className="py-4"
-                  onClick={() => navigate("/userSignin")}
+                  onClick={() => navigate("/")}
                 >
                   <BadgeQuestionMark /> Help Center
                 </DropdownMenuItem>

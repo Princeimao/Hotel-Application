@@ -19,7 +19,7 @@ import { getRabbitMqChannel } from "../db/rabbitMq.connection";
 
 export const producer = async (
   queue: string,
-  msg: string
+  msg: object
 ): Promise<Boolean> => {
   try {
     const channel = await getRabbitMqChannel();

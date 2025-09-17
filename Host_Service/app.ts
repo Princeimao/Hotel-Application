@@ -9,7 +9,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173",
-      "https://authorization-sticks-champions-circle.trycloudflare.com",
+      "https://electrical-showers-royalty-surfing.trycloudflare.com",
     ],
     credentials: true,
   })
