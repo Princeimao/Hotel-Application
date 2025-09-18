@@ -3,6 +3,9 @@ import RoomCard from "@/components/RoomCard";
 import type { Recommendation } from "@/types/host.types";
 import { Loader } from "lucide-react";
 import { useEffect, useState } from "react";
+// @ts-ignore
+import "swiper/css";
+import { Swiper, SwiperSlide } from "swiper/react";
 
 const Home = () => {
   const [accommodations, setAccommodations] = useState<Recommendation[] | null>(
@@ -41,17 +44,20 @@ const Home = () => {
             <Loader className="animate-spin" />
           </div>
         ) : (
-          accommodations.map((accommodation) => (
-            <RoomCard
-              key={accommodation._id}
-              adults={accommodation.adultOccupancy}
-              childs={accommodation.childrenOccupancy}
-              city={accommodation.location.city}
-              price={accommodation.basePrice}
-              id={accommodation._id}
-              photo={accommodation.photo[0]}
-            />
-          ))
+          <Swiper spaceBetween={10} slidesPerView={7}>
+            {accommodations.map((accommodation) => (
+              <SwiperSlide key={accommodation._id}>
+                <RoomCard
+                  adults={accommodation.adultOccupancy}
+                  childs={accommodation.childrenOccupancy}
+                  city={accommodation.location.city}
+                  price={accommodation.basePrice}
+                  id={accommodation._id}
+                  photo={accommodation.photo[0]}
+                />
+              </SwiperSlide>
+            ))}
+          </Swiper>
         )}
       </div>
     </div>

@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "cross-env NODE_ENV=development npx nodemon ./dist/index.js",
+    "dev": "cross-env NODE_ENV=development npx ts-node-dev --respawn --transpile-only index.ts",
     "start": "cross-env NODE_ENV=production node ./dist/index.js",
-    "worker": "cross-env NODE_ENV=development ts-node ./src/rabbitMq/consumers/uploadImage.consumer.ts"
+    "worker": "npx ts-node-dev --respawn --transpile-only ./src/rabbitMq/consumers/uploadImage.consumer.ts"
   },
   "keywords": [],
   "author": "",
@@ -25,7 +25,6 @@
     "multer": "^2.0.2",
     "nanoid": "^5.1.5",
     "redis": "^5.5.6",
-    "ts-node": "^10.9.2",
     "uuid": "^11.1.0",
     "zod": "^3.25.67"
   },

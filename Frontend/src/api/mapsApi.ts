@@ -1,4 +1,8 @@
-import type { UserLocation } from "@/types/maps.types";
+import type {
+  AddressValidation,
+  ForwardGeocode,
+  UserLocation,
+} from "@/types/maps.types";
 import axios from "axios";
 
 const endPoint = import.meta.env.VITE_OLAMAPS_ENDPOINT;
@@ -10,7 +14,7 @@ export const searchSuggestion = async (
 ) => {
   try {
     const response = await axios.get(
-      `${endPoint}?input=${new URLSearchParams({
+      `${endPoint}/places/v1/autocomplete?input=${new URLSearchParams({
         input: location,
         location: `${lat},${long}`,
       })}&api_key=${import.meta.env.VITE_OLAMAPS_API_KEY}`
@@ -31,7 +35,6 @@ export const getUserLocation = async (): Promise<
   const cachedLoaction = sessionStorage.getItem("userLocation");
 
   if (cachedLoaction) {
-    console.log("here 1");
     return JSON.parse(cachedLoaction);
   }
 
@@ -56,5 +59,65 @@ export const getUserLocation = async (): Promise<
   } catch (error) {
     console.error("Failed to get location", error);
     return null;
+  }
+};
+
+export const addressCheck = async (
+  address: any
+): Promise<{
+  success: boolean;
+  message: string;
+  vaidation?: AddressValidation;
+}> => {
+  try {
+    const {
+      flatNo,
+      street,
+      nearbyLandmark,
+      locality,
+      country,
+      state,
+      city,
+      pincode,
+    } = address;
+    const response = await axios.get(
+      `${endPoint}/places/v1/addressvalidation?${new URLSearchParams({
+        address: `${flatNo} ${street} ${nearbyLandmark} ${locality}  ${country} ${state} ${city} ${pincode}`,
+      })}&api_key=${import.meta.env.VITE_OLAMAPS_API_KEY}`
+    );
+
+    console.log(response.data);
+    return response.data;
+  } catch (error) {
+    console.log("something went wrong while verifying the address", error);
+    return {
+      success: false,
+      message: "something went wrong while verifying the address",
+    };
+  }
+};
+
+export const forwardGeoCode = async (
+  address: string
+): Promise<{
+  success: boolean;
+  message: string;
+  resut?: ForwardGeocode;
+}> => {
+  try {
+    const response = await axios.get(
+      `${endPoint}/places/v1/geocode?${new URLSearchParams({
+        address: address,
+      })}&api_key=${import.meta.env.VITE_OLAMAPS_API_KEY}`
+    );
+
+    console.log(response.data);
+    return response.data;
+  } catch (error) {
+    console.log("something went wrong getting forward geo code", error);
+    return {
+      success: false,
+      message: "something went wrong while verifying the address",
+    };
   }
 };

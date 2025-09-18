@@ -99,7 +99,7 @@ const UserDetailForm = () => {
 
   return (
     <div className="w-full min-h-screen flex justify-center items-center">
-      <div className="w-110 h-120 ">
+      <div className="w-110 h-120 px-10">
         <div className="mx-auto w-16 flex items-center justify-center mb-2">
           <svg
             width="35"

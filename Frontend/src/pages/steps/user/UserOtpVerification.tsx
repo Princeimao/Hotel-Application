@@ -13,16 +13,17 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import {
   InputOTP,
   InputOTPGroup,
+  InputOTPSeparator,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
 import { login } from "@/context/features/UserContext";
 import { OptValidation } from "@/validation";
+import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
@@ -46,13 +47,14 @@ const UserOtpVerification = ({ type }: { type: string }) => {
       otp: "",
     },
   });
+  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     async function session() {
       console.log(sessionId);
       if (!sessionId) {
         console.log("session id not found");
-        // navigate("/404");
+        navigate("/404");
         return;
       }
       const response = await sessionIdVerify(sessionId);
@@ -73,6 +75,7 @@ const UserOtpVerification = ({ type }: { type: string }) => {
           console.log("Phone number not found - host otp verification");
           return;
         }
+        setLoading(true);
         const response = await userSignupVerify(Number(data.otp), phone);
 
         if (response.success !== true) {
@@ -84,11 +87,13 @@ const UserOtpVerification = ({ type }: { type: string }) => {
         }
 
         navigate(`/userDetails/?sessionId=${sessionId}`);
+        setLoading(false);
       } else {
         if (!phone) {
           console.log("Phone number not found - user otp verification");
           return;
         }
+        setLoading(true);
         const response = await userSigninVerify(Number(data.otp), phone);
 
         if (response.success !== true) {
@@ -122,10 +127,11 @@ const UserOtpVerification = ({ type }: { type: string }) => {
           queryParams.bookingSession = bookingSession;
         }
 
+        setLoading(false);
         if (redirect_url) {
           navigate(`/${redirect_url}/?${new URLSearchParams(queryParams)}`);
         } else {
-          navigate("/")
+          navigate("/");
         }
       }
     } catch (error) {
@@ -161,7 +167,13 @@ const UserOtpVerification = ({ type }: { type: string }) => {
           </div>
           <span className="sr-only">RoamInn</span>
         </Link>
-        <h1 className="text-xl font-bold text-red-500">Welcome to RoamInn</h1>
+        <h1 className="text-xl font-bold text-red-500 h-4">
+          Enter your 6-digti code
+        </h1>
+        <p className="text-sm text-gray-500 text-center">
+          We sent a verification code to you phone number <br /> +91-1234567891{" "}
+          {phone}
+        </p>
       </div>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -169,15 +181,20 @@ const UserOtpVerification = ({ type }: { type: string }) => {
             control={form.control}
             name="otp"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel>One-Time Password</FormLabel>
-                <FormControl>
+              <FormItem className="flex-col justify-center items-center">
+                <FormControl className="flex justify-between items-center">
                   <InputOTP maxLength={6} {...field}>
                     <InputOTPGroup>
                       <InputOTPSlot index={0} />
                       <InputOTPSlot index={1} />
+                    </InputOTPGroup>
+                    <InputOTPSeparator />
+                    <InputOTPGroup>
                       <InputOTPSlot index={2} />
                       <InputOTPSlot index={3} />
+                    </InputOTPGroup>
+                    <InputOTPSeparator />
+                    <InputOTPGroup>
                       <InputOTPSlot index={4} />
                       <InputOTPSlot index={5} />
                     </InputOTPGroup>
@@ -187,9 +204,18 @@ const UserOtpVerification = ({ type }: { type: string }) => {
               </FormItem>
             )}
           />
-          <Button type="submit">Submit</Button>
+          <Button className="w-full bg-red-500 hover:bg-red-600" type="submit">
+            {loading ? <Loader2 className="animate-spin" /> : "Verify"}
+          </Button>
         </form>
       </Form>
+      <div className="flex flex-col items-center gap-2">
+        <p className="text-sm text-gray-500 text-center">
+          I Did't Receive a Code!
+        </p>
+        {/* Have to add the api call to resend the otp */}
+        <p className="text-sm text-red-500 text-center">Resend</p>
+      </div>
     </div>
   );
 };

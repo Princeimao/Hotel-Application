@@ -7,7 +7,7 @@ const prisma = new PrismaClient({
 });
 
 const addListing = async () => {
-  console.log("Image uploading worker is running");
+  console.log("add listing worker is running");
   try {
     const channel = await getRabbitMqChannel();
 
@@ -43,7 +43,7 @@ const addListing = async () => {
       } catch (error) {
         console.error("Error processing message:", error);
         if (!message) {
-          throw new Error("something went wrong - message service");
+          throw new Error("something went wrong - Host service");
         }
 
         channel.nack(message, false, false);
@@ -51,7 +51,7 @@ const addListing = async () => {
     });
   } catch (error) {
     console.log(
-      "something went while consuming message uploadImages - message service",
+      "something went while consuming message addListing - Host Service",
       error
     );
   }

@@ -40,11 +40,13 @@ const Structure = () => {
 
   return (
     <div className="w-full h-[80%]">
-      <div className="w-full h-[100%] flex flex-col items-center justify-center">
+      <div
+        className={`w-full h-[100%] flex flex-col items-center justify-center`}
+      >
         <h1 className="text-xl font-bold">
           Which of these best describe your place?
         </h1>
-        <div className="w-130 mt-4 flex flex-wrap gap-2.5">
+        <div className="md:w-130 sm:w-auto mt-4 flex flex-wrap gap-2.5 md:px-0 px-5">
           {structureMap.map((accommodation) => (
             <Button
               key={accommodation.label}

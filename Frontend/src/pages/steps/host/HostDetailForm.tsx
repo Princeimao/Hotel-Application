@@ -96,7 +96,7 @@ const HostDetailForm = () => {
 
   return (
     <div className="w-full min-h-screen flex justify-center items-center">
-      <div className="w-110 h-120 ">
+      <div className="w-110 h-120 px-10">
         <div className="mx-auto w-16 flex items-center justify-center mb-2">
           <svg
             width="35"
@@ -123,7 +123,7 @@ const HostDetailForm = () => {
           We need some basic information to personalize your experience
         </p>
 
-        <div className="form mt-3">
+        <div className="mt-3">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
               <FormField
@@ -170,7 +170,7 @@ const HostDetailForm = () => {
                       <SelectContent>
                         <SelectItem value="MALE">Male</SelectItem>
                         <SelectItem value="FEMALE">Female</SelectItem>
-                        <SelectItem value="Prefer not to say">
+                        <SelectItem value="PREFER_NOT_TO_SAY">
                           Prefer not to say
                         </SelectItem>
                       </SelectContent>

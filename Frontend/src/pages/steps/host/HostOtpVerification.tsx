@@ -13,16 +13,17 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import {
   InputOTP,
   InputOTPGroup,
+  InputOTPSeparator,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
 import { login } from "@/context/features/HostContext";
 import { OptValidation } from "@/validation";
+import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
@@ -36,6 +37,7 @@ const HostOtpVerification = ({ type }: { type: string }) => {
   const sessionId = searchParams.get("sessionId");
   const redirect = searchParams.get("redirect");
   const queryParams: Record<string, string> = {};
+  const [loading, setLoading] = useState<boolean>(false);
 
   const form = useForm<z.infer<typeof OptValidation>>({
     resolver: zodResolver(OptValidation),
@@ -69,6 +71,7 @@ const HostOtpVerification = ({ type }: { type: string }) => {
           console.log("Phone number not found - host otp verification");
           return;
         }
+        setLoading(true);
         const response = await hostSignupVerify(Number(data.otp), phone);
 
         if (response.success !== true) {
@@ -85,11 +88,13 @@ const HostOtpVerification = ({ type }: { type: string }) => {
         }
 
         navigate(`/hostDetails?${new URLSearchParams(queryParams)}`);
+        setLoading(false);
       } else {
         if (!phone) {
           console.log("Phone number not found - host otp verification");
           return;
         }
+        setLoading(true);
         const response = await hostSigninVerify(Number(data.otp), phone);
 
         if (response.success !== true) {
@@ -109,8 +114,8 @@ const HostOtpVerification = ({ type }: { type: string }) => {
 
         dispactch(login({ host, isAuthenticated: true, status: "succeeded" }));
 
-        // have to add redirect via params
         navigate("/");
+        setLoading(false);
       }
     } catch (error) {
       if (type === "signup") {
@@ -145,7 +150,13 @@ const HostOtpVerification = ({ type }: { type: string }) => {
           </div>
           <span className="sr-only">RoamInn</span>
         </Link>
-        <h1 className="text-xl font-bold text-red-500">Welcome to RoamInn</h1>
+        <h1 className="text-xl font-bold text-red-500 h-4">
+          Enter your 6-digti code
+        </h1>
+        <p className="text-sm text-gray-500 text-center">
+          We sent a verification code to you phone number <br /> +91-1234567891{" "}
+          {phone}
+        </p>
       </div>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -153,15 +164,20 @@ const HostOtpVerification = ({ type }: { type: string }) => {
             control={form.control}
             name="otp"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel>One-Time Password</FormLabel>
-                <FormControl>
+              <FormItem className="flex-col justify-center items-center">
+                <FormControl className="flex justify-between items-center">
                   <InputOTP maxLength={6} {...field}>
                     <InputOTPGroup>
                       <InputOTPSlot index={0} />
                       <InputOTPSlot index={1} />
+                    </InputOTPGroup>
+                    <InputOTPSeparator />
+                    <InputOTPGroup>
                       <InputOTPSlot index={2} />
                       <InputOTPSlot index={3} />
+                    </InputOTPGroup>
+                    <InputOTPSeparator />
+                    <InputOTPGroup>
                       <InputOTPSlot index={4} />
                       <InputOTPSlot index={5} />
                     </InputOTPGroup>
@@ -171,9 +187,18 @@ const HostOtpVerification = ({ type }: { type: string }) => {
               </FormItem>
             )}
           />
-          <Button type="submit">Submit</Button>
+          <Button className="w-full bg-red-500 hover:bg-red-600" type="submit">
+            {loading ? <Loader2 className="animate-spin" /> : "Verify"}
+          </Button>
         </form>
       </Form>
+      <div className="flex flex-col items-center gap-2">
+        <p className="text-sm text-gray-500 text-center">
+          I Did't Receive a Code!
+        </p>
+        {/* Have to add the api call to resend the otp */}
+        <p className="text-sm text-red-500 text-center">Resend</p>
+      </div>
     </div>
   );
 };

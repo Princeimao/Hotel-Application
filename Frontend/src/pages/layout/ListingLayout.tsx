@@ -2,12 +2,22 @@ import { Button } from "@/components/ui/button";
 import type { AppDispatch } from "@/context/store";
 import { fetchHost } from "@/context/thunk/HostThunk";
 import { fetchUser } from "@/context/thunk/UserThunk";
-import { useEffect } from "react";
+import { CircleQuestionMark, LogOut } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Outlet, useLocation } from "react-router-dom";
 import { Toaster } from "sonner";
 
 const ListingLayout = () => {
+  const [isMobileView, setIsMobileView] = useState<boolean>(false);
+
+  useEffect(() => {
+    const checkWidth = () => setIsMobileView(window.innerWidth < 1200);
+    checkWidth();
+    window.addEventListener("resize", checkWidth);
+    return () => window.removeEventListener("resize", checkWidth);
+  }, []);
+
   const dispatch = useDispatch<AppDispatch>();
 
   useEffect(() => {
@@ -41,15 +51,15 @@ const ListingLayout = () => {
         <div className="flex gap-3.5">
           {location.pathname === "/become-a-host" ? (
             <Button className="bg-transparent border text-black rounded-2xl hover:text-white">
-              Exit
+              {isMobileView && <LogOut />}
             </Button>
           ) : (
             <>
               <Button className="bg-transparent border text-black rounded-2xl hover:text-white">
-                Questions?
+                {isMobileView ? <CircleQuestionMark /> : "Questions?"}
               </Button>
               <Button className="bg-transparent border text-black rounded-2xl hover:text-white">
-                Save & Exit
+                {isMobileView && <LogOut />}
               </Button>
             </>
           )}
